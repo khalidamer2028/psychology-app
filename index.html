@@ -132,7 +132,7 @@
 
   <div class="card hidden" id="myCasesCard">
     <h3>📂 سجل حالاتي</h3>
-    <button class="secondary" onclick="printMyCasesPDF()" style="margin-bottom:15px;">🖨️ طباعة تقريري (PDF)</button>
+    <button class="secondary" onclick="printMyCasesPDF()" style="margin-bottom:15px;">🖨️ طباعة تقرير</button>
     <div id="myCasesList"></div>
     <button class="secondary" onclick="document.getElementById('myCasesCard').classList.add('hidden')" style="margin-top:15px;">إغلاق</button>
   </div>
@@ -355,44 +355,53 @@ function showMyCases() {
     });
 }
 
-/* 🖨️ طباعة PDF للأخصائي */
+/* 🖨️ طباعة التقرير (بترتيب: الكود - الاسم - الخدمة - المرفق - ثم اسم الأخصائي) */
 function printMyCasesPDF() {
   if (!guide || guideCasesGlobal.length === 0) { alert('لا توجد حالات لطباعتها.'); return; }
   
-  const win = window.open('', '', 'width=800,height=600');
-  let tableRows = guideCasesGlobal.map((c, idx) => `
+  let tableRows = guideCasesGlobal.map((c, idx) => {
+    let attachHtml = 'لا يوجد';
+    if (c.attachments && c.attachments.length > 0) {
+      // بنشوف لو المرفق صورة نطبعها، لو PDF بنكتب اسمه
+      attachHtml = c.attachments.map(a => {
+        if (a.data.startsWith('data:image/')) {
+          return `<img src="${a.data}" style="max-width:100%; max-height:200px; display:block; margin:5px auto; border:1px solid #ccc;">`;
+        } else {
+          return `<div style="font-size:12px; color:#666;">ملف PDF: ${a.name}</div>`;
+        }
+      }).join('');
+    }
+    
+    return `
     <tr>
-      <td>${idx + 1}</td>
+      <td>${c.id}</td>
       <td>${c.clientName}</td>
       <td>${c.service}</td>
-      <td>${c.date}</td>
-      <td>${c.id}</td>
-      <td>${c.attachments.length > 0 ? `<a href="${c.attachments[0].data}" target="_blank">عرض المرفق</a>` : 'لا يوجد'}</td>
+      <td>${attachHtml}</td>
     </tr>
-  `).join('');
+  `}).join('');
 
+  const win = window.open('', '', 'width=800,height=600');
   win.document.write(`
-    <html dir="rtl"><head><title>تقرير الأخصائي</title>
+    <html dir="rtl"><head><title>تقرير الحالات</title>
     <style>
       body{font-family:Tahoma;padding:20px; color:#333;}
       h1{color:#1e6f5c;text-align:center; font-size:24px; font-weight:bold;}
-      .info{display:flex; justify-content:space-between; background:#f4f7f6; padding:15px; border-radius:8px; margin-bottom:20px; font-size:16px; font-weight:bold;}
-      table{width:100%;border-collapse:collapse;margin-top:10px; font-size:15px;}
-      th,td{border:1px solid #ccc;padding:10px;text-align:center; font-weight:bold;}
+      .header{text-align:center; margin-bottom:20px; font-size:16px; font-weight:bold;}
+      table{width:100%;border-collapse:collapse;margin-top:10px; font-size:14px;}
+      th,td{border:1px solid #ccc;padding:10px;text-align:center; font-weight:bold; vertical-align:middle;}
       th{background:#1e6f5c;color:#fff;}
-      .footer{margin-top:20px; text-align:center; font-weight:bold; background:#f4f7f6; padding:15px; border-radius:8px; font-size:18px;}
+      .footer{margin-top:30px; text-align:left; font-weight:bold; font-size:16px; padding:10px;}
     </style></head><body>
-      <h1>تقرير حالات الأخصائي النفسي</h1>
-      <div class="info">
-        <div><b>الاسم:</b> ${guide.name}</div>
-        <div><b>الرقم القومي:</b> ${guide.nationalId}</div>
-        <div><b>الغرفة:</b> ${guide.room}</div>
-      </div>
+      <h1>تقرير الحالات</h1>
       <table>
-        <thead><tr><th>م</th><th>اسم العميل</th><th>الخدمة</th><th>التاريخ</th><th>كود الحالة</th><th>المرفق</th></tr></thead>
+        <thead><tr><th>كود الحالة</th><th>اسم العميل</th><th>الخدمة المقدمة</th><th>المرفق</th></tr></thead>
         <tbody>${tableRows}</tbody>
       </table>
-      <div class="footer">إجمالي الحالات: ${guideCasesGlobal.length}</div>
+      <div class="footer">
+        <b>اسم الأخصائي:</b> ${guide.name}<br>
+        <b>الغرفة:</b> ${guide.room}
+      </div>
     </body></html>
   `);
   win.document.close();
@@ -564,21 +573,4 @@ async function deleteSingleCase(id) {
   if (!confirm('هل أنت متأكد من حذف هذه الحالة نهائياً؟')) return;
   const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
   try {
-    await fetch(apiUrl, {
-      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'deleteCase', caseId: id })
-    });
-    fetchData();
-  } catch (err) { alert('حدث خطأ'); }
-}
-
-async function deleteAllCases() {
-  if (!confirm('⚠️ تحذير: هل أنت متأكد من حذف جميع الحالات نهائياً من الشيت؟ لا يمكن التراجع!')) return;
-  const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
-  try {
-    await fetch(apiUrl, {
-      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'deleteAllCases' })
-    });
-    fetchData();
- 
+    await fetch(apiUrl
