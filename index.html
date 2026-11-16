@@ -5,39 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>الدعم النفسي - مديرية الغربية</title>
 <style>
+  :root {
+    --primary: #1e6f5c; --primary-dark: #145043; --bg: #f4f7f6;
+    --text: #2c3e50; --card-bg: #ffffff; --danger: #e74c3c; --info: #3498db;
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
-  body { background: #f0f4f3; color: #222; padding: 15px; padding-bottom: 30px; }
-  h1 { text-align: center; color: #1e6f5c; margin-bottom: 6px; font-size: 22px; }
+  body { background-color: var(--bg); color: var(--text); padding: 15px; padding-bottom: 50px; }
+  h1 { text-align: center; color: var(--primary); margin-bottom: 6px; font-size: 22px; }
   .subtitle { text-align: center; color: #666; font-size: 13px; margin-bottom: 15px; }
-  .card { background: #fff; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-  .card h3 { color: #1e6f5c; margin-bottom: 10px; font-size: 16px; }
-  label { display: block; margin: 10px 0 5px; font-weight: 600; color: #333; font-size: 14px; }
-  input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; background: #fff; }
-  button { background: #1e6f5c; color: #fff; border: none; padding: 12px 18px; border-radius: 8px; font-size: 15px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: 600; transition: .2s; }
-  button:hover { background: #145043; }
-  button.secondary { background: #6c757d; }
-  button.danger { background: #c0392b; }
-  button.admin { background: #2980b9; }
-  .row { display: flex; gap: 10px; }
+  .card { background: var(--card-bg); border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e1e8e6; }
+  .card h3 { color: var(--primary); margin-bottom: 12px; font-size: 16px; border-bottom: 2px solid #e1e8e6; padding-bottom: 8px; }
+  label { display: block; margin: 10px 0 5px; font-weight: 600; color: #34495e; font-size: 14px; }
+  input, select { width: 100%; padding: 12px; border: 1.5px solid #ccd1d1; border-radius: 8px; font-size: 15px; background: #fff; transition: 0.2s; }
+  input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(30, 111, 92, 0.1); }
+  button { background: var(--primary); color: #fff; border: none; padding: 14px; border-radius: 8px; font-size: 15px; cursor: pointer; margin-top: 15px; width: 100%; font-weight: 600; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+  button:hover { background: var(--primary-dark); }
+  button:disabled { background: #95a5a6; cursor: not-allowed; }
+  button.secondary { background: #7f8c8d; }
+  button.danger { background: var(--danger); }
+  button.danger:hover { background: #c0392b; }
+  button.admin { background: var(--info); }
+  button.small { padding: 6px 12px; font-size: 12px; width: auto; margin: 0; }
+  .row { display: flex; gap: 10px; margin-top: 10px;}
   .row > * { flex: 1; }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px,1fr)); gap: 10px; }
-  .stat { background: linear-gradient(135deg,#1e6f5c,#2a9d8f); color: #fff; border-radius: 10px; padding: 12px; text-align: center; }
-  .stat .num { font-size: 20px; font-weight: 700; }
-  .stat .lbl { font-size: 11px; opacity: .9; margin-top: 3px; }
-  .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  @media (max-width:500px) { .filters { grid-template-columns: 1fr; } }
-  .visit { border-right: 4px solid #1e6f5c; background: #f8fbfa; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
-  .visit h3 { font-size: 16px; color: #1e6f5c; margin-bottom: 6px; }
-  .visit p { font-size: 13px; margin: 3px 0; color: #444; }
-  .empty { text-align: center; color: #999; padding: 20px; }
-  .badge { display: inline-block; background: #1e6f5c; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
-  .hidden { display: none; }
-  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
-  .topbar button { width: auto; margin: 0; padding: 8px 14px; font-size: 13px; }
-  .status { font-size: 12px; text-align: center; padding: 6px; border-radius: 6px; margin-top: 8px; }
-  .status.ok { background: #d4edda; color: #155724; }
-  .status.err { background: #f8d7da; color: #721c24; }
-  .status.info { background: #d1ecf1; color: #0c5460; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px,1fr)); gap: 10px; margin-top: 10px;}
+  .stat { background: linear-gradient(135deg, var(--primary), #2a9d8f); color: #fff; border-radius: 10px; padding: 15px 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+  .stat .num { font-size: 24px; font-weight: bold; }
+  .stat .lbl { font-size: 12px; margin-top: 5px; opacity: 0.9; }
+  .visit { border-right: 5px solid var(--primary); background: #f9fbfb; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e1e8e6; position: relative;}
+  .visit h3 { font-size: 16px; color: var(--primary); margin-bottom: 8px; border: none; padding: 0;}
+  .visit p { font-size: 13px; margin: 4px 0; color: #555; }
+  .empty { text-align: center; color: #999; padding: 20px; font-style: italic; }
+  .badge { display: inline-block; background: #e3efec; color: var(--primary); padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; }
+  .hidden { display: none !important; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 8px; }
+  .topbar button { width: auto; margin: 0; padding: 10px 16px; font-size: 13px; }
+  .status { font-size: 13px; text-align: center; padding: 10px; border-radius: 8px; margin-top: 10px; font-weight: bold; }
+  .status.ok { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+  .status.err { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  .status.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+  .case-code { text-align: center; margin-top: 10px; padding: 12px; background: #e3efec; border-radius: 8px; font-weight: bold; color: var(--primary); font-size: 18px; border: 1px dashed var(--primary);}
 </style>
 </head>
 <body>
@@ -80,7 +87,7 @@
 
   <div class="card hidden" id="guideSavedCard">
     <h3>👤 بيانات الأخصائي</h3>
-    <div style="font-size:13px;line-height:1.8;" id="guideInfoText"></div>
+    <div style="font-size:14px;line-height:1.8;" id="guideInfoText"></div>
     <div class="row">
       <button class="secondary" onclick="editGuide()">✏️ تعديل</button>
       <button class="secondary" onclick="showMyCases()">📂 حالاتي</button>
@@ -88,9 +95,9 @@
   </div>
 
   <div class="card" id="addCard" style="display:none;">
-    <h3>📝 حالة جديدة</h3>
+    <h3>📝 تسجيل حالة جديدة</h3>
     <label>اسم العميل (الحالة)</label>
-    <input type="text" id="clientName" placeholder="اسم الحالة">
+    <input type="text" id="clientName" placeholder="اسم رباعي">
 
     <label>الخدمة المقدمة</label>
     <select id="service">
@@ -104,7 +111,7 @@
       <option value="الإرشاد الجمعي">الإرشاد الجمعي</option>
       <option value="التكامل الحسي">التكامل الحسي</option>
       <option value="الاستشارات النفسية">الاستشارات النفسية</option>
-      <option value="أخرى">أخرى (اكتب في الملاحظات)</option>
+      <option value="أخرى">أخرى</option>
     </select>
 
     <label>التاريخ</label>
@@ -115,13 +122,13 @@
 
     <button onclick="addCase()">💾 حفظ الحالة</button>
     <div id="caseStatus" class="status hidden"></div>
-    <div id="caseCodeDisplay" class="hidden" style="text-align:center; margin-top:10px; padding:10px; background:#d4edda; border-radius:8px; font-weight:bold; color:#155724;"></div>
+    <div id="caseCodeDisplay" class="case-code hidden"></div>
   </div>
 
   <div class="card hidden" id="myCasesCard">
     <h3>📂 سجل حالاتي</h3>
     <div id="myCasesList"></div>
-    <button class="secondary" onclick="document.getElementById('myCasesCard').classList.add('hidden')">إغلاق</button>
+    <button class="secondary" onclick="document.getElementById('myCasesCard').classList.add('hidden')" style="margin-top:15px;">إغلاق</button>
   </div>
 </div>
 
@@ -137,11 +144,13 @@
 
   <div id="adminPanel" class="hidden">
     <div class="card">
-      <h3>⚙️ إعدادات</h3>
+      <h3>⚙️ إعدادات النظام</h3>
       <label>رابط Apps Script</label>
       <input type="text" id="apiUrl" placeholder="https://script.google.com/...">
-      <button class="secondary" onclick="saveApiUrl()">💾 حفظ الرابط</button>
-      <button class="secondary" onclick="fetchData()">🔄 تحديث البيانات</button>
+      <div class="row">
+        <button class="secondary" onclick="saveApiUrl()">💾 حفظ الرابط</button>
+        <button class="secondary" onclick="fetchData()">🔄 تحديث</button>
+      </div>
       <div id="fetchStatus" class="status hidden"></div>
     </div>
 
@@ -149,26 +158,27 @@
       <h3>📊 إحصائيات عامة</h3>
       <div class="stats">
         <div class="stat"><div class="num" id="aTotalCases">0</div><div class="lbl">إجمالي الحالات</div></div>
-        <div class="stat"><div class="num" id="aTotalGuides">0</div><div class="lbl">إجمالي الأخصائيين</div></div>
+        <div class="stat"><div class="num" id="aTotalGuides">0</div><div class="lbl">الأخصائيين</div></div>
         <div class="stat"><div class="num" id="aTotalRooms">0</div><div class="lbl">الغرف المفعّلة</div></div>
       </div>
-      <button class="secondary" onclick="printStats()">🖨️ طباعة الإحصائيات</button>
+      <button class="secondary" onclick="printStats()" style="margin-top:15px;">🖨️ طباعة الإحصائيات</button>
+      <button class="danger" onclick="deleteAllCases()" style="margin-top:10px;">🗑️ حذف كل الحالات (تصفير الشيت)</button>
     </div>
 
     <div class="card">
-      <h3>🏥 إحصائيات لكل غرفة</h3>
+      <h3>🏥 إحصائيات الغرف</h3>
       <div id="statsRooms"></div>
     </div>
 
     <div class="card">
-      <h3>🩺 إحصائيات لكل خدمة</h3>
+      <h3>🩺 إحصائيات الخدمات</h3>
       <div id="statsServices"></div>
     </div>
 
     <div class="card">
       <h3>🔍 بحث في الحالات</h3>
       <input type="text" id="searchBox" oninput="renderAdminCases()" placeholder="بحث باسم العميل أو الأخصائي...">
-      <div id="adminList" style="margin-top:10px;"></div>
+      <div id="adminList" style="margin-top:15px;"></div>
     </div>
 
     <button class="secondary" onclick="logoutAdmin()">🚪 خروج</button>
@@ -182,7 +192,7 @@ const LS_ADMIN_PASS = 'psy_admin_v1';
 const DEFAULT_ADMIN_PASS = 'admin123';
 
 /* ⬇️⬇️ تم وضع الرابط الجديد الخاص بك هنا ⬇️⬇️ */
-const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbyLcZsMKk26cbo_Zt6PNjQzoSak8vwZWTR1rjiaoJhSM-kE0r2Pj9npKFPriGmaWXN9/exec'; 
+const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbwypJ00ccSW95IXHlLxc6IKEMjlCNTPVrZgj3vmQljIdQz8Xm-5BXLgHCZ9Ifh7Hic/exec'; 
 
 let guide = JSON.parse(localStorage.getItem(LS_GUIDE) || 'null');
 let adminData = { cases: [], guides: [] };
@@ -206,8 +216,7 @@ async function registerGuide() {
 
   try {
     const res = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ action: 'register', room, nationalId, name })
     });
     const data = await res.json();
@@ -218,10 +227,10 @@ async function registerGuide() {
       refreshGuideUI();
       status.className = 'status ok'; status.textContent = '✅ تم التسجيل بنجاح';
     } else {
-      status.className = 'status err'; status.textContent = '❌ ' + data.error; status.classList.remove('hidden');
+      status.className = 'status err'; status.textContent = '❌ ' + data.error;
     }
   } catch (err) {
-    status.className = 'status err'; status.textContent = '❌ فشل الاتصال'; status.classList.remove('hidden');
+    status.className = 'status err'; status.textContent = '❌ فشل الاتصال، تأكد من الرابط';
   }
 }
 
@@ -249,8 +258,12 @@ function editGuide() {
   document.getElementById('guideName').value = guide?.name || '';
 }
 
+/* ⏳ حجب التاريخ المستقبلي */
 const now = new Date();
-document.getElementById('date').value = now.toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+const todayStr = now.toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+const dateInput = document.getElementById('date');
+dateInput.value = todayStr;
+dateInput.setAttribute('max', todayStr);
 
 /* ================== إضافة حالة ================== */
 async function addCase() {
@@ -276,10 +289,7 @@ async function addCase() {
   }
 
   const payload = {
-    action: 'addCase',
-    nationalId: guide.nationalId,
-    guideName: guide.name,
-    room: guide.room,
+    action: 'addCase', nationalId: guide.nationalId, guideName: guide.name, room: guide.room,
     clientName, service, date, attachments
   };
 
@@ -289,15 +299,14 @@ async function addCase() {
 
   try {
     const res = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     });
     const data = await res.json();
 
     if (data.ok) {
       status.className = 'status ok'; status.textContent = '✅ تم حفظ الحالة بنجاح';
-      codeDisplay.innerHTML = `كود الحالة: <span style="font-size:18px;">${data.caseCode}</span>`;
+      codeDisplay.innerHTML = `كود الحالة: <br><span style="font-size:24px;">${data.caseCode}</span>`;
       codeDisplay.classList.remove('hidden');
       document.getElementById('clientName').value = '';
       document.getElementById('service').value = '';
@@ -322,12 +331,12 @@ function showMyCases() {
     .then(data => {
       if (data.ok) {
         const myCases = data.cases.filter(c => String(c.nationalId) === String(guide.nationalId));
-        if (myCases.length === 0) { list.innerHTML = '<p class="empty">لا توجد حالات مسجلة</p>'; return; }
+        if (myCases.length === 0) { list.innerHTML = '<p class="empty">لا توجد حالات مسجلة لك حتى الآن</p>'; return; }
         list.innerHTML = myCases.map(c => `
           <div class="visit">
             <h3>${c.clientName} <span class="badge">${c.date}</span></h3>
             <p><b>الخدمة:</b> ${c.service}</p>
-            <p><b>الكود:</b> ${c.id}</p>
+            <p><b>كود الحالة:</b> ${c.id}</p>
           </div>
         `).join('');
       }
@@ -391,7 +400,7 @@ async function fetchData() {
       status.className = 'status ok'; status.textContent = `✅ تم تحميل ${data.cases.length} حالة و ${data.guides.length} أخصائي`;
     }
   } catch (err) {
-    status.className = 'status err'; status.textContent = '❌ فشل التحميل';
+    status.className = 'status err'; status.textContent = '❌ فشل التحميل (تأكد من الرابط)';
   }
 }
 
@@ -401,19 +410,18 @@ function updateStats() {
   
   const roomStats = {};
   adminData.cases.forEach(c => { roomStats[c.room] = (roomStats[c.room] || 0) + 1; });
-  const activeRooms = Object.keys(roomStats).length;
-  document.getElementById('aTotalRooms').textContent = activeRooms;
+  document.getElementById('aTotalRooms').textContent = Object.keys(roomStats).length;
 
   document.getElementById('statsRooms').innerHTML = Object.entries(roomStats)
     .sort((a,b) => b[1] - a[1])
-    .map(([room, count]) => `<div class="stat" style="background:#e3efec;color:#1e6f5c;margin-bottom:5px; display:flex; justify-content:space-between; padding:10px;"><span>${room}</span> <b>${count} حالة</b></div>`)
+    .map(([room, count]) => `<div class="stat" style="background:#e3efec;color:#1e6f5c;margin-bottom:8px; display:flex; justify-content:space-between; padding:12px; border-radius:8px; font-size:14px;"><span>${room}</span> <b>${count} حالة</b></div>`)
     .join('') || '<p class="empty">لا توجد بيانات</p>';
 
   const serviceStats = {};
   adminData.cases.forEach(c => { serviceStats[c.service] = (serviceStats[c.service] || 0) + 1; });
   document.getElementById('statsServices').innerHTML = Object.entries(serviceStats)
     .sort((a,b) => b[1] - a[1])
-    .map(([srv, count]) => `<div class="stat" style="background:#f8fbfa;color:#1e6f5c;margin-bottom:5px; display:flex; justify-content:space-between; padding:10px; border:1px solid #ddd;"><span>${srv}</span> <b>${count}</b></div>`)
+    .map(([srv, count]) => `<div class="stat" style="background:#f9fbfb;color:#1e6f5c;margin-bottom:8px; display:flex; justify-content:space-between; padding:12px; border-radius:8px; font-size:14px; border:1px solid #e1e8e6;"><span>${srv}</span> <b>${count}</b></div>`)
     .join('') || '<p class="empty">لا توجد بيانات</p>';
 }
 
@@ -432,9 +440,34 @@ function renderAdminCases() {
       <p><b>الأخصائي:</b> ${c.guideName} (${c.room})</p>
       <p><b>الخدمة:</b> ${c.service}</p>
       <p><b>كود الحالة:</b> ${c.id}</p>
-      ${c.attachments.map(a => `<a href="${a.data}" target="_blank">📎 مرفق</a>`).join('')}
+      ${c.attachments.map(a => `<a href="${a.data}" target="_blank" style="color:#1e6f5c;font-weight:bold;text-decoration:none;">📎 عرض المرفق</a>`).join('')}
+      <button class="danger small" onclick="deleteSingleCase('${c.id}')" style="margin-top:10px;">🗑️ حذف الحالة</button>
     </div>
   `).join('');
+}
+
+async function deleteSingleCase(id) {
+  if (!confirm('هل أنت متأكد من حذف هذه الحالة نهائياً؟')) return;
+  const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
+  try {
+    await fetch(apiUrl, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'deleteCase', caseId: id })
+    });
+    fetchData();
+  } catch (err) { alert('حدث خطأ'); }
+}
+
+async function deleteAllCases() {
+  if (!confirm('⚠️ تحذير: هل أنت متأكد من حذف جميع الحالات نهائياً من الشيت؟ لا يمكن التراجع!')) return;
+  const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
+  try {
+    await fetch(apiUrl, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'deleteAllCases' })
+    });
+    fetchData();
+  } catch (err) { alert('حدث خطأ'); }
 }
 
 function printStats() {
