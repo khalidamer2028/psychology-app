@@ -61,7 +61,7 @@
     <div class="row"><button class="secondary" onclick="editGuide()">✏️ تعديل</button><button class="secondary" onclick="showMyCases()">📂 جلساتي</button></div>
   </div>
 
-  <!-- خانة البحث (اللي كانت ناقصة) -->
+  <!-- 🔍 قسم البحث -->
   <div class="card" id="searchPatientCard" style="display:none;">
     <h3>🔍 بحث عن عميل سابق</h3>
     <div class="row" style="margin-top:0;">
@@ -101,7 +101,7 @@
 
 <script>
 const LS_GUIDE = 'psy_guide_v1'; const LS_API = 'psy_api_v1'; const LS_ADMIN_PASS = 'psy_admin_v1'; const DEFAULT_ADMIN_PASS = 'admin123';
-const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbzOQd-VEbfuKrRIREGBRoXqyijHnNg8CVGXni2niIQ1UzJVyjcB3gBsfBVUrGrx2WZc/exec'; 
+const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbxnzPFOuaGmsrXvm_vpUkZfnP6KFfS5WL-DpM31hGoB_tDcBbEY6fsw3zoeI4fBlGMy/exec'; 
 let guide = JSON.parse(localStorage.getItem(LS_GUIDE) || 'null'); let adminData = { cases: [], guides: [] }; let guideCasesGlobal = [];
 
 async function registerGuide() {
@@ -112,7 +112,7 @@ async function registerGuide() {
   try {
     const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'register', room, nationalId, name }) });
     const data = await res.json();
-    if (data.ok) { guide = { room, nationalId, name }; localStorage.setItem(LS_GUIDE, JSON.stringify(guide)); refreshGuideUI(); status.className = 'status ok'; status.textContent = '✅ تم'; }
+    if (data.ok) { guide = { room, nationalId, name }; localStorage.setItem(LS_GUIDE, JSON.stringify(guide)); refreshGuideUI(); status.className = 'status ok'; status.textContent = '✅ ' + data.message; }
     else { status.className = 'status err'; status.textContent = '❌ ' + data.error; }
   } catch (err) { status.className = 'status err'; status.textContent = '❌ فشل الاتصال'; }
 }
@@ -126,7 +126,14 @@ function refreshGuideUI() {
   } else { setup.classList.remove('hidden'); saved.classList.add('hidden'); addCard.style.display = 'none'; searchCard.style.display = 'none'; label.textContent = '—'; }
 }
 
-function editGuide() { document.getElementById('guideSavedCard').classList.add('hidden'); document.getElementById('guideSetupCard').classList.remove('hidden'); document.getElementById('guideRoom').value = guide?.room || ''; document.getElementById('guideNationalId').value = guide?.nationalId || ''; document.getElementById('guideName').value = guide?.name || ''; }
+function editGuide() { 
+  document.getElementById('guideSavedCard').classList.add('hidden'); 
+  document.getElementById('guideSetupCard').classList.remove('hidden'); 
+  document.getElementById('regStatus').classList.add('hidden'); // إخفاء أي رسالة قديمة
+  document.getElementById('guideRoom').value = guide?.room || ''; 
+  document.getElementById('guideNationalId').value = guide?.nationalId || ''; 
+  document.getElementById('guideName').value = guide?.name || ''; 
+}
 
 const now = new Date(); const todayStr = now.toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' }); const dateInput = document.getElementById('date'); dateInput.value = todayStr; dateInput.setAttribute('max', todayStr);
 
