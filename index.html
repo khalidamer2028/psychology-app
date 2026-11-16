@@ -573,4 +573,28 @@ async function deleteSingleCase(id) {
   if (!confirm('هل أنت متأكد من حذف هذه الحالة نهائياً؟')) return;
   const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
   try {
-    await fetch(apiUrl
+    await fetch(apiUrl, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'deleteCase', caseId: id })
+    });
+    fetchData();
+  } catch (err) { alert('حدث خطأ'); }
+}
+
+async function deleteAllCases() {
+  if (!confirm('⚠️ تحذير: هل أنت متأكد من حذف جميع الحالات نهائياً من الشيت؟ لا يمكن التراجع!')) return;
+  const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
+  try {
+    await fetch(apiUrl, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'deleteAllCases' })
+    });
+    fetchData();
+  } catch (err) { alert('حدث خطأ'); }
+}
+
+/* ================== بدء ================== */
+refreshGuideUI();
+</script>
+</body>
+</html>
