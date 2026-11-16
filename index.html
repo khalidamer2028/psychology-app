@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الدعم النفسي - مديرية الغربية</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+  body { background: #f0f4f3; color: #222; padding: 15px; padding-bottom: 30px; }
+  h1 { text-align: center; color: #1e6f5c; margin-bottom: 6px; font-size: 22px; }
+  .subtitle { text-align: center; color: #666; font-size: 13px; margin-bottom: 15px; }
+  .card { background: #fff; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+  .card h3 { color: #1e6f5c; margin-bottom: 10px; font-size: 16px; }
+  label { display: block; margin: 10px 0 5px; font-weight: 600; color: #333; font-size: 14px; }
+  input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; background: #fff; }
+  button { background: #1e6f5c; color: #fff; border: none; padding: 12px 18px; border-radius: 8px; font-size: 15px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: 600; transition: .2s; }
+  button:hover { background: #145043; }
+  button.secondary { background: #6c757d; }
+  button.danger { background: #c0392b; }
+  button.admin { background: #2980b9; }
+  .row { display: flex; gap: 10px; }
+  .row > * { flex: 1; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px,1fr)); gap: 10px; }
+  .stat { background: linear-gradient(135deg,#1e6f5c,#2a9d8f); color: #fff; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat .num { font-size: 20px; font-weight: 700; }
+  .stat .lbl { font-size: 11px; opacity: .9; margin-top: 3px; }
+  .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width:500px) { .filters { grid-template-columns: 1fr; } }
+  .visit { border-right: 4px solid #1e6f5c; background: #f8fbfa; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
+  .visit h3 { font-size: 16px; color: #1e6f5c; margin-bottom: 6px; }
+  .visit p { font-size: 13px; margin: 3px 0; color: #444; }
+  .empty { text-align: center; color: #999; padding: 20px; }
+  .badge { display: inline-block; background: #1e6f5c; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+  .hidden { display: none; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
+  .topbar button { width: auto; margin: 0; padding: 8px 14px; font-size: 13px; }
+  .status { font-size: 12px; text-align: center; padding: 6px; border-radius: 6px; margin-top: 8px; }
+  .status.ok { background: #d4edda; color: #155724; }
+  .status.err { background: #f8d7da; color: #721c24; }
+  .status.info { background: #d1ecf1; color: #0c5460; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1 style="margin:0;">🧠 الدعم النفسي</h1>
+  <button class="admin" id="adminBtn" onclick="openAdmin()">🔐 مدير</button>
+</div>
+<p class="subtitle" id="guideNameLabel">—</p>
+
+<!-- ============ وضع الأخصائي ============ -->
+<div id="guideMode">
+  <!-- بيانات الأخصائي -->
+  <div class="card" id="guideSetupCard">
+    <h3>👤 بيانات الأخصائي</h3>
+    <label>غرفة الدعم النفسي</label>
+    <select id="guideRoom">
+      <option value="">اختر الغرفة...</option>
+      <option value="المديرية">المديرية</option>
+      <option value="سمنود">سمنود</option>
+      <option value="زفتى">زفتى</option>
+      <option value="بسيون">بسيون</option>
+      <option value="قطور">قطور</option>
+      <option value="كفر الزيات">كفر الزيات</option>
+      <option value="السنطة">السنطة</option>
+      <option value="شرق المحلة">شرق المحلة</option>
+      <option value="غرب المحلة">غرب المحلة</option>
+      <option value="شرق طنطا">شرق طنطا</option>
+      <option value="غرب طنطا">غرب طنطا</option>
+    </select>
+
+    <label>الرقم القومي</label>
+    <input type="text" id="guideNationalId" placeholder="14 رقم" maxlength="14">
+
+    <label>اسم الأخصائي</label>
+    <input type="text" id="guideName" placeholder="الاسم ثلاثي">
+
+    <button onclick="registerGuide()">💾 حفظ البيانات</button>
+    <div id="regStatus" class="status hidden"></div>
+  </div>
+
+  <div class="card hidden" id="guideSavedCard">
+    <h3>👤 بيانات الأخصائي</h3>
+    <div style="font-size:13px;line-height:1.8;" id="guideInfoText"></div>
+    <div class="row">
+      <button class="secondary" onclick="editGuide()">✏️ تعديل</button>
+      <button class="secondary" onclick="showMyCases()">📂 حالاتي</button>
+    </div>
+  </div>
+
+  <!-- إضافة حالة -->
+  <div class="card" id="addCard" style="display:none;">
+    <h3>📝 حالة جديدة</h3>
+    <label>اسم العميل (الحالة)</label>
+    <input type="text" id="clientName" placeholder="اسم الحالة">
+
+    <label>الخدمة المقدمة</label>
+    <select id="service">
+      <option value="">اختر الخدمة...</option>
+      <option value="التخاطب">التخاطب</option>
+      <option value="تعديل السلوك">تعديل السلوك</option>
+      <option value="تنمية المهارات">تنمية المهارات</option>
+      <option value="الإرشاد الفردي">الإرشاد الفردي</option>
+      <option value="الإرشاد الأسري">الإرشاد الأسري</option>
+      <option value="المقاييس والاختبارات">المقاييس والاختبارات</option>
+      <option value="الإرشاد الجمعي">الإرشاد الجمعي</option>
+      <option value="التكامل الحسي">التكامل الحسي</option>
+      <option value="الاستشارات النفسية">الاستشارات النفسية</option>
+      <option value="أخرى">أخرى (اكتب في الملاحظات)</option>
+    </select>
+
+    <label>التاريخ</label>
+    <input type="date" id="date">
+
+    <label>المرفقات (صورة أو PDF)</label>
+    <input type="file" id="files" accept="image/*,application/pdf" multiple>
+
+    <button onclick="addCase()">💾 حفظ الحالة</button>
+    <div id="caseStatus" class="status hidden"></div>
+    <div id="caseCodeDisplay" class="hidden" style="text-align:center; margin-top:10px; padding:10px; background:#d4edda; border-radius:8px; font-weight:bold; color:#155724;"></div>
+  </div>
+
+  <!-- حالاتي -->
+  <div class="card hidden" id="myCasesCard">
+    <h3>📂 سجل حالاتي</h3>
+    <div id="myCasesList"></div>
+    <button class="secondary" onclick="document.getElementById('myCasesCard').classList.add('hidden')">إغلاق</button>
+  </div>
+</div>
+
+<!-- ============ وضع المدير ============ -->
+<div id="adminMode" class="hidden">
+  <div class="card">
+    <h3>🔐 لوحة المدير</h3>
+    <label>كلمة السر</label>
+    <input type="password" id="adminPass" placeholder="أدخل كلمة السر">
+    <button onclick="loginAdmin()">دخول</button>
+    <div id="loginStatus" class="status hidden"></div>
+  </div>
+
+  <div id="adminPanel" class="hidden">
+    <div class="card">
+      <h3>⚙️ إعدادات</h3>
+      <label>رابط Apps Script</label>
+      <input type="text" id="apiUrl" placeholder="https://script.google.com/...">
+      <button class="secondary" onclick="saveApiUrl()">💾 حفظ الرابط</button>
+      <button class="secondary" onclick="fetchData()">🔄 تحديث البيانات</button>
+      <div id="fetchStatus" class="status hidden"></div>
+    </div>
+
+    <div class="card">
+      <h3>📊 إحصائيات عامة</h3>
+      <div class="stats">
+        <div class="stat"><div class="num" id="aTotalCases">0</div><div class="lbl">إجمالي الحالات</div></div>
+        <div class="stat"><div class="num" id="aTotalGuides">0</div><div class="lbl">إجمالي الأخصائيين</div></div>
+        <div class="stat"><div class="num" id="aTotalRooms">0</div><div class="lbl">الغرف المفعّلة</div></div>
+      </div>
+      <button class="secondary" onclick="printStats()">🖨️ طباعة الإحصائيات</button>
+    </div>
+
+    <div class="card">
+      <h3>🏥 إحصائيات لكل غرفة</h3>
+      <div id="statsRooms"></div>
+    </div>
+
+    <div class="card">
+      <h3>🩺 إحصائيات لكل خدمة</h3>
+      <div id="statsServices"></div>
+    </div>
+
+    <div class="card">
+      <h3>🔍 بحث في الحالات</h3>
+      <input type="text" id="searchBox" oninput="renderAdminCases()" placeholder="بحث باسم العميل أو الأخصائي...">
+      <div id="adminList" style="margin-top:10px;"></div>
+    </div>
+
+    <button class="secondary" onclick="logoutAdmin()">🚪 خروج</button>
+  </div>
+</div>
+
+<script>
+const LS_GUIDE = 'psy_guide_v1';
+const LS_API = 'psy_api_v1';
+const LS_ADMIN_PASS = 'psy_admin_v1';
+const DEFAULT_ADMIN_PASS = 'admin123';
+
+/* ⬇️⬇️ تم وضع الرابط الجديد الخاص بك هنا ⬇️⬇️ */
+const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbyuQsZz6HBEL3QZkztQCEeosYZOf-sNKN_29UE-W0ICPpy-cp83DButy2QMms00UMma/exec'; 
+
+let guide = JSON.parse(localStorage.getItem(LS_GUIDE) || 'null');
+let adminData = { cases: [], guides: [] };
+
+/* ================== الأخصائي ================== */
+async function registerGuide() {
+  const room = document.getElementById('guideRoom').value;
+  const nationalId = document.getElementById('guideNationalId').value.trim();
+  const name = document.getElementById('guideName').value.trim();
+  const status = document.getElementById('regStatus');
+
+  if (!room || !nationalId || !name) {
+    status.className = 'status err'; status.textContent = '❌ املأ جميع البيانات'; status.classList.remove('hidden'); return;
+  }
+  if (nationalId.length !== 14) {
+    status.className = 'status err'; status.textContent = '❌ الرقم القومي يجب أن يكون 14 رقم'; status.classList.remove('hidden'); return;
+  }
+
+  status.className = 'status info'; status.textContent = '⏳ جاري التسجيل...'; status.classList.remove('hidden');
+  const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
+
+  try {
+    const res = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'register', room, nationalId, name })
+    });
+    const data = await res.json();
+    
+    if (data.ok) {
+      guide = { room, nationalId, name };
+      localStorage.setItem(LS_GUIDE, JSON.stringify(guide));
+      refreshGuideUI();
+      status.className = 'status ok'; status.textContent = '✅ تم التسجيل بنجاح';
+    } else {
+      status.className = 'status err'; status.textContent = '❌ ' + data.error; status.classList.remove('hidden');
+    }
+  } catch (err) {
+    status.className = 'status err'; status.textContent = '❌ فشل الاتصال'; status.classList.remove('hidden');
+  }
+}
+
+function refreshGuideUI() {
+  const setup = document.getElementById('guideSetupCard');
+  const saved = document.getElementById('guideSavedCard');
+  const addCard = document.getElementById('addCard');
+  const label = document.getElementById('guideNameLabel');
+
+  if (guide) {
+    setup.classList.add('hidden'); saved.classList.remove('hidden'); addCard.style.display = 'block';
+    document.getElementById('guideInfoText').innerHTML = `<b>الغرفة:</b> ${guide.room}<br><b>الأخصائي:</b> ${guide.name}<br><b>الرقم القومي:</b> ${guide.nationalId}`;
+    label.innerHTML = `${guide.room} — <b>${guide.name}</b>`;
+  } else {
+    setup.classList.remove('hidden'); saved.classList.add('hidden'); addCard.style.display = 'none';
+    label.textContent = '—';
+  }
+}
+
+function editGuide() {
+  document.getElementById('guideSavedCard').classList.add('hidden');
+  document.getElementById('guideSetupCard').classList.remove('hidden');
+  document.getElementById('guideRoom').value = guide?.room || '';
+  document.getElementById('guideNationalId').value = guide?.nationalId || '';
+  document.getElementById('guideName').value = guide?.name || '';
+}
+
+const now = new Date();
+document.getElementById('date').value = now.toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+
+/* ================== إضافة حالة ================== */
+async function addCase() {
+  const clientName = document.getElementById('clientName').value.trim();
+  const service = document.getElementById('service').value;
+  const date = document.getElementById('date').value;
+  const status = document.getElementById('caseStatus');
+  const codeDisplay = document.getElementById('caseCodeDisplay');
+  
+  if (!clientName || !service) {
+    status.className = 'status err'; status.textContent = '❌ املأ اسم العميل والخدمة'; status.classList.remove('hidden'); return;
+  }
+
+  const fileInput = document.getElementById('files');
+  const files = Array.from(fileInput.files);
+  const attachments = [];
+
+  for (const file of files) {
+    const data = await new Promise(res => {
+      const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(file);
+    });
+    attachments.push({ name: file.name, type: file.type, data });
+  }
+
+  const payload = {
+    action: 'addCase',
+    nationalId: guide.nationalId,
+    guideName: guide.name,
+    room: guide.room,
+    clientName, service, date, attachments
+  };
+
+  status.className = 'status info'; status.textContent = '⏳ جاري الحفظ...'; status.classList.remove('hidden');
+  codeDisplay.classList.add('hidden');
+  const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
+
+  try {
+    const res = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      status.className = 'status ok'; status.textContent = '✅ تم حفظ الحالة بنجاح';
+      codeDisplay.innerHTML = `كود الحالة: <span style="font-size:18px;">${data.caseCode}</span>`;
+      codeDisplay.classList.remove('hidden');
+      document.getElementById('clientName').value = '';
+      document.getElementById('service').value = '';
+      document.getElementById('files').value = '';
+    } else {
+      status.className = 'status err'; status.textContent = '❌ ' + data.error;
+    }
+  } catch (err) {
+    status.className = 'status err'; status.textContent = '❌ فشل الاتصال';
+  }
+}
+
+function showMyCases() {
+  const card = document.getElementById('myCasesCard');
+  const list = document.getElementById('myCasesList');
+  card.classList.remove('hidden');
+  list.innerHTML = '<p class="empty">جاري التحميل...</p>';
+  
+  const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
+  fetch(apiUrl)
+    .then(res => res.json())
+    .then(data => {
+      if (data.ok) {
+        const myCases = data.cases.filter(c => String(c.nationalId) === String(guide.nationalId));
+        if (myCases.length === 0) { list.innerHTML = '<p class="empty">لا توجد حالات مسجلة</p>'; return; }
+        list.innerHTML = myCases.map(c => `
+          <div class="visit">
+            <h3>${c.clientName} <span class="badge">${c.date}</span></h3>
+            <p><b>الخدمة:</b> ${c.service}</p>
+            <p><b>الكود:</b> ${c.id}</p>
+          </div>
+        `).join('');
+      }
+    });
+}
+
+/* ================== لوحة المدير ================== */
+function openAdmin() {
+  document.getElementById('guideMode').classList.add('hidden');
+  document.getElementById('adminMode').classList.remove('hidden');
+  document.getElementById('adminBtn').textContent = '👤 وضع الأخصائي';
+  document.getElementById('adminBtn').onclick = closeAdmin;
+  document.getElementById('apiUrl').value = localStorage.getItem(LS_API) || '';
+}
+
+function closeAdmin() {
+  document.getElementById('adminMode').classList.add('hidden');
+  document.getElementById('guideMode').classList.remove('hidden');
+  document.getElementById('adminBtn').textContent = '🔐 مدير';
+  document.getElementById('adminBtn').onclick = openAdmin;
+}
+
+function loginAdmin() {
+  const stored = localStorage.getItem(LS_ADMIN_PASS) || DEFAULT_ADMIN_PASS;
+  const input = document.getElementById('adminPass').value;
+  const status = document.getElementById('loginStatus');
+  if (input === stored) {
+    document.getElementById('adminPanel').classList.remove('hidden');
+    status.className = 'status ok'; status.textContent = '✅ تم الدخول'; status.classList.remove('hidden');
+    fetchData();
+  } else {
+    status.className = 'status err'; status.textContent = '❌ كلمة سر خاطئة'; status.classList.remove('hidden');
+  }
+}
+
+function logoutAdmin() {
+  document.getElementById('adminPanel').classList.add('hidden');
+  document.getElementById('adminPass').value = '';
+  document.getElementById('loginStatus').classList.add('hidden');
+}
+
+function saveApiUrl() {
+  const url = document.getElementById('apiUrl').value.trim();
+  if (!url.startsWith('https://script.google.com')) { alert('رابط غير صالح'); return; }
+  localStorage.setItem(LS_API, url);
+  alert('✅ تم حفظ الرابط');
+}
+
+async function fetchData() {
+  const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
+  const status = document.getElementById('fetchStatus');
+  status.className = 'status info'; status.textContent = '⏳ جاري التحديث...'; status.classList.remove('hidden');
+  
+  try {
+    const res = await fetch(apiUrl + '?t=' + Date.now());
+    const data = await res.json();
+    if (data.ok) {
+      adminData = data;
+      updateStats();
+      renderAdminCases();
+      status.className = 'status ok'; status.textContent = `✅ تم تحميل ${data.cases.length} حالة و ${data.guides.length} أخصائي`;
+    }
+  } catch (err) {
+    status.className = 'status err'; status.textContent = '❌ فشل التحميل';
+  }
+}
+
+function updateStats() {
+  document.getElementById('aTotalCases').textContent = adminData.cases.length;
+  document.getElementById('aTotalGuides').textContent = adminData.guides.length;
+  
+  const roomStats = {};
+  adminData.cases.forEach(c => { roomStats[c.room] = (roomStats[c.room] || 0) + 1; });
+  const activeRooms = Object.keys(roomStats).length;
+  document.getElementById('aTotalRooms').textContent = activeRooms;
+
+  document.getElementById('statsRooms').innerHTML = Object.entries(roomStats)
+    .sort((a,b) => b[1] - a[1])
+    .map(([room, count]) => `<div class="stat" style="background:#e3efec;color:#1e6f5c;margin-bottom:5px; display:flex; justify-content:space-between; padding:10px;"><span>${room}</span> <b>${count} حالة</b></div>`)
+    .join('') || '<p class="empty">لا توجد بيانات</p>';
+
+  const serviceStats = {};
+  adminData.cases.forEach(c => { serviceStats[c.service] = (serviceStats[c.service] || 0) + 1; });
+  document.getElementById('statsServices').innerHTML = Object.entries(serviceStats)
+    .sort((a,b) => b[1] - a[1])
+    .map(([srv, count]) => `<div class="stat" style="background:#f8fbfa;color:#1e6f5c;margin-bottom:5px; display:flex; justify-content:space-between; padding:10px; border:1px solid #ddd;"><span>${srv}</span> <b>${count}</b></div>`)
+    .join('') || '<p class="empty">لا توجد بيانات</p>';
+}
+
+function renderAdminCases() {
+  const q = document.getElementById('searchBox').value.trim().toLowerCase();
+  const list = document.getElementById('adminList');
+  const filtered = adminData.cases.filter(c => 
+    c.clientName.toLowerCase().includes(q) || c.guideName.toLowerCase().includes(q)
+  );
+  
+  if (filtered.length === 0) { list.innerHTML = '<p class="empty">لا توجد نتائج</p>'; return; }
+  
+  list.innerHTML = filtered.map(c => `
+    <div class="visit">
+      <h3>${c.clientName} <span class="badge">${c.date}</span></h3>
+      <p><b>الأخصائي:</b> ${c.guideName} (${c.room})</p>
+      <p><b>الخدمة:</b> ${c.service}</p>
+      <p><b>كود الحالة:</b> ${c.id}</p>
+      ${c.attachments.map(a => `<a href="${a.data}" target="_blank">📎 مرفق</a>`).join('')}
+    </div>
+  `).join('');
+}
+
+function printStats() {
+  const win = window.open('', '', 'width=800,height=600');
+  win.document.write(`
+    <html dir="rtl"><head><title>إحصائيات الدعم النفسي</title>
+    <style>body{font-family:Tahoma;padding:20px;} h1{color:#1e6f5c;text-align:center;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ccc;padding:10px;text-align:right;} th{background:#1e6f5c;color:#fff;}</style>
+    </head><body>
+      <h1>تقرير إحصائيات الدعم النفسي - مديرية الغربية</h1>
+      <p><b>التاريخ:</b> ${new Date().toLocaleDateString('ar-EG')}</p>
+      <p><b>إجمالي الحالات:</b> ${adminData.cases.length} | <b>إجمالي الأخصائيين:</b> ${adminData.guides.length}</p>
+      
+      <h3>إحصائيات الغرف</h3>
+      <table><tr><th>الغرفة</th><th>عدد الحالات</th></tr>
+      ${Object.entries(adminData.cases.reduce((acc, c) => { acc[c.room] = (acc[c.room] || 0) + 1; return acc; }, {}))
+        .map(([r, count]) => `<tr><td>${r}</td><td>${count}</td></tr>`).join('')}
+      </table>
+
+      <h3>إحصائيات الخدمات</h3>
+      <table><tr><th>الخدمة</th><th>عدد الحالات</th></tr>
+      ${Object.entries(adminData.cases.reduce((acc, c) => { acc[c.service] = (acc[c.service] || 0) + 1; return acc; }, {}))
+        .map(([s, count]) => `<tr><td>${s}</td><td>${count}</td></tr>`).join('')}
+      </table>
+    </body></html>
+  `);
+  win.document.close();
+  win.print();
+}
+
+/* ================== بدء ================== */
+refreshGuideUI();
+</script>
+</body>
+</html>
