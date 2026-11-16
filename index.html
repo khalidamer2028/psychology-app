@@ -104,9 +104,7 @@
   </div>
 
   <div class="card" id="addCard" style="display:none;">
-    <h3 id="formTitle">📝 تسجيل حالة جديدة</h3>
-    <input type="hidden" id="editCaseId" value="">
-    
+    <h3>📝 تسجيل حالة جديدة</h3>
     <label>اسم العميل (الحالة)</label>
     <input type="text" id="clientName" placeholder="اسم رباعي">
     <label>الخدمة المقدمة</label>
@@ -127,10 +125,7 @@
     <input type="date" id="date">
     <label>المرفقات (صورة أو PDF)</label>
     <input type="file" id="files" accept="image/*,application/pdf" multiple>
-    
-    <button id="saveBtn" onclick="addCase()">💾 حفظ الحالة</button>
-    <button id="cancelEditBtn" class="secondary hidden" onclick="cancelEdit()" style="margin-top:10px;">إلغاء التعديل</button>
-    
+    <button onclick="addCase()">💾 حفظ الحالة</button>
     <div id="caseStatus" class="status hidden"></div>
     <div id="caseCodeDisplay" class="case-code hidden"></div>
   </div>
@@ -208,7 +203,6 @@ const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbxWVFvBPO-KiL7-3M
 let guide = JSON.parse(localStorage.getItem(LS_GUIDE) || 'null');
 let adminData = { cases: [], guides: [] };
 let guideCasesGlobal = [];
-let isEditing = false;
 
 /* ================== الأخصائي ================== */
 async function registerGuide() {
@@ -278,14 +272,13 @@ const dateInput = document.getElementById('date');
 dateInput.value = todayStr;
 dateInput.setAttribute('max', todayStr);
 
-/* ================== إضافة / تعديل حالة ================== */
+/* ================== إضافة حالة ================== */
 async function addCase() {
   const clientName = document.getElementById('clientName').value.trim();
   const service = document.getElementById('service').value;
   const date = document.getElementById('date').value;
   const status = document.getElementById('caseStatus');
   const codeDisplay = document.getElementById('caseCodeDisplay');
-  const editId = document.getElementById('editCaseId').value;
   
   if (!clientName || !service) {
     status.className = 'status err'; status.textContent = '❌ املأ اسم العميل والخدمة'; status.classList.remove('hidden'); return;
@@ -312,13 +305,6 @@ async function addCase() {
   const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
 
   try {
-    if (editId) {
-      await fetch(apiUrl, {
-        method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'deleteCase', caseId: editId })
-      });
-    }
-
     const res = await fetch(apiUrl, {
       method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
@@ -326,50 +312,18 @@ async function addCase() {
     const data = await res.json();
 
     if (data.ok) {
-      status.className = 'status ok'; status.textContent = editId ? '✅ تم تحديث الحالة بنجاح' : '✅ تم حفظ الحالة بنجاح';
+      status.className = 'status ok'; status.textContent = '✅ تم حفظ الحالة بنجاح';
       codeDisplay.innerHTML = `كود الحالة: <br><span style="font-size:24px;">${data.caseCode}</span>`;
       codeDisplay.classList.remove('hidden');
-      
-      cancelEdit();
-      if (!document.getElementById('myCasesCard').classList.contains('hidden')) showMyCases();
+      document.getElementById('clientName').value = '';
+      document.getElementById('service').value = '';
+      document.getElementById('files').value = '';
     } else {
       status.className = 'status err'; status.textContent = '❌ ' + data.error;
     }
   } catch (err) {
     status.className = 'status err'; status.textContent = '❌ فشل الاتصال';
   }
-}
-
-function startEdit(caseId) {
-  const c = guideCasesGlobal.find(x => String(x.id) === String(caseId));
-  if (!c) return;
-
-  isEditing = true;
-  document.getElementById('editCaseId').value = c.id;
-  document.getElementById('clientName').value = c.clientName;
-  document.getElementById('service').value = c.service;
-  document.getElementById('date').value = c.date;
-  
-  document.getElementById('formTitle').textContent = '✏️ تعديل الحالة';
-  document.getElementById('saveBtn').textContent = '🔄 تحديث الحالة';
-  document.getElementById('cancelEditBtn').classList.remove('hidden');
-  
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function cancelEdit() {
-  isEditing = false;
-  document.getElementById('editCaseId').value = '';
-  document.getElementById('clientName').value = '';
-  document.getElementById('service').value = '';
-  document.getElementById('date').value = todayStr;
-  document.getElementById('files').value = '';
-  
-  document.getElementById('formTitle').textContent = '📝 تسجيل حالة جديدة';
-  document.getElementById('saveBtn').textContent = '💾 حفظ الحالة';
-  document.getElementById('cancelEditBtn').classList.add('hidden');
-  document.getElementById('caseStatus').classList.add('hidden');
-  document.getElementById('caseCodeDisplay').classList.add('hidden');
 }
 
 function showMyCases() {
@@ -395,7 +349,6 @@ function showMyCases() {
             <p><b>الخدمة:</b> ${c.service}</p>
             <p><b>كود الحالة:</b> ${c.id}</p>
             ${attachHtml ? `<div style="margin-top:10px;">${attachHtml}</div>` : ''}
-            <button class="secondary small" onclick="startEdit('${c.id}')" style="margin-top:10px;">✏️ تعديل</button>
           </div>
         `}).join('');
       }
@@ -628,11 +581,4 @@ async function deleteAllCases() {
       body: JSON.stringify({ action: 'deleteAllCases' })
     });
     fetchData();
-  } catch (err) { alert('حدث خطأ'); }
-}
-
-/* ================== بدء ================== */
-refreshGuideUI();
-</script>
-</body>
-</html>
+ 
