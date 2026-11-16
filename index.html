@@ -109,7 +109,6 @@
     </div>
   </div>
 
-  <!-- 🔍 قسم البحث عن عميل -->
   <div class="card" id="searchPatientCard" style="display:none;">
     <h3>🔍 بحث عن عميل سابق</h3>
     <div class="row" style="margin-top:0;">
@@ -215,8 +214,8 @@ const LS_API = 'psy_api_v1';
 const LS_ADMIN_PASS = 'psy_admin_v1';
 const DEFAULT_ADMIN_PASS = 'admin123';
 
-/* ⬇️⬇️ ضع الرابط الجديد هنا ⬇️⬇️ */
-const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbxGDS_EpO8tPVydpq00o3Km8m8t5bSiB4pk-K21yaO7I0EQrf5Xacjiy-QDuT3OyIJq/exec'; 
+/* ⬇️⬇️ تم وضع الرابط الجديد الخاص بك هنا ⬇️⬇️ */
+const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbwId4D-vvcwcgsKEG98ZHgWi_x89yi-Modz5o6NDANq_rXDmCsaqeqrr-e91m4Ou3PO/exec'; 
 
 let guide = JSON.parse(localStorage.getItem(LS_GUIDE) || 'null');
 let adminData = { cases: [], guides: [] };
@@ -292,7 +291,7 @@ const dateInput = document.getElementById('date');
 dateInput.value = todayStr;
 dateInput.setAttribute('max', todayStr);
 
-/* ================== ضغط الصور (للسرعة) ================== */
+/* ================== ضغط الصور ================== */
 function compressImage(file, maxWidth = 800, quality = 0.6) {
   return new Promise(resolve => {
     if (!file.type.startsWith('image/')) return resolve(null);
@@ -454,4 +453,13 @@ function showMyCases() {
 
 /* 🖨️ طباعة التقرير */
 function printMyCasesPDF() {
-  if (!guide || guideCasesGlobal.length === 0) { alert('لا توجد ج
+  if (!guide || guideCasesGlobal.length === 0) { alert('لا توجد حالات لطباعتها.'); return; }
+  
+  let tableRows = guideCasesGlobal.map((c) => {
+    let attachHtml = 'لا يوجد';
+    if (c.attachments && c.attachments.length > 0) {
+      attachHtml = c.attachments.map(a => {
+        if (a.data.startsWith('data:image/')) {
+          return `<img src="${a.data}" style="max-width:150px; max-height:150px; display:block; margin:5px auto; border:1px solid #ccc;">`;
+        } else {
+          return `<div
