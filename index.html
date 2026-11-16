@@ -129,7 +129,7 @@
     <input type="file" id="files" accept="image/*,application/pdf" multiple>
     
     <button id="saveBtn" onclick="addCase()">💾 حفظ الحالة</button>
-    <button id="cancelEditBtn" class="secondary hidden" onclick="cancelEdit()">إلغاء التعديل</button>
+    <button id="cancelEditBtn" class="secondary hidden" onclick="cancelEdit()" style="margin-top:10px;">إلغاء التعديل</button>
     
     <div id="caseStatus" class="status hidden"></div>
     <div id="caseCodeDisplay" class="case-code hidden"></div>
@@ -312,7 +312,6 @@ async function addCase() {
   const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
 
   try {
-    // لو إحنا في وضع التعديل، نمسح الحالة القديمة الأول
     if (editId) {
       await fetch(apiUrl, {
         method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -320,7 +319,6 @@ async function addCase() {
       });
     }
 
-    // بعدين نضيف الحالة الجديدة
     const res = await fetch(apiUrl, {
       method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
@@ -332,10 +330,7 @@ async function addCase() {
       codeDisplay.innerHTML = `كود الحالة: <br><span style="font-size:24px;">${data.caseCode}</span>`;
       codeDisplay.classList.remove('hidden');
       
-      // تصفير الفورم
       cancelEdit();
-      
-      // تحديث القائمة
       if (!document.getElementById('myCasesCard').classList.contains('hidden')) showMyCases();
     } else {
       status.className = 'status err'; status.textContent = '❌ ' + data.error;
@@ -580,4 +575,64 @@ function printGuideStats() {
     <html dir="rtl"><head><title>إحصائيات الأخصائيين</title>
     <style>body{font-family:Tahoma;padding:20px;} h1{color:#1e6f5c;text-align:center; font-size:24px; font-weight:bold;} table{width:100%;border-collapse:collapse;margin-top:20px; font-size:16px;} th,td{border:1px solid #ccc;padding:10px;text-align:center; font-weight:bold;} th{background:#1e6f5c;color:#fff;}</style>
     </head><body>
-      <h
+      <h1>تقرير إحصائيات الأخصائيين</h1>
+      <p style="font-size:16px; font-weight:bold;"><b>التاريخ:</b> ${new Date().toLocaleDateString('ar-EG')}</p>
+      ${tableHtml}
+    </body></html>
+  `);
+  win.document.close();
+  win.print();
+}
+
+function renderAdminCases() {
+  const q = document.getElementById('searchBox').value.trim().toLowerCase();
+  const list = document.getElementById('adminList');
+  const filtered = adminData.cases.filter(c => 
+    c.clientName.toLowerCase().includes(q) || c.guideName.toLowerCase().includes(q)
+  );
+  
+  if (filtered.length === 0) { list.innerHTML = '<p class="empty">لا توجد نتائج</p>'; return; }
+  
+  list.innerHTML = filtered.map(c => {
+    let attachHtml = c.attachments.map(a => `<a href="${a.data}" target="_blank" class="attach-link">📎 عرض المرفق</a>`).join(' ');
+    return `
+    <div class="visit">
+      <h3>${c.clientName} <span class="badge">${c.date}</span></h3>
+      <p><b>الأخصائي:</b> ${c.guideName} (${c.room})</p>
+      <p><b>الخدمة:</b> ${c.service}</p>
+      <p><b>كود الحالة:</b> ${c.id}</p>
+      ${attachHtml ? `<div style="margin-top:10px;">${attachHtml}</div>` : ''}
+      <button class="danger small" onclick="deleteSingleCase('${c.id}')" style="margin-top:15px;">🗑️ حذف الحالة</button>
+    </div>
+  `}).join('');
+}
+
+async function deleteSingleCase(id) {
+  if (!confirm('هل أنت متأكد من حذف هذه الحالة نهائياً؟')) return;
+  const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
+  try {
+    await fetch(apiUrl, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'deleteCase', caseId: id })
+    });
+    fetchData();
+  } catch (err) { alert('حدث خطأ'); }
+}
+
+async function deleteAllCases() {
+  if (!confirm('⚠️ تحذير: هل أنت متأكد من حذف جميع الحالات نهائياً من الشيت؟ لا يمكن التراجع!')) return;
+  const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
+  try {
+    await fetch(apiUrl, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'deleteAllCases' })
+    });
+    fetchData();
+  } catch (err) { alert('حدث خطأ'); }
+}
+
+/* ================== بدء ================== */
+refreshGuideUI();
+</script>
+</body>
+</html>
