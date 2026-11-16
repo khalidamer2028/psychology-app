@@ -10,40 +10,54 @@
     --text: #2c3e50; --card-bg: #ffffff; --danger: #e74c3c; --info: #3498db;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
-  body { background-color: var(--bg); color: var(--text); padding: 15px; padding-bottom: 50px; }
-  h1 { text-align: center; color: var(--primary); margin-bottom: 6px; font-size: 22px; }
-  .subtitle { text-align: center; color: #666; font-size: 13px; margin-bottom: 15px; }
-  .card { background: var(--card-bg); border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e1e8e6; }
-  .card h3 { color: var(--primary); margin-bottom: 12px; font-size: 16px; border-bottom: 2px solid #e1e8e6; padding-bottom: 8px; }
-  label { display: block; margin: 10px 0 5px; font-weight: 600; color: #34495e; font-size: 14px; }
-  input, select { width: 100%; padding: 12px; border: 1.5px solid #ccd1d1; border-radius: 8px; font-size: 15px; background: #fff; transition: 0.2s; }
-  input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(30, 111, 92, 0.1); }
-  button { background: var(--primary); color: #fff; border: none; padding: 14px; border-radius: 8px; font-size: 15px; cursor: pointer; margin-top: 15px; width: 100%; font-weight: 600; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+  body { background-color: var(--bg); color: var(--text); padding: 15px; padding-bottom: 50px; font-size: 16px; }
+  
+  /* تكبير العناوين الرئيسية والفرعية */
+  h1 { text-align: center; color: var(--primary); margin-bottom: 10px; font-size: 26px; font-weight: 800; }
+  .subtitle { text-align: center; color: #444; font-size: 15px; font-weight: 600; margin-bottom: 20px; }
+  .card h3 { color: var(--primary); margin-bottom: 15px; font-size: 20px; font-weight: 800; border-bottom: 3px solid var(--primary); padding-bottom: 8px; }
+  
+  .card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #e1e8e6; }
+  
+  /* تكبير وتغميق النصوص */
+  label { display: block; margin: 14px 0 8px; font-weight: 700; color: #2c3e50; font-size: 16px; }
+  input, select { width: 100%; padding: 14px; border: 2px solid #ccd1d1; border-radius: 8px; font-size: 16px; background: #fff; transition: 0.2s; font-weight: 500; }
+  input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(30, 111, 92, 0.15); }
+  
+  button { background: var(--primary); color: #fff; border: none; padding: 16px; border-radius: 8px; font-size: 17px; cursor: pointer; margin-top: 15px; width: 100%; font-weight: 800; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
   button:hover { background: var(--primary-dark); }
   button:disabled { background: #95a5a6; cursor: not-allowed; }
-  button.secondary { background: #7f8c8d; }
-  button.danger { background: var(--danger); }
+  button.secondary { background: #7f8c8d; font-size: 16px; }
+  button.danger { background: var(--danger); font-size: 16px; }
   button.danger:hover { background: #c0392b; }
-  button.admin { background: var(--info); }
-  button.small { padding: 6px 12px; font-size: 12px; width: auto; margin: 0; }
+  button.admin { background: var(--info); font-size: 15px; font-weight: 800; }
+  button.small { padding: 8px 14px; font-size: 14px; width: auto; margin: 0; font-weight: 700; }
+  
   .row { display: flex; gap: 10px; margin-top: 10px;}
   .row > * { flex: 1; }
-  .visit { border-right: 5px solid var(--primary); background: #f9fbfb; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e1e8e6; position: relative;}
-  .visit h3 { font-size: 16px; color: var(--primary); margin-bottom: 8px; border: none; padding: 0;}
-  .visit p { font-size: 13px; margin: 4px 0; color: #555; }
-  .empty { text-align: center; color: #999; padding: 20px; font-style: italic; }
-  .badge { display: inline-block; background: #e3efec; color: var(--primary); padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; }
+  
+  .visit { border-right: 6px solid var(--primary); background: #f9fbfb; padding: 18px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e1e8e6; position: relative;}
+  .visit h3 { font-size: 18px; color: var(--primary); margin-bottom: 10px; border: none; padding: 0; font-weight: 800;}
+  .visit p { font-size: 15px; margin: 6px 0; color: #333; font-weight: 500; }
+  
+  .empty { text-align: center; color: #777; padding: 25px; font-style: italic; font-size: 16px; font-weight: 600; }
+  .badge { display: inline-block; background: #e3efec; color: var(--primary); padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 800; }
   .hidden { display: none !important; }
+  
   .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 8px; }
-  .topbar button { width: auto; margin: 0; padding: 10px 16px; font-size: 13px; }
-  .status { font-size: 13px; text-align: center; padding: 10px; border-radius: 8px; margin-top: 10px; font-weight: bold; }
-  .status.ok { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-  .status.err { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-  .status.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
-  .case-code { text-align: center; margin-top: 10px; padding: 12px; background: #e3efec; border-radius: 8px; font-weight: bold; color: var(--primary); font-size: 18px; border: 1px dashed var(--primary);}
-  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
-  th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-  th { background: var(--primary); color: #fff; }
+  .topbar button { width: auto; margin: 0; padding: 10px 16px; font-size: 14px; }
+  
+  .status { font-size: 15px; text-align: center; padding: 12px; border-radius: 8px; margin-top: 12px; font-weight: 700; }
+  .status.ok { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
+  .status.err { background: #f8d7da; color: #721c24; border: 2px solid #f5c6cb; }
+  .status.info { background: #d1ecf1; color: #0c5460; border: 2px solid #bee5eb; }
+  
+  .case-code { text-align: center; margin-top: 15px; padding: 15px; background: #e3efec; border-radius: 8px; font-weight: 800; color: var(--primary); font-size: 22px; border: 2px dashed var(--primary);}
+  
+  /* تكبير جداول الإحصائيات */
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 15px; }
+  th, td { border: 1px solid #ccc; padding: 12px 8px; text-align: center; font-weight: 600; }
+  th { background: var(--primary); color: #fff; font-weight: 800; font-size: 15px; }
   tr:nth-child(even) { background-color: #f2f2f2; }
 </style>
 </head>
@@ -84,7 +98,7 @@
 
   <div class="card hidden" id="guideSavedCard">
     <h3>👤 بيانات الأخصائي</h3>
-    <div style="font-size:14px;line-height:1.8;" id="guideInfoText"></div>
+    <div style="font-size:16px;line-height:2; font-weight:600;" id="guideInfoText"></div>
     <div class="row">
       <button class="secondary" onclick="editGuide()">✏️ تعديل</button>
       <button class="secondary" onclick="showMyCases()">📂 حالاتي</button>
@@ -120,7 +134,7 @@
 
   <div class="card hidden" id="myCasesCard">
     <h3>📂 سجل حالاتي</h3>
-    <button class="secondary" onclick="printMyCasesPDF()" style="margin-bottom:10px;">🖨️ طباعة تقريري (PDF)</button>
+    <button class="secondary" onclick="printMyCasesPDF()" style="margin-bottom:15px;">🖨️ طباعة تقريري (PDF)</button>
     <div id="myCasesList"></div>
     <button class="secondary" onclick="document.getElementById('myCasesCard').classList.add('hidden')" style="margin-top:15px;">إغلاق</button>
   </div>
@@ -148,16 +162,25 @@
       <div id="fetchStatus" class="status hidden"></div>
     </div>
 
+    <!-- 🔑 قسم تغيير كلمة السر للمدير فقط -->
+    <div class="card">
+      <h3>🔑 تغيير كلمة سر المدير</h3>
+      <label>كلمة السر الجديدة</label>
+      <input type="password" id="newAdminPass" placeholder="أدخل كلمة السر الجديدة (4 أحرف على الأقل)">
+      <button class="secondary" onclick="changeAdminPass()">🔄 تحديث كلمة السر</button>
+      <div id="passStatus" class="status hidden"></div>
+    </div>
+
     <div class="card">
       <h3>📊 إحصائيات عامة (الغرف والخدمات)</h3>
-      <button class="secondary" onclick="printGeneralStats()" style="margin-bottom:10px;">🖨️ طباعة الإحصائيات العامة</button>
+      <button class="secondary" onclick="printGeneralStats()" style="margin-bottom:15px;">🖨️ طباعة الإحصائيات العامة</button>
       <button class="danger" onclick="deleteAllCases()" style="margin-bottom:15px;">🗑️ حذف كل الحالات (تصفير الشيت)</button>
       <div id="generalStatsTable"></div>
     </div>
 
     <div class="card">
       <h3>👨‍⚕️ إحصائيات الأخصائيين</h3>
-      <button class="secondary" onclick="printGuideStats()" style="margin-bottom:10px;">🖨️ طباعة إحصائيات الأخصائيين</button>
+      <button class="secondary" onclick="printGuideStats()" style="margin-bottom:15px;">🖨️ طباعة إحصائيات الأخصائيين</button>
       <div id="guideStatsTable"></div>
     </div>
 
@@ -177,7 +200,7 @@ const LS_API = 'psy_api_v1';
 const LS_ADMIN_PASS = 'psy_admin_v1';
 const DEFAULT_ADMIN_PASS = 'admin123';
 
-/* ⬇️⬇️ تم وضع الرابط الجديد الخاص بك هنا ⬇️⬇️ */
+/* ⬇️⬇️ الرابط الخاص بك ⬇️⬇️ */
 const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbxWVFvBPO-KiL7-3MjxtznX4lzBZlzuRCY7G-phU8vr1kvv8no_rDlWbD9k_p2EGVy1/exec'; 
 
 let guide = JSON.parse(localStorage.getItem(LS_GUIDE) || 'null');
@@ -349,12 +372,12 @@ function printMyCasesPDF() {
     <html dir="rtl"><head><title>تقرير الأخصائي</title>
     <style>
       body{font-family:Tahoma;padding:20px; color:#333;}
-      h1{color:#1e6f5c;text-align:center;}
-      .info{display:flex; justify-content:space-between; background:#f4f7f6; padding:15px; border-radius:8px; margin-bottom:20px;}
-      table{width:100%;border-collapse:collapse;margin-top:10px; font-size:14px;}
-      th,td{border:1px solid #ccc;padding:10px;text-align:center;}
+      h1{color:#1e6f5c;text-align:center; font-size:24px; font-weight:bold;}
+      .info{display:flex; justify-content:space-between; background:#f4f7f6; padding:15px; border-radius:8px; margin-bottom:20px; font-size:16px; font-weight:bold;}
+      table{width:100%;border-collapse:collapse;margin-top:10px; font-size:15px;}
+      th,td{border:1px solid #ccc;padding:10px;text-align:center; font-weight:bold;}
       th{background:#1e6f5c;color:#fff;}
-      .footer{margin-top:20px; text-align:center; font-weight:bold; background:#f4f7f6; padding:10px; border-radius:8px;}
+      .footer{margin-top:20px; text-align:center; font-weight:bold; background:#f4f7f6; padding:15px; border-radius:8px; font-size:18px;}
     </style></head><body>
       <h1>تقرير حالات الأخصائي النفسي</h1>
       <div class="info">
@@ -406,6 +429,20 @@ function logoutAdmin() {
   document.getElementById('adminPanel').classList.add('hidden');
   document.getElementById('adminPass').value = '';
   document.getElementById('loginStatus').classList.add('hidden');
+  document.getElementById('newAdminPass').value = '';
+  document.getElementById('passStatus').classList.add('hidden');
+}
+
+/* 🔑 دالة تغيير كلمة السر (للمدير فقط) */
+function changeAdminPass() {
+  const newPass = document.getElementById('newAdminPass').value.trim();
+  const status = document.getElementById('passStatus');
+  if (newPass.length < 4) {
+    status.className = 'status err'; status.textContent = '❌ كلمة السر يجب أن تكون 4 أحرف على الأقل'; status.classList.remove('hidden'); return;
+  }
+  localStorage.setItem(LS_ADMIN_PASS, newPass);
+  status.className = 'status ok'; status.textContent = '✅ تم تحديث كلمة السر بنجاح'; status.classList.remove('hidden');
+  document.getElementById('newAdminPass').value = '';
 }
 
 function saveApiUrl() {
@@ -436,7 +473,6 @@ async function fetchData() {
 
 /* 📊 إحصائيات المدير (الغرف والخدمات) */
 function updateStats() {
-  // 1. إحصائيات الغرف والخدمات (عام)
   let generalObj = {};
   adminData.cases.forEach(c => {
     const key = `${c.room}|${c.service}`;
@@ -450,10 +486,9 @@ function updateStats() {
     generalHtml += `<tr><td>${room}</td><td>${service}</td><td>${count}</td></tr>`;
     totalGeneral += count;
   });
-  generalHtml += `<tr style="background:#d4edda; font-weight:bold;"><td colspan="2">الإجمالي العام</td><td>${totalGeneral}</td></tr></table>`;
+  generalHtml += `<tr style="background:#d4edda; font-weight:bold; color:#155724;"><td colspan="2">الإجمالي العام</td><td>${totalGeneral}</td></tr></table>`;
   document.getElementById('generalStatsTable').innerHTML = generalHtml;
 
-  // 2. إحصائيات كل أخصائي
   let guideObj = {};
   adminData.cases.forEach(c => {
     const key = `${c.guideName}|${c.room}|${c.service}`;
@@ -475,10 +510,10 @@ function printGeneralStats() {
   const tableHtml = document.getElementById('generalStatsTable').innerHTML;
   win.document.write(`
     <html dir="rtl"><head><title>إحصائيات عامة</title>
-    <style>body{font-family:Tahoma;padding:20px;} h1{color:#1e6f5c;text-align:center;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ccc;padding:10px;text-align:center;} th{background:#1e6f5c;color:#fff;}</style>
+    <style>body{font-family:Tahoma;padding:20px;} h1{color:#1e6f5c;text-align:center; font-size:24px; font-weight:bold;} table{width:100%;border-collapse:collapse;margin-top:20px; font-size:16px;} th,td{border:1px solid #ccc;padding:10px;text-align:center; font-weight:bold;} th{background:#1e6f5c;color:#fff;}</style>
     </head><body>
       <h1>تقرير الإحصائيات العامة (الغرف والخدمات)</h1>
-      <p><b>التاريخ:</b> ${new Date().toLocaleDateString('ar-EG')}</p>
+      <p style="font-size:16px; font-weight:bold;"><b>التاريخ:</b> ${new Date().toLocaleDateString('ar-EG')}</p>
       ${tableHtml}
     </body></html>
   `);
@@ -492,10 +527,10 @@ function printGuideStats() {
   const tableHtml = document.getElementById('guideStatsTable').innerHTML;
   win.document.write(`
     <html dir="rtl"><head><title>إحصائيات الأخصائيين</title>
-    <style>body{font-family:Tahoma;padding:20px;} h1{color:#1e6f5c;text-align:center;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ccc;padding:10px;text-align:center;} th{background:#1e6f5c;color:#fff;}</style>
+    <style>body{font-family:Tahoma;padding:20px;} h1{color:#1e6f5c;text-align:center; font-size:24px; font-weight:bold;} table{width:100%;border-collapse:collapse;margin-top:20px; font-size:16px;} th,td{border:1px solid #ccc;padding:10px;text-align:center; font-weight:bold;} th{background:#1e6f5c;color:#fff;}</style>
     </head><body>
       <h1>تقرير إحصائيات الأخصائيين</h1>
-      <p><b>التاريخ:</b> ${new Date().toLocaleDateString('ar-EG')}</p>
+      <p style="font-size:16px; font-weight:bold;"><b>التاريخ:</b> ${new Date().toLocaleDateString('ar-EG')}</p>
       ${tableHtml}
     </body></html>
   `);
@@ -519,7 +554,7 @@ function renderAdminCases() {
       <p><b>الخدمة:</b> ${c.service}</p>
       <p><b>كود الحالة:</b> ${c.id}</p>
       ${c.attachments.map(a => `<a href="${a.data}" target="_blank" style="color:#1e6f5c;font-weight:bold;text-decoration:none;">📎 عرض المرفق</a>`).join('')}
-      <button class="danger small" onclick="deleteSingleCase('${c.id}')" style="margin-top:10px;">🗑️ حذف الحالة</button>
+      <button class="danger small" onclick="deleteSingleCase('${c.id}')" style="margin-top:15px;">🗑️ حذف الحالة</button>
     </div>
   `).join('');
 }
