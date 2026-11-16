@@ -28,10 +28,6 @@
   button.small { padding: 6px 12px; font-size: 12px; width: auto; margin: 0; }
   .row { display: flex; gap: 10px; margin-top: 10px;}
   .row > * { flex: 1; }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px,1fr)); gap: 10px; margin-top: 10px;}
-  .stat { background: linear-gradient(135deg, var(--primary), #2a9d8f); color: #fff; border-radius: 10px; padding: 15px 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-  .stat .num { font-size: 24px; font-weight: bold; }
-  .stat .lbl { font-size: 12px; margin-top: 5px; opacity: 0.9; }
   .visit { border-right: 5px solid var(--primary); background: #f9fbfb; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e1e8e6; position: relative;}
   .visit h3 { font-size: 16px; color: var(--primary); margin-bottom: 8px; border: none; padding: 0;}
   .visit p { font-size: 13px; margin: 4px 0; color: #555; }
@@ -45,6 +41,10 @@
   .status.err { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
   .status.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
   .case-code { text-align: center; margin-top: 10px; padding: 12px; background: #e3efec; border-radius: 8px; font-weight: bold; color: var(--primary); font-size: 18px; border: 1px dashed var(--primary);}
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+  th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+  th { background: var(--primary); color: #fff; }
+  tr:nth-child(even) { background-color: #f2f2f2; }
 </style>
 </head>
 <body>
@@ -74,13 +74,10 @@
       <option value="شرق طنطا">شرق طنطا</option>
       <option value="غرب طنطا">غرب طنطا</option>
     </select>
-
     <label>الرقم القومي</label>
     <input type="text" id="guideNationalId" placeholder="14 رقم" maxlength="14">
-
     <label>اسم الأخصائي</label>
     <input type="text" id="guideName" placeholder="الاسم ثلاثي">
-
     <button onclick="registerGuide()">💾 حفظ البيانات</button>
     <div id="regStatus" class="status hidden"></div>
   </div>
@@ -98,7 +95,6 @@
     <h3>📝 تسجيل حالة جديدة</h3>
     <label>اسم العميل (الحالة)</label>
     <input type="text" id="clientName" placeholder="اسم رباعي">
-
     <label>الخدمة المقدمة</label>
     <select id="service">
       <option value="">اختر الخدمة...</option>
@@ -113,13 +109,10 @@
       <option value="الاستشارات النفسية">الاستشارات النفسية</option>
       <option value="أخرى">أخرى</option>
     </select>
-
     <label>التاريخ</label>
     <input type="date" id="date">
-
     <label>المرفقات (صورة أو PDF)</label>
     <input type="file" id="files" accept="image/*,application/pdf" multiple>
-
     <button onclick="addCase()">💾 حفظ الحالة</button>
     <div id="caseStatus" class="status hidden"></div>
     <div id="caseCodeDisplay" class="case-code hidden"></div>
@@ -127,6 +120,7 @@
 
   <div class="card hidden" id="myCasesCard">
     <h3>📂 سجل حالاتي</h3>
+    <button class="secondary" onclick="printMyCasesPDF()" style="margin-bottom:10px;">🖨️ طباعة تقريري (PDF)</button>
     <div id="myCasesList"></div>
     <button class="secondary" onclick="document.getElementById('myCasesCard').classList.add('hidden')" style="margin-top:15px;">إغلاق</button>
   </div>
@@ -155,28 +149,20 @@
     </div>
 
     <div class="card">
-      <h3>📊 إحصائيات عامة</h3>
-      <div class="stats">
-        <div class="stat"><div class="num" id="aTotalCases">0</div><div class="lbl">إجمالي الحالات</div></div>
-        <div class="stat"><div class="num" id="aTotalGuides">0</div><div class="lbl">الأخصائيين</div></div>
-        <div class="stat"><div class="num" id="aTotalRooms">0</div><div class="lbl">الغرف المفعّلة</div></div>
-      </div>
-      <button class="secondary" onclick="printStats()" style="margin-top:15px;">🖨️ طباعة الإحصائيات</button>
-      <button class="danger" onclick="deleteAllCases()" style="margin-top:10px;">🗑️ حذف كل الحالات (تصفير الشيت)</button>
+      <h3>📊 إحصائيات عامة (الغرف والخدمات)</h3>
+      <button class="secondary" onclick="printGeneralStats()" style="margin-bottom:10px;">🖨️ طباعة الإحصائيات العامة</button>
+      <button class="danger" onclick="deleteAllCases()" style="margin-bottom:15px;">🗑️ حذف كل الحالات (تصفير الشيت)</button>
+      <div id="generalStatsTable"></div>
     </div>
 
     <div class="card">
-      <h3>🏥 إحصائيات الغرف</h3>
-      <div id="statsRooms"></div>
+      <h3>👨‍⚕️ إحصائيات الأخصائيين</h3>
+      <button class="secondary" onclick="printGuideStats()" style="margin-bottom:10px;">🖨️ طباعة إحصائيات الأخصائيين</button>
+      <div id="guideStatsTable"></div>
     </div>
 
     <div class="card">
-      <h3>🩺 إحصائيات الخدمات</h3>
-      <div id="statsServices"></div>
-    </div>
-
-    <div class="card">
-      <h3>🔍 بحث في الحالات</h3>
+      <h3>🔍 بحث في الحالات (للمدير)</h3>
       <input type="text" id="searchBox" oninput="renderAdminCases()" placeholder="بحث باسم العميل أو الأخصائي...">
       <div id="adminList" style="margin-top:15px;"></div>
     </div>
@@ -196,6 +182,7 @@ const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbxWVFvBPO-KiL7-3M
 
 let guide = JSON.parse(localStorage.getItem(LS_GUIDE) || 'null');
 let adminData = { cases: [], guides: [] };
+let guideCasesGlobal = [];
 
 /* ================== الأخصائي ================== */
 async function registerGuide() {
@@ -258,7 +245,7 @@ function editGuide() {
   document.getElementById('guideName').value = guide?.name || '';
 }
 
-/* ⏳ حجب التاريخ المستقبلي */
+/* ⏳ حجب التاريخ */
 const now = new Date();
 const todayStr = now.toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
 const dateInput = document.getElementById('date');
@@ -330,9 +317,9 @@ function showMyCases() {
     .then(res => res.json())
     .then(data => {
       if (data.ok) {
-        const myCases = data.cases.filter(c => String(c.nationalId) === String(guide.nationalId));
-        if (myCases.length === 0) { list.innerHTML = '<p class="empty">لا توجد حالات مسجلة لك حتى الآن</p>'; return; }
-        list.innerHTML = myCases.map(c => `
+        guideCasesGlobal = data.cases.filter(c => String(c.nationalId) === String(guide.nationalId));
+        if (guideCasesGlobal.length === 0) { list.innerHTML = '<p class="empty">لا توجد حالات مسجلة لك حتى الآن</p>'; return; }
+        list.innerHTML = guideCasesGlobal.map(c => `
           <div class="visit">
             <h3>${c.clientName} <span class="badge">${c.date}</span></h3>
             <p><b>الخدمة:</b> ${c.service}</p>
@@ -341,6 +328,49 @@ function showMyCases() {
         `).join('');
       }
     });
+}
+
+/* 🖨️ طباعة PDF للأخصائي */
+function printMyCasesPDF() {
+  if (!guide || guideCasesGlobal.length === 0) { alert('لا توجد حالات لطباعتها.'); return; }
+  
+  const win = window.open('', '', 'width=800,height=600');
+  let tableRows = guideCasesGlobal.map((c, idx) => `
+    <tr>
+      <td>${idx + 1}</td>
+      <td>${c.clientName}</td>
+      <td>${c.service}</td>
+      <td>${c.date}</td>
+      <td>${c.id}</td>
+    </tr>
+  `).join('');
+
+  win.document.write(`
+    <html dir="rtl"><head><title>تقرير الأخصائي</title>
+    <style>
+      body{font-family:Tahoma;padding:20px; color:#333;}
+      h1{color:#1e6f5c;text-align:center;}
+      .info{display:flex; justify-content:space-between; background:#f4f7f6; padding:15px; border-radius:8px; margin-bottom:20px;}
+      table{width:100%;border-collapse:collapse;margin-top:10px; font-size:14px;}
+      th,td{border:1px solid #ccc;padding:10px;text-align:center;}
+      th{background:#1e6f5c;color:#fff;}
+      .footer{margin-top:20px; text-align:center; font-weight:bold; background:#f4f7f6; padding:10px; border-radius:8px;}
+    </style></head><body>
+      <h1>تقرير حالات الأخصائي النفسي</h1>
+      <div class="info">
+        <div><b>الاسم:</b> ${guide.name}</div>
+        <div><b>الرقم القومي:</b> ${guide.nationalId}</div>
+        <div><b>الغرفة:</b> ${guide.room}</div>
+      </div>
+      <table>
+        <thead><tr><th>م</th><th>اسم العميل</th><th>الخدمة</th><th>التاريخ</th><th>كود الحالة</th></tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+      <div class="footer">إجمالي الحالات: ${guideCasesGlobal.length}</div>
+    </body></html>
+  `);
+  win.document.close();
+  win.print();
 }
 
 /* ================== لوحة المدير ================== */
@@ -397,32 +427,80 @@ async function fetchData() {
       adminData = data;
       updateStats();
       renderAdminCases();
-      status.className = 'status ok'; status.textContent = `✅ تم تحميل ${data.cases.length} حالة و ${data.guides.length} أخصائي`;
+      status.className = 'status ok'; status.textContent = `✅ تم تحميل ${data.cases.length} حالة`;
     }
   } catch (err) {
-    status.className = 'status err'; status.textContent = '❌ فشل التحميل (تأكد من الرابط)';
+    status.className = 'status err'; status.textContent = '❌ فشل التحميل';
   }
 }
 
+/* 📊 إحصائيات المدير (الغرف والخدمات) */
 function updateStats() {
-  document.getElementById('aTotalCases').textContent = adminData.cases.length;
-  document.getElementById('aTotalGuides').textContent = adminData.guides.length;
-  
-  const roomStats = {};
-  adminData.cases.forEach(c => { roomStats[c.room] = (roomStats[c.room] || 0) + 1; });
-  document.getElementById('aTotalRooms').textContent = Object.keys(roomStats).length;
+  // 1. إحصائيات الغرف والخدمات (عام)
+  let generalObj = {};
+  adminData.cases.forEach(c => {
+    const key = `${c.room}|${c.service}`;
+    generalObj[key] = (generalObj[key] || 0) + 1;
+  });
 
-  document.getElementById('statsRooms').innerHTML = Object.entries(roomStats)
-    .sort((a,b) => b[1] - a[1])
-    .map(([room, count]) => `<div class="stat" style="background:#e3efec;color:#1e6f5c;margin-bottom:8px; display:flex; justify-content:space-between; padding:12px; border-radius:8px; font-size:14px;"><span>${room}</span> <b>${count} حالة</b></div>`)
-    .join('') || '<p class="empty">لا توجد بيانات</p>';
+  let generalHtml = `<table><tr><th>الغرفة</th><th>الخدمة</th><th>عدد الحالات</th></tr>`;
+  let totalGeneral = 0;
+  Object.entries(generalObj).sort().forEach(([key, count]) => {
+    const [room, service] = key.split('|');
+    generalHtml += `<tr><td>${room}</td><td>${service}</td><td>${count}</td></tr>`;
+    totalGeneral += count;
+  });
+  generalHtml += `<tr style="background:#d4edda; font-weight:bold;"><td colspan="2">الإجمالي العام</td><td>${totalGeneral}</td></tr></table>`;
+  document.getElementById('generalStatsTable').innerHTML = generalHtml;
 
-  const serviceStats = {};
-  adminData.cases.forEach(c => { serviceStats[c.service] = (serviceStats[c.service] || 0) + 1; });
-  document.getElementById('statsServices').innerHTML = Object.entries(serviceStats)
-    .sort((a,b) => b[1] - a[1])
-    .map(([srv, count]) => `<div class="stat" style="background:#f9fbfb;color:#1e6f5c;margin-bottom:8px; display:flex; justify-content:space-between; padding:12px; border-radius:8px; font-size:14px; border:1px solid #e1e8e6;"><span>${srv}</span> <b>${count}</b></div>`)
-    .join('') || '<p class="empty">لا توجد بيانات</p>';
+  // 2. إحصائيات كل أخصائي
+  let guideObj = {};
+  adminData.cases.forEach(c => {
+    const key = `${c.guideName}|${c.room}|${c.service}`;
+    guideObj[key] = (guideObj[key] || 0) + 1;
+  });
+
+  let guideHtml = `<table><tr><th>اسم الأخصائي</th><th>الغرفة</th><th>الخدمة</th><th>عدد الحالات</th></tr>`;
+  Object.entries(guideObj).sort().forEach(([key, count]) => {
+    const [name, room, service] = key.split('|');
+    guideHtml += `<tr><td>${name}</td><td>${room}</td><td>${service}</td><td>${count}</td></tr>`;
+  });
+  guideHtml += `</table>`;
+  document.getElementById('guideStatsTable').innerHTML = guideHtml;
+}
+
+/* 🖨️ طباعة الإحصائيات العامة */
+function printGeneralStats() {
+  const win = window.open('', '', 'width=800,height=600');
+  const tableHtml = document.getElementById('generalStatsTable').innerHTML;
+  win.document.write(`
+    <html dir="rtl"><head><title>إحصائيات عامة</title>
+    <style>body{font-family:Tahoma;padding:20px;} h1{color:#1e6f5c;text-align:center;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ccc;padding:10px;text-align:center;} th{background:#1e6f5c;color:#fff;}</style>
+    </head><body>
+      <h1>تقرير الإحصائيات العامة (الغرف والخدمات)</h1>
+      <p><b>التاريخ:</b> ${new Date().toLocaleDateString('ar-EG')}</p>
+      ${tableHtml}
+    </body></html>
+  `);
+  win.document.close();
+  win.print();
+}
+
+/* 🖨️ طباعة إحصائيات الأخصائيين */
+function printGuideStats() {
+  const win = window.open('', '', 'width=800,height=600');
+  const tableHtml = document.getElementById('guideStatsTable').innerHTML;
+  win.document.write(`
+    <html dir="rtl"><head><title>إحصائيات الأخصائيين</title>
+    <style>body{font-family:Tahoma;padding:20px;} h1{color:#1e6f5c;text-align:center;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ccc;padding:10px;text-align:center;} th{background:#1e6f5c;color:#fff;}</style>
+    </head><body>
+      <h1>تقرير إحصائيات الأخصائيين</h1>
+      <p><b>التاريخ:</b> ${new Date().toLocaleDateString('ar-EG')}</p>
+      ${tableHtml}
+    </body></html>
+  `);
+  win.document.close();
+  win.print();
 }
 
 function renderAdminCases() {
@@ -468,33 +546,6 @@ async function deleteAllCases() {
     });
     fetchData();
   } catch (err) { alert('حدث خطأ'); }
-}
-
-function printStats() {
-  const win = window.open('', '', 'width=800,height=600');
-  win.document.write(`
-    <html dir="rtl"><head><title>إحصائيات الدعم النفسي</title>
-    <style>body{font-family:Tahoma;padding:20px;} h1{color:#1e6f5c;text-align:center;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ccc;padding:10px;text-align:right;} th{background:#1e6f5c;color:#fff;}</style>
-    </head><body>
-      <h1>تقرير إحصائيات الدعم النفسي - مديرية الغربية</h1>
-      <p><b>التاريخ:</b> ${new Date().toLocaleDateString('ar-EG')}</p>
-      <p><b>إجمالي الحالات:</b> ${adminData.cases.length} | <b>إجمالي الأخصائيين:</b> ${adminData.guides.length}</p>
-      
-      <h3>إحصائيات الغرف</h3>
-      <table><tr><th>الغرفة</th><th>عدد الحالات</th></tr>
-      ${Object.entries(adminData.cases.reduce((acc, c) => { acc[c.room] = (acc[c.room] || 0) + 1; return acc; }, {}))
-        .map(([r, count]) => `<tr><td>${r}</td><td>${count}</td></tr>`).join('')}
-      </table>
-
-      <h3>إحصائيات الخدمات</h3>
-      <table><tr><th>الخدمة</th><th>عدد الحالات</th></tr>
-      ${Object.entries(adminData.cases.reduce((acc, c) => { acc[c.service] = (acc[c.service] || 0) + 1; return acc; }, {}))
-        .map(([s, count]) => `<tr><td>${s}</td><td>${count}</td></tr>`).join('')}
-      </table>
-    </body></html>
-  `);
-  win.document.close();
-  win.print();
 }
 
 /* ================== بدء ================== */
