@@ -8,7 +8,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root { --primary: #1e6f5c; --primary-dark: #145043; --bg: #f4f7f6; --text: #2c3e50; --card-bg: #ffffff; --danger: #e74c3c; --info: #3498db; }
+  :root {
+    --primary: #1e6f5c; --primary-dark: #145043; --bg: #f4f7f6;
+    --text: #2c3e50; --card-bg: #ffffff; --danger: #e74c3c; --info: #3498db;
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
   body { background-color: var(--bg); color: var(--text); padding: 15px; padding-bottom: 50px; font-size: 17px; }
   
@@ -56,6 +59,10 @@
   th, td { border: 1px solid #ddd; padding: 10px 8px; text-align: center; font-weight: 400; }
   th { background: var(--primary); color: #fff; font-weight: 500; }
   tr:nth-child(even) { background-color: #f8f9fa; }
+  
+  .search-result { background: #fff; border: 1px solid var(--primary); padding: 10px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+  .search-result:hover { background: #e3efec; }
+  .search-result b { color: var(--primary); }
 </style>
 </head>
 <body>
@@ -101,8 +108,20 @@
     </div>
   </div>
 
+  <!-- 🔍 قسم البحث عن عميل -->
+  <div class="card" id="searchPatientCard" style="display:none;">
+    <h3>🔍 بحث عن عميل سابق</h3>
+    <div class="row" style="margin-top:0;">
+      <input type="text" id="searchPatientName" placeholder="اكتب اسم العميل للبحث...">
+      <button class="secondary" style="width:100px; margin-top:0;" onclick="searchPatient()">بحث</button>
+    </div>
+    <div id="searchResults" style="margin-top:15px;"></div>
+  </div>
+
   <div class="card" id="addCard" style="display:none;">
     <h3>📝 تسجيل جلسة جديدة</h3>
+    <input type="hidden" id="existingCaseId" value="">
+    
     <label>اسم العميل (الحالة)</label>
     <input type="text" id="clientName" placeholder="اسم رباعي">
     <label>الخدمة المقدمة</label>
@@ -187,54 +206,70 @@
     <button class="secondary" onclick="logoutAdmin()">🚪 خروج</button>
   </div>
 </div>
-
 <script>
 const LS_GUIDE = 'psy_guide_v1';
 const LS_API = 'psy_api_v1';
 const LS_ADMIN_PASS = 'psy_admin_v1';
 const DEFAULT_ADMIN_PASS = 'admin123';
 
-/* ⬇️⬇️ تم وضع الرابط الجديد الخاص بك هنا ⬇️⬇️ */
+/* ⬇️⬇️ الرابط الخاص بك ⬇️⬇️ */
 const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbzOQd-VEbfuKrRIREGBRoXqyijHnNg8CVGXni2niIQ1UzJVyjcB3gBsfBVUrGrx2WZc/exec'; 
 
 let guide = JSON.parse(localStorage.getItem(LS_GUIDE) || 'null');
 let adminData = { cases: [], guides: [] };
 let guideCasesGlobal = [];
 
+/* ================== الأخصائي ================== */
 async function registerGuide() {
   const room = document.getElementById('guideRoom').value;
   const nationalId = document.getElementById('guideNationalId').value.trim();
   const name = document.getElementById('guideName').value.trim();
   const status = document.getElementById('regStatus');
 
-  if (!room || !nationalId || !name) { status.className = 'status err'; status.textContent = '❌ املأ جميع البيانات'; status.classList.remove('hidden'); return; }
-  if (nationalId.length !== 14) { status.className = 'status err'; status.textContent = '❌ الرقم القومي يجب أن يكون 14 رقم'; status.classList.remove('hidden'); return; }
+  if (!room || !nationalId || !name) {
+    status.className = 'status err'; status.textContent = '❌ املأ جميع البيانات'; status.classList.remove('hidden'); return;
+  }
+  if (nationalId.length !== 14) {
+    status.className = 'status err'; status.textContent = '❌ الرقم القومي يجب أن يكون 14 رقم'; status.classList.remove('hidden'); return;
+  }
 
   status.className = 'status info'; status.textContent = '⏳ جاري التسجيل...'; status.classList.remove('hidden');
+  const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
+
   try {
-    const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'register', room, nationalId, name }) });
+    const res = await fetch(apiUrl, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'register', room, nationalId, name })
+    });
     const data = await res.json();
+    
     if (data.ok) {
       guide = { room, nationalId, name };
       localStorage.setItem(LS_GUIDE, JSON.stringify(guide));
       refreshGuideUI();
       status.className = 'status ok'; status.textContent = '✅ تم التسجيل بنجاح';
-    } else { status.className = 'status err'; status.textContent = '❌ ' + data.error; }
-  } catch (err) { status.className = 'status err'; status.textContent = '❌ فشل الاتصال'; }
+    } else {
+      status.className = 'status err'; status.textContent = '❌ ' + data.error;
+    }
+  } catch (err) {
+    status.className = 'status err'; status.textContent = '❌ فشل الاتصال';
+  }
 }
 
 function refreshGuideUI() {
   const setup = document.getElementById('guideSetupCard');
   const saved = document.getElementById('guideSavedCard');
   const addCard = document.getElementById('addCard');
+  const searchCard = document.getElementById('searchPatientCard');
   const label = document.getElementById('guideNameLabel');
 
   if (guide) {
-    setup.classList.add('hidden'); saved.classList.remove('hidden'); addCard.style.display = 'block';
+    setup.classList.add('hidden'); saved.classList.remove('hidden'); 
+    addCard.style.display = 'block'; searchCard.style.display = 'block';
     document.getElementById('guideInfoText').innerHTML = `<b>الغرفة:</b> ${guide.room}<br><b>الأخصائي:</b> ${guide.name}<br><b>الرقم القومي:</b> ${guide.nationalId}`;
     label.innerHTML = `${guide.room} — <b>${guide.name}</b>`;
   } else {
-    setup.classList.remove('hidden'); saved.classList.add('hidden'); addCard.style.display = 'none';
+    setup.classList.remove('hidden'); saved.classList.add('hidden'); addCard.style.display = 'none'; searchCard.style.display = 'none';
     label.textContent = '—';
   }
 }
@@ -247,12 +282,14 @@ function editGuide() {
   document.getElementById('guideName').value = guide?.name || '';
 }
 
+/* ⏳ حجب التاريخ */
 const now = new Date();
 const todayStr = now.toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
 const dateInput = document.getElementById('date');
 dateInput.value = todayStr;
 dateInput.setAttribute('max', todayStr);
 
+/* ================== ضغط الصور ================== */
 function compressImage(file, maxWidth = 800, quality = 0.6) {
   return new Promise(resolve => {
     if (!file.type.startsWith('image/')) return resolve(null);
@@ -261,7 +298,10 @@ function compressImage(file, maxWidth = 800, quality = 0.6) {
     reader.onload = e => {
       img.onload = () => {
         let { width, height } = img;
-        if (width > maxWidth) { height = Math.round(height * maxWidth / width); width = maxWidth; }
+        if (width > maxWidth) {
+          height = Math.round(height * maxWidth / width);
+          width = maxWidth;
+        }
         const canvas = document.createElement('canvas');
         canvas.width = width; canvas.height = height;
         canvas.getContext('2d').drawImage(img, 0, 0, width, height);
@@ -273,17 +313,58 @@ function compressImage(file, maxWidth = 800, quality = 0.6) {
   });
 }
 
+/* ================== البحث عن عميل ================== */
+function searchPatient() {
+  const q = document.getElementById('searchPatientName').value.trim().toLowerCase();
+  const resultsBox = document.getElementById('searchResults');
+  
+  if (!q) { resultsBox.innerHTML = ''; return; }
+  
+  const myCases = guideCasesGlobal.filter(c => c.clientName.toLowerCase().includes(q));
+  const uniqueClients = {};
+  myCases.forEach(c => { if (!uniqueClients[c.clientName]) uniqueClients[c.clientName] = c; });
+
+  const clients = Object.values(uniqueClients);
+  
+  if (clients.length === 0) {
+    resultsBox.innerHTML = '<p style="color:#e74c3c; font-size:14px; margin-top:10px;">لم يتم العثور على عميل بهذا الاسم.</p>';
+    return;
+  }
+
+  resultsBox.innerHTML = clients.map(c => `
+    <div class="search-result" onclick="selectExistingPatient('${c.id}', '${c.clientName}')">
+      <b>الاسم:</b> ${c.clientName} <br>
+      <b>كود الملف:</b> ${c.id}
+    </div>
+  `).join('');
+}
+
+function selectExistingPatient(caseId, clientName) {
+  document.getElementById('clientName').value = clientName;
+  document.getElementById('existingCaseId').value = caseId;
+  document.getElementById('searchResults').innerHTML = '';
+  document.getElementById('searchPatientName').value = '';
+  alert(`✅ تم اختيار العميل: ${clientName}\nهذه الجلسة ستُضاف إلى ملفه.`);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ================== إضافة جلسة ================== */
 async function addCase() {
   const clientName = document.getElementById('clientName').value.trim();
   const service = document.getElementById('service').value;
   const date = document.getElementById('date').value;
+  const existingCaseId = document.getElementById('existingCaseId').value;
   const status = document.getElementById('caseStatus');
   const codeDisplay = document.getElementById('caseCodeDisplay');
   
-  if (!clientName || !service) { status.className = 'status err'; status.textContent = '❌ املأ اسم العميل والخدمة'; status.classList.remove('hidden'); return; }
+  if (!clientName || !service) {
+    status.className = 'status err'; status.textContent = '❌ املأ اسم العميل والخدمة'; status.classList.remove('hidden'); return;
+  }
 
   const fileInput = document.getElementById('files');
-  if (!fileInput.files || fileInput.files.length === 0) { status.className = 'status err'; status.textContent = '⚠️ برجاء إرفاق تقرير الجلسة قبل الحفظ.'; status.classList.remove('hidden'); return; }
+  if (!fileInput.files || fileInput.files.length === 0) {
+    status.className = 'status err'; status.textContent = '⚠️ برجاء إرفاق تقرير الجلسة قبل الحفظ.'; status.classList.remove('hidden'); return;
+  }
 
   const btn = document.getElementById('saveCaseBtn');
   btn.disabled = true; btn.textContent = '⏳ جاري الحفظ...';
@@ -296,28 +377,46 @@ async function addCase() {
       const compressed = await compressImage(file);
       if (compressed) attachments.push({ name: file.name, type: 'image/jpeg', data: compressed });
     } else {
-      const data = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(file); });
+      const data = await new Promise(res => {
+        const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(file);
+      });
       attachments.push({ name: file.name, type: file.type, data });
     }
   }
 
+  const payload = {
+    action: 'addCase', nationalId: guide.nationalId, guideName: guide.name, room: guide.room,
+    clientName, service, date, attachments, existingCaseId
+  };
+
   status.className = 'status info'; status.textContent = '⏳ جاري الإرسال...'; status.classList.remove('hidden');
   codeDisplay.classList.add('hidden');
+  const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
 
   try {
-    const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'addCase', nationalId: guide.nationalId, guideName: guide.name, room: guide.room, clientName, service, date, attachments }) });
+    const res = await fetch(apiUrl, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
     const data = await res.json();
 
     if (data.ok) {
-      status.className = 'status ok'; status.textContent = '✅ تم حفظ الجلسة بنجاح';
+      status.className = 'status ok'; status.textContent = existingCaseId ? '✅ تم إضافة الجلسة للملف' : '✅ تم إنشاء ملف جديد';
       codeDisplay.innerHTML = `كود الملف: <br><span style="font-size:24px;">${data.caseCode}</span>`;
       codeDisplay.classList.remove('hidden');
+      
       document.getElementById('clientName').value = '';
       document.getElementById('service').value = '';
       document.getElementById('files').value = '';
+      document.getElementById('existingCaseId').value = '';
+      
       if (!document.getElementById('myCasesCard').classList.contains('hidden')) showMyCases();
-    } else { status.className = 'status err'; status.textContent = '❌ ' + data.error; }
-  } catch (err) { status.className = 'status err'; status.textContent = '❌ فشل الاتصال'; } finally {
+    } else {
+      status.className = 'status err'; status.textContent = '❌ ' + data.error;
+    }
+  } catch (err) {
+    status.className = 'status err'; status.textContent = '❌ فشل الاتصال';
+  } finally {
     btn.disabled = false; btn.textContent = '💾 حفظ الجلسة';
   }
 }
@@ -328,44 +427,79 @@ function showMyCases() {
   card.classList.remove('hidden');
   list.innerHTML = '<p class="empty">جاري التحميل...</p>';
   
-  fetch((localStorage.getItem(LS_API) || HARDCODED_API)).then(res => res.json()).then(data => {
-    if (data.ok) {
-      guideCasesGlobal = data.cases.filter(c => String(c.nationalId) === String(guide.nationalId));
-      if (guideCasesGlobal.length === 0) { list.innerHTML = '<p class="empty">لا توجد جلسات مسجلة لك حتى الآن</p>'; return; }
-      list.innerHTML = guideCasesGlobal.map(c => {
-        let attachHtml = c.attachments.map(a => `<a href="${a.data}" target="_blank" class="attach-link">📎 عرض المرفق</a>`).join(' ');
-        return `<div class="visit"><h3>${c.clientName} <span class="badge">${c.date}</span></h3><p><b>كود الملف:</b> ${c.id}</p><p><b>الخدمة:</b> ${c.service}</p>${attachHtml ? `<div style="margin-top:10px;">${attachHtml}</div>` : ''}</div>`;
-      }).join('');
-    }
-  });
+  const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
+  fetch(apiUrl)
+    .then(res => res.json())
+    .then(data => {
+      if (data.ok) {
+        guideCasesGlobal = data.cases.filter(c => String(c.nationalId) === String(guide.nationalId));
+        if (guideCasesGlobal.length === 0) { list.innerHTML = '<p class="empty">لا توجد جلسات مسجلة لك حتى الآن</p>'; return; }
+        
+        list.innerHTML = guideCasesGlobal.map(c => {
+          let attachHtml = c.attachments.map(a => `<a href="${a.data}" target="_blank" class="attach-link">📎 عرض المرفق</a>`).join(' ');
+          return `
+          <div class="visit">
+            <h3>${c.clientName} <span class="badge">${c.date}</span></h3>
+            <p><b>كود الملف:</b> ${c.id}</p>
+            <p><b>الخدمة:</b> ${c.service}</p>
+            ${attachHtml ? `<div style="margin-top:10px;">${attachHtml}</div>` : ''}
+          </div>
+        `}).join('');
+      }
+    });
 }
 
 function printMyCasesPDF() {
   if (!guide || guideCasesGlobal.length === 0) { alert('لا توجد حالات لطباعتها.'); return; }
+  
   let tableRows = guideCasesGlobal.map((c) => {
     let attachHtml = 'لا يوجد';
     if (c.attachments && c.attachments.length > 0) {
       attachHtml = c.attachments.map(a => {
-        if (a.data.startsWith('data:image/')) return `<img src="${a.data}" style="max-width:150px; max-height:150px; display:block; margin:5px auto; border:1px solid #ccc;">`;
-        else return `<div style="font-size:12px; color:#666;">ملف PDF: ${a.name}</div>`;
+        if (a.data.startsWith('data:image/')) {
+          return `<img src="${a.data}" style="max-width:150px; max-height:150px; display:block; margin:5px auto; border:1px solid #ccc;">`;
+        } else {
+          return `<div style="font-size:12px; color:#666;">ملف PDF: ${a.name}</div>`;
+        }
       }).join('');
     }
-    return `<tr><td>${c.id}</td><td>${c.clientName}</td><td>${c.service}</td><td>${attachHtml}</td></tr>`;
-  }).join('');
+    return `
+    <tr>
+      <td>${c.id}</td>
+      <td>${c.clientName}</td>
+      <td>${c.service}</td>
+      <td>${attachHtml}</td>
+    </tr>
+  `}).join('');
 
   const win = window.open('', '', 'width=800,height=600');
   win.document.write(`
     <html dir="rtl"><head><title>تقرير الحالات</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>body{font-family:'Tajawal', sans-serif;padding:20px; color:#333;} h1{color:#1e6f5c;text-align:center; font-size:24px; font-weight:700;} table{width:100%;border-collapse:collapse;margin-top:10px; font-size:15px;} th,td{border:1px solid #ccc;padding:10px;text-align:center; font-weight:500; vertical-align:middle;} th{background:#1e6f5c;color:#fff;} .footer{margin-top:30px; text-align:left; font-weight:500; font-size:17px; padding:10px;}</style></head><body>
+    <style>
+      body{font-family:'Tajawal', sans-serif;padding:20px; color:#333;}
+      h1{color:#1e6f5c;text-align:center; font-size:24px; font-weight:700;}
+      table{width:100%;border-collapse:collapse;margin-top:10px; font-size:15px;}
+      th,td{border:1px solid #ccc;padding:10px;text-align:center; font-weight:500; vertical-align:middle;}
+      th{background:#1e6f5c;color:#fff;}
+      .footer{margin-top:30px; text-align:left; font-weight:500; font-size:17px; padding:10px;}
+    </style></head><body>
       <h1>تقرير الجلسات</h1>
-      <table><thead><tr><th>كود الملف</th><th>اسم العميل</th><th>الخدمة المقدمة</th><th>المرفق</th></tr></thead><tbody>${tableRows}</tbody></table>
-      <div class="footer"><b>اسم الأخصائي:</b> ${guide.name}<br><b>الغرفة:</b> ${guide.room}</div>
+      <table>
+        <thead><tr><th>كود الملف</th><th>اسم العميل</th><th>الخدمة المقدمة</th><th>المرفق</th></tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+      <div class="footer">
+        <b>اسم الأخصائي:</b> ${guide.name}<br>
+        <b>الغرفة:</b> ${guide.room}
+      </div>
     </body></html>
   `);
-  win.document.close(); win.print();
+  win.document.close();
+  win.print();
 }
 
+/* ================== لوحة المدير ================== */
 function openAdmin() {
   document.getElementById('guideMode').classList.add('hidden');
   document.getElementById('adminMode').classList.remove('hidden');
@@ -373,21 +507,27 @@ function openAdmin() {
   document.getElementById('adminBtn').onclick = closeAdmin;
   document.getElementById('apiUrl').value = localStorage.getItem(LS_API) || '';
 }
+
 function closeAdmin() {
   document.getElementById('adminMode').classList.add('hidden');
   document.getElementById('guideMode').classList.remove('hidden');
   document.getElementById('adminBtn').textContent = '🔐 مدير';
   document.getElementById('adminBtn').onclick = openAdmin;
 }
+
 function loginAdmin() {
-  if (document.getElementById('adminPass').value === (localStorage.getItem(LS_ADMIN_PASS) || DEFAULT_ADMIN_PASS)) {
+  const stored = localStorage.getItem(LS_ADMIN_PASS) || DEFAULT_ADMIN_PASS;
+  const input = document.getElementById('adminPass').value;
+  const status = document.getElementById('loginStatus');
+  if (input === stored) {
     document.getElementById('adminPanel').classList.remove('hidden');
-    document.getElementById('loginStatus').className = 'status ok'; document.getElementById('loginStatus').textContent = '✅ تم الدخول'; document.getElementById('loginStatus').classList.remove('hidden');
+    status.className = 'status ok'; status.textContent = '✅ تم الدخول'; status.classList.remove('hidden');
     fetchData();
   } else {
-    document.getElementById('loginStatus').className = 'status err'; document.getElementById('loginStatus').textContent = '❌ كلمة سر خاطئة'; document.getElementById('loginStatus').classList.remove('hidden');
+    status.className = 'status err'; status.textContent = '❌ كلمة سر خاطئة'; status.classList.remove('hidden');
   }
 }
+
 function logoutAdmin() {
   document.getElementById('adminPanel').classList.add('hidden');
   document.getElementById('adminPass').value = '';
@@ -395,14 +535,18 @@ function logoutAdmin() {
   document.getElementById('newAdminPass').value = '';
   document.getElementById('passStatus').classList.add('hidden');
 }
+
 function changeAdminPass() {
   const newPass = document.getElementById('newAdminPass').value.trim();
   const status = document.getElementById('passStatus');
-  if (newPass.length < 4) { status.className = 'status err'; status.textContent = '❌ كلمة السر يجب أن تكون 4 أحرف على الأقل'; status.classList.remove('hidden'); return; }
+  if (newPass.length < 4) {
+    status.className = 'status err'; status.textContent = '❌ كلمة السر يجب أن تكون 4 أحرف على الأقل'; status.classList.remove('hidden'); return;
+  }
   localStorage.setItem(LS_ADMIN_PASS, newPass);
   status.className = 'status ok'; status.textContent = '✅ تم تحديث كلمة السر بنجاح'; status.classList.remove('hidden');
   document.getElementById('newAdminPass').value = '';
 }
+
 function saveApiUrl() {
   const url = document.getElementById('apiUrl').value.trim();
   if (!url.startsWith('https://script.google.com')) { alert('رابط غير صالح'); return; }
@@ -411,21 +555,31 @@ function saveApiUrl() {
 }
 
 async function fetchData() {
+  const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
   const status = document.getElementById('fetchStatus');
   status.className = 'status info'; status.textContent = '⏳ جاري التحديث...'; status.classList.remove('hidden');
+  
   try {
-    const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API) + '?t=' + Date.now());
+    const res = await fetch(apiUrl + '?t=' + Date.now());
     const data = await res.json();
     if (data.ok) {
-      adminData = data; updateStats(); renderAdminCases();
+      adminData = data;
+      updateStats();
+      renderAdminCases();
       status.className = 'status ok'; status.textContent = `✅ تم تحميل ${data.cases.length} جلسة`;
     }
-  } catch (err) { status.className = 'status err'; status.textContent = '❌ فشل التحميل'; }
+  } catch (err) {
+    status.className = 'status err'; status.textContent = '❌ فشل التحميل';
+  }
 }
 
 function updateStats() {
   let generalObj = {};
-  adminData.cases.forEach(c => { const key = `${c.room}|${c.service}`; generalObj[key] = (generalObj[key] || 0) + 1; });
+  adminData.cases.forEach(c => {
+    const key = `${c.room}|${c.service}`;
+    generalObj[key] = (generalObj[key] || 0) + 1;
+  });
+
   let generalHtml = `<table><tr><th>الغرفة</th><th>الخدمة</th><th>عدد الجلسات</th></tr>`;
   let totalGeneral = 0;
   Object.entries(generalObj).sort().forEach(([key, count]) => {
@@ -437,7 +591,11 @@ function updateStats() {
   document.getElementById('generalStatsTable').innerHTML = generalHtml;
 
   let guideObj = {};
-  adminData.cases.forEach(c => { const key = `${c.guideName}|${c.room}|${c.service}`; guideObj[key] = (guideObj[key] || 0) + 1; });
+  adminData.cases.forEach(c => {
+    const key = `${c.guideName}|${c.room}|${c.service}`;
+    guideObj[key] = (guideObj[key] || 0) + 1;
+  });
+
   let guideHtml = `<table><tr><th>اسم الأخصائي</th><th>الغرفة</th><th>الخدمة</th><th>عدد الجلسات</th></tr>`;
   Object.entries(guideObj).sort().forEach(([key, count]) => {
     const [name, room, service] = key.split('|');
@@ -460,7 +618,8 @@ function printGeneralStats() {
       ${tableHtml}
     </body></html>
   `);
-  win.document.close(); win.print();
+  win.document.close();
+  win.print();
 }
 
 function printGuideStats() {
@@ -476,36 +635,58 @@ function printGuideStats() {
       ${tableHtml}
     </body></html>
   `);
-  win.document.close(); win.print();
+  win.document.close();
+  win.print();
 }
 
 function renderAdminCases() {
   const q = document.getElementById('searchBox').value.trim().toLowerCase();
   const list = document.getElementById('adminList');
-  const filtered = adminData.cases.filter(c => c.clientName.toLowerCase().includes(q) || c.guideName.toLowerCase().includes(q));
+  const filtered = adminData.cases.filter(c => 
+    c.clientName.toLowerCase().includes(q) || c.guideName.toLowerCase().includes(q)
+  );
+  
   if (filtered.length === 0) { list.innerHTML = '<p class="empty">لا توجد نتائج</p>'; return; }
+  
   list.innerHTML = filtered.map(c => {
     let attachHtml = c.attachments.map(a => `<a href="${a.data}" target="_blank" class="attach-link">📎 عرض المرفق</a>`).join(' ');
-    return `<div class="visit"><h3>${c.clientName} <span class="badge">${c.date}</span></h3><p><b>الأخصائي:</b> ${c.guideName} (${c.room})</p><p><b>الخدمة:</b> ${c.service}</p><p><b>كود الملف:</b> ${c.id}</p>${attachHtml ? `<div style="margin-top:10px;">${attachHtml}</div>` : ''}<button class="danger small" onclick="deleteSingleCase('${c.id}')" style="margin-top:15px;">🗑️ حذف الجلسة</button></div>`;
-  }).join('');
+    return `
+    <div class="visit">
+      <h3>${c.clientName} <span class="badge">${c.date}</span></h3>
+      <p><b>الأخصائي:</b> ${c.guideName} (${c.room})</p>
+      <p><b>الخدمة:</b> ${c.service}</p>
+      <p><b>كود الملف:</b> ${c.id}</p>
+      ${attachHtml ? `<div style="margin-top:10px;">${attachHtml}</div>` : ''}
+      <button class="danger small" onclick="deleteSingleCase('${c.id}')" style="margin-top:15px;">🗑️ حذف الجلسة</button>
+    </div>
+  `}).join('');
 }
 
 async function deleteSingleCase(id) {
   if (!confirm('هل أنت متأكد من حذف هذه الجلسة نهائياً؟')) return;
+  const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
   try {
-    await fetch((localStorage.getItem(LS_API) || HARDCODED_API), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'deleteCase', caseId: id }) });
+    await fetch(apiUrl, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'deleteCase', caseId: id })
+    });
     fetchData();
   } catch (err) { alert('حدث خطأ'); }
 }
 
 async function deleteAllCases() {
   if (!confirm('⚠️ تحذير: هل أنت متأكد من حذف جميع الجلسات نهائياً؟')) return;
+  const apiUrl = (localStorage.getItem(LS_API) || HARDCODED_API);
   try {
-    await fetch((localStorage.getItem(LS_API) || HARDCODED_API), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'deleteAllCases' }) });
+    await fetch(apiUrl, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'deleteAllCases' })
+    });
     fetchData();
   } catch (err) { alert('حدث خطأ'); }
 }
 
+/* ================== بدء ================== */
 refreshGuideUI();
 </script>
 </body>
