@@ -16,6 +16,7 @@
   label { display: block; margin: 14px 0 8px; font-weight: 500; font-size: 16px; }
   input, select { width: 100%; padding: 12px; border: 1.5px solid #ccd1d1; border-radius: 8px; font-size: 16px; background: #fff; font-weight: 400; }
   input:focus, select:focus { border-color: var(--p); outline: none; }
+  input:read-only { background-color: #e9ecef; color: #495057; cursor: not-allowed; border-color: #ced4da; }
   button { background: var(--p); color: #fff; border: none; padding: 14px; border-radius: 8px; font-size: 17px; cursor: pointer; margin-top: 15px; width: 100%; font-weight: 500; display: flex; justify-content: center; align-items: center; gap: 8px; }
   button:hover { background: var(--pd); }
   button:disabled { background: #95a5a6; cursor: not-allowed; }
@@ -38,29 +39,27 @@
   .search-result { background: #fff; border: 1px solid var(--p); padding: 10px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
   .search-result:hover { background: #e3efec; }
   .search-result b { color: var(--p); }
-  /* شاشة الدخول */
   #loginScreen { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; max-width: 400px; margin: 0 auto; }
-  #loginScreen h1 { font-size: 32px; }
 </style>
 </head>
 <body>
 
 <!-- شاشة تسجيل الدخول -->
 <div id="loginScreen">
-  <h1 style="text-align:center; margin-bottom:10px;">🧠 الدعم النفسي</h1>
+  <h1 style="text-align:center; margin-bottom:10px;">🧠 الدعم النفسي بالغربية</h1>
   <p class="subtitle">تسجيل الدخول للنظام</p>
   <div class="card">
     <label>الرقم القومي</label>
     <input type="text" id="loginNationalId" placeholder="14 رقم" maxlength="14">
     <label>كلمة المرور</label>
     <input type="password" id="loginPassword" placeholder="********">
-    <button onclick="loginUser()">🔐 تسجيل الدخول</button>
-    <button class="secondary" onclick="showAdminLogin()" style="margin-top:10px; font-size:14px;">🔑 دخول المدير</button>
+    <button onclick="loginUser()">🔑 تسجيل الدخول</button>
+    <button class="secondary" onclick="showAdminLogin()" style="margin-top:10px; font-size:14px;">🔐 دخول المدير</button>
     <div id="loginStatus" class="status hidden"></div>
   </div>
 </div>
 
-<!-- شاشة إنشاء باسورد (لأول مرة) -->
+<!-- شاشة إنشاء باسورد -->
 <div id="setupPasswordScreen" class="hidden" style="max-width: 400px; margin: 20px auto;">
   <div class="card">
     <h3>🔑 تنشيط الحساب</h3>
@@ -78,7 +77,7 @@
 <div id="guideMode" class="hidden">
   <div class="topbar">
     <h1 style="margin:0;">🧠 الدعم النفسي بالغربية</h1>
-    <button class="secondary" onclick="logout()">خروج 🏠</button>
+    <button class="secondary" onclick="logout()">⬅️ تسجيل الخروج</button>
   </div>
   <p class="subtitle" id="guideNameLabel">—</p>
 
@@ -90,7 +89,6 @@
     </div>
   </div>
 
-  <!-- 🔍 قسم البحث عن عميل -->
   <div class="card">
     <h3>🔍 بحث عن عميل سابق</h3>
     <div class="row" style="margin-top:0;">
@@ -136,8 +134,8 @@
 <!-- لوحة المدير -->
 <div id="adminMode" class="hidden">
   <div class="topbar">
-    <h1 style="margin:0;">🧠 لوحة المدير</h1>
-    <button class="secondary" onclick="logout()">خروج 🏠</button>
+    <h1 style="margin:0;">🧠 لوحة المدير - الدعم النفسي بالغربية</h1>
+    <button class="secondary" onclick="logout()">⬅️ تسجيل الخروج</button>
   </div>
   <div class="card">
     <h3>🔐 تسجيل دخول المدير</h3>
@@ -179,13 +177,14 @@
     </div>
   </div>
 </div>
+
 <script>
 const LS_USER = 'psy_user_v2';
 const LS_API = 'psy_api_v2';
 const LS_ADMIN_PASS = 'psy_admin_v2';
 const DEFAULT_ADMIN_PASS = 'admin123';
 
-/* ⬇️ الرابط الجديد ⬇️ */
+/* ⬇️ الرابط الخاص بك ⬇️ */
 const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbwbeG0orRH1bx4Zo6HmdEIYCe3rB56uVIix3_2EooZghSxWgEFArxYLhqugUOOSJPBX/exec'; 
 
 let currentUser = JSON.parse(localStorage.getItem(LS_USER) || 'null');
@@ -224,7 +223,6 @@ async function loginUser() {
       localStorage.setItem(LS_USER, JSON.stringify(currentUser));
       startUserSession();
     } else if (data.error === 'NEW_ACCOUNT') {
-      // حساب موجود بس ملوش باسورد
       tempUserForSetup = nationalId;
       showScreen('setupPasswordScreen');
     } else {
@@ -327,11 +325,16 @@ function searchPatient() {
 }
 
 function selectExistingPatient(caseId, clientName) {
-  document.getElementById('clientName').value = clientName;
+  const nameInput = document.getElementById('clientName');
+  nameInput.value = clientName;
+  nameInput.setAttribute('readonly', true); // قفل الحقل
+  nameInput.style.backgroundColor = '#e9ecef'; // لون رمادي
+  
   document.getElementById('existingCaseId').value = caseId;
   document.getElementById('searchResults').innerHTML = '';
   document.getElementById('searchPatientName').value = '';
-  alert(`✅ تم اختيار العميل: ${clientName}\nهذه الجلسة ستُضاف إلى ملفه.`);
+  
+  alert(`✅ تم اختيار العميل: ${clientName}\nهذه الجلسة ستُضاف إلى ملفه.\n(خانة الاسم مقفولة الآن، أكمل الخدمة والتاريخ والمرفقات).`);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -393,7 +396,16 @@ async function addCase() {
     if (data.ok) {
       status.className = 'status ok'; status.textContent = existingCaseId ? '✅ تم إضافة الجلسة' : '✅ تم إنشاء ملف';
       codeDisplay.innerHTML = `كود: <br><span style="font-size:24px;">${data.caseCode}</span>`; codeDisplay.classList.remove('hidden');
-      document.getElementById('clientName').value = ''; document.getElementById('service').value = ''; document.getElementById('files').value = ''; document.getElementById('existingCaseId').value = '';
+      
+      // تصفير الفورم وفك قفل الاسم
+      document.getElementById('clientName').value = ''; 
+      document.getElementById('clientName').removeAttribute('readonly'); 
+      document.getElementById('clientName').style.backgroundColor = '#fff';
+      
+      document.getElementById('service').value = ''; 
+      document.getElementById('files').value = ''; 
+      document.getElementById('existingCaseId').value = '';
+      
       if (!document.getElementById('myCasesCard').classList.contains('hidden')) showMyCases();
     } else { status.className = 'status err'; status.textContent = '❌ ' + data.error; }
   } catch (err) { status.className = 'status err'; status.textContent = '❌ فشل'; } finally { btn.disabled = false; btn.textContent = '💾 حفظ'; }
