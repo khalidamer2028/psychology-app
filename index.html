@@ -24,10 +24,10 @@
   button.small { padding: 8px 12px; font-size: 14px; width: auto; margin: 0; }
   .row { display: flex; gap: 10px; margin-top: 10px; } .row > * { flex: 1; }
   .visit { border-right: 5px solid var(--p); background: #f9fbfb; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e1e8e6; }
-  .visit h3 { font-size: 18px; color: var(--p); margin-bottom: 8px; border: none; padding: 0; }
+  .visit h3 { font-size: 18px; color: var(--p); margin-bottom: 8px; border: none; padding: 0; display: flex; justify-content: space-between; align-items: center; }
   .visit p { font-size: 15px; margin: 4px 0; color: #444; }
   .empty { text-align: center; color: #777; padding: 20px; font-style: italic; font-size: 16px; }
-  .badge { display: inline-block; background: #e3efec; color: var(--p); padding: 3px 8px; border-radius: 6px; font-size: 13px; }
+  .badge { display: inline-block; background: #e3efec; color: var(--p); padding: 4px 10px; border-radius: 6px; font-size: 14px; font-weight: bold; letter-spacing: 0.5px; }
   .hidden { display: none !important; }
   .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
   .topbar button { width: auto; margin: 0; padding: 10px 16px; }
@@ -40,7 +40,7 @@
   .search-result b { color: var(--p); }
   #loginScreen { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; max-width: 400px; margin: 0 auto; }
 
-  /* 🎨 تنسيق أزرار العرض والتعديل على خط واحد */
+  /* 🎨 تنسيق أزرار العرض والتعديل على خط واحد متساوي */
   .action-buttons { 
     display: flex; 
     gap: 10px; 
@@ -179,7 +179,8 @@
     <label>التاريخ</label><input type="date" id="date">
     
     <label>المرفقات <span style="color:#c0392b;">*إجباري</span></label>
-    <input type="file" id="files" accept="image/*,application/pdf" multiple">
+    <!-- تم ضبط الحقل ليدعم الكاميرا والملفات و PDF والصور المتعددة -->
+    <input type="file" id="files" accept="image/*,application/pdf" multiple>
     
     <button onclick="addCase()" id="saveCaseBtn">💾 حفظ</button>
     <button onclick="cancelEdit()" id="cancelEditBtn" class="secondary hidden" style="margin-top:10px;">❌ إلغاء التعديل</button>
@@ -274,7 +275,7 @@
 <script>
 const LS_USER = 'psy_user_v3';
 const LS_API = 'psy_api_v3';
-const DEFAULT_FALLBACK_ADMIN_PASS = 'admin123'; // احتياطي في حال عدم تحديث كود Apps Script
+const DEFAULT_FALLBACK_ADMIN_PASS = 'admin123';
 
 /* ⬇️ الرابط الخاص بك ⬇️ */
 const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbyOHz_vLKRM1e9rpBOY_wHTwIK5ZqoS1dgSVR3387p4BNtbIZXfnLc_msQpjZooK5FB/exec'; 
@@ -284,6 +285,31 @@ let tempUserForSetup = null;
 let guideCasesGlobal = [];
 let adminData = { cases: [], guides: [] };
 let adminAuthPassword = sessionStorage.getItem('psy_admin_token') || '';
+
+/* ================== دوال ضبط وتنسيق التاريخ (2026/11/18) ================== */
+function formatDisplayDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) {
+    return String(dateStr).split('T')[0].replace(/-/g, '/');
+  }
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}/${month}/${day}`; // النتيجة: 2026/11/18
+}
+
+function toStandardDateStr(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) {
+    return String(dateStr).split('T')[0].replace(/\//g, '-');
+  }
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`; // النتيجة: 2026-11-18 لحقول الإدخال والفلترة
+}
 
 /* ================== شاشات النظام ================== */
 function showScreen(screenId) {
@@ -406,21 +432,18 @@ async function loginAdmin() {
     });
     const data = await res.json();
 
-    // التحقق من جهة السيرفر أولاً
     if (data.ok) {
       grantAdminAccess(input);
     } else if (data.error === 'UNKNOWN_ACTION' && input === DEFAULT_FALLBACK_ADMIN_PASS) {
-      // توافق مؤقت حتى تحدث كود السيرفر
       grantAdminAccess(input);
     } else {
-      status.className = 'status err'; status.textContent = '❌ ' + (data.error || 'كلمة المرور غير صحيحة أو غير مصرح لك'); status.classList.remove('hidden');
+      status.className = 'status err'; status.textContent = '❌ ' + (data.error || 'كلمة المرور غير صحيحة'); status.classList.remove('hidden');
     }
   } catch (err) {
-    // في حال عدم دعم السيرفر لطلب POST adminLogin بعد
     if (input === DEFAULT_FALLBACK_ADMIN_PASS) {
       grantAdminAccess(input);
     } else {
-      status.className = 'status err'; status.textContent = '❌ فشل التحقق من صلاحيات المدير'; status.classList.remove('hidden');
+      status.className = 'status err'; status.textContent = '❌ فشل الاتصال بالخادم'; status.classList.remove('hidden');
     }
   }
 }
@@ -499,9 +522,10 @@ function getFilteredCases() {
   if (!adminData || !adminData.cases) return [];
   
   return adminData.cases.filter(c => {
-    if (!c.date) return false;
-    if (start && c.date < start) return false;
-    if (end && c.date > end) return false;
+    const stdDate = toStandardDateStr(c.date);
+    if (!stdDate) return false;
+    if (start && stdDate < start) return false;
+    if (end && stdDate > end) return false;
     return true;
   });
 }
@@ -515,7 +539,7 @@ function updateStats() {
   const summaryBox = document.getElementById('filterSummaryText');
   
   if (start || end) {
-    summaryBox.textContent = `📌 الفترة المحددة: من (${start || 'البداية'}) إلى (${end || 'اليوم'}) — الإجمالي: ${filteredCases.length} جلسة`;
+    summaryBox.textContent = `📌 الفترة المحددة: من (${formatDisplayDate(start) || 'البداية'}) إلى (${formatDisplayDate(end) || 'اليوم'}) — الإجمالي: ${filteredCases.length} جلسة`;
   } else {
     summaryBox.textContent = `📌 عرض كل الفترات — إجمالي الجلسات: ${filteredCases.length}`;
   }
@@ -574,7 +598,7 @@ function printGeneralStats() {
     </head><body>
       <h1>تقرير الإحصائيات العامة</h1>
       <p style="text-align:center; font-weight:bold; color:#555;">${summaryText}</p>
-      <p><b>تاريخ الطباعة:</b> ${new Date().toLocaleDateString('ar-EG')}</p>
+      <p><b>تاريخ الطباعة:</b> ${formatDisplayDate(new Date())}</p>
       ${tableHtml}
     </body></html>
   `); 
@@ -592,7 +616,7 @@ function printGuideStats() {
     </head><body>
       <h1>إحصائيات الأخصائيين</h1>
       <p style="text-align:center; font-weight:bold; color:#555;">${summaryText}</p>
-      <p><b>تاريخ الطباعة:</b> ${new Date().toLocaleDateString('ar-EG')}</p>
+      <p><b>تاريخ الطباعة:</b> ${formatDisplayDate(new Date())}</p>
       ${tableHtml}
     </body></html>
   `); 
@@ -610,7 +634,7 @@ function renderAdminCases() {
   list.innerHTML = filtered.map(c => { 
     let attachHtml = (c.attachments || []).map(a => `<a href="${a.data}" target="_blank" class="attach-link" style="padding:6px 10px; border-radius:6px; background:#e3efec; border:1px solid var(--p); color:var(--p); text-decoration:none;">📎 عرض المرفق</a>`).join(' '); 
     return `<div class="visit">
-      <h3>${c.clientName} <span class="badge">${c.date}</span></h3>
+      <h3><span>${c.clientName}</span> <span class="badge">${formatDisplayDate(c.date)}</span></h3>
       <p><b>الأخصائي:</b> ${c.guideName} (${c.room})</p>
       <p><b>الخدمة:</b> ${c.service}</p>
       <p><b>كود الملف:</b> ${c.id}</p>
@@ -693,7 +717,7 @@ function editCase(caseId) {
   document.getElementById('clientName').style.backgroundColor = '#e9ecef';
   
   document.getElementById('service').value = c.service;
-  document.getElementById('date').value = c.date;
+  document.getElementById('date').value = toStandardDateStr(c.date);
   document.getElementById('existingCaseId').value = c.id;
   document.getElementById('editMode').value = 'true';
   
@@ -834,7 +858,6 @@ function showMyCases() {
           ? `<a href="${attaches[0].data}" target="_blank" class="attach-link">📎 عرض المرفق</a>`
           : `<span class="no-attach-btn">لا يوجد مرفق</span>`;
 
-        // 🎨 الزران متساويان على نفس السطر
         let actionBtns = `
           <div class="action-buttons">
             ${attachButtonHtml}
@@ -843,7 +866,7 @@ function showMyCases() {
         `;
         
         return `<div class="visit">
-          <h3>${c.clientName} <span class="badge">${c.date}</span></h3>
+          <h3><span>${c.clientName}</span> <span class="badge">${formatDisplayDate(c.date)}</span></h3>
           <p><b>كود الملف:</b> ${c.id}</p>
           <p><b>الخدمة:</b> ${c.service}</p>
           ${actionBtns}
@@ -859,7 +882,7 @@ function printMyCasesPDF() {
   if (!currentUser || guideCasesGlobal.length === 0) { alert('لا توجد بيانات للطباعة'); return; }
   
   let tableRows = guideCasesGlobal.map((c) => { 
-    return `<tr><td>${c.id}</td><td>${c.clientName}</td><td>${c.service}</td><td>${c.date}</td></tr>`; 
+    return `<tr><td>${c.id}</td><td>${c.clientName}</td><td>${c.service}</td><td>${formatDisplayDate(c.date)}</td></tr>`; 
   }).join('');
   
   const win = window.open('', '', 'width=800,height=600');
