@@ -134,7 +134,7 @@
 <!-- لوحة المدير -->
 <div id="adminMode" class="hidden">
   <div class="topbar">
-    <h1 style="margin:0;">🧠 الدعم النفسي بالغربية</h1>
+    <h1 style="margin:0;">🧠 لوحة المدير - الدعم النفسي بالغربية</h1>
     <button class="secondary" onclick="logout()">⬅️ تسجيل الخروج</button>
   </div>
   <div class="card">
@@ -182,7 +182,7 @@
 const LS_USER = 'psy_user_v2';
 const LS_API = 'psy_api_v2';
 const LS_ADMIN_PASS = 'psy_admin_v2';
-const DEFAULT_ADMIN_PASS = 'khalid1968';
+const DEFAULT_ADMIN_PASS = 'admin123';
 
 /* ⬇️ الرابط الخاص بك ⬇️ */
 const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbwbeG0orRH1bx4Zo6HmdEIYCe3rB56uVIix3_2EooZghSxWgEFArxYLhqugUOOSJPBX/exec'; 
@@ -428,18 +428,42 @@ function showMyCases() {
   });
 }
 
+/* 🖨️ طباعة التقرير المعدلة */
 function printMyCasesPDF() {
   if (!currentUser || guideCasesGlobal.length === 0) { alert('لا توجد'); return; }
+  
   let tableRows = guideCasesGlobal.map((c) => { 
-    let attachHtml = 'لا يوجد'; 
-    if (c.attachments && c.attachments.length > 0) { 
-      attachHtml = c.attachments.map(a => { if (a.data.startsWith('data:image/')) return `<img src="${a.data}" style="max-width:150px; max-height:150px; display:block; margin:5px auto; border:1px solid #ccc;">`; else return `<div style="font-size:12px; color:#666;">PDF: ${a.name}</div>`; }).join(''); 
-    } 
-    return `<tr><td>${c.id}</td><td>${c.clientName}</td><td>${c.service}</td><td>${attachHtml}</td></tr>`; 
+    // بدلنا المرفق بالتاريخ هنا
+    return `<tr><td>${c.id}</td><td>${c.clientName}</td><td>${c.service}</td><td>${c.date}</td></tr>`; 
   }).join('');
   
   const win = window.open('', '', 'width=800,height=600');
-  win.document.write(`<html dir="rtl"><head><title>تقرير</title><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"><style>body{font-family:'Tajawal', sans-serif;padding:20px;} h1{color:#1e6f5c;text-align:center; font-size:24px;} table{width:100%;border-collapse:collapse;margin-top:10px; font-size:15px;} th,td{border:1px solid #ccc;padding:10px;text-align:center; font-weight:500; vertical-align:middle;} th{background:#1e6f5c;color:#fff;} .footer{margin-top:30px; text-align:left; font-weight:500; font-size:17px;}</style></head><body><h1>تقرير الجلسات</h1><table><thead><tr><th>كود</th><th>العميل</th><th>الخدمة</th><th>المرفق</th></tr></thead><tbody>${tableRows}</tbody></table><div class="footer"><b>الأخصائي:</b> ${currentUser.name}<br><b>الغرفة:</b> ${currentUser.room}</div></body></html>`);
+  win.document.write(`
+    <html dir="rtl"><head><title>تقرير الجلسات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+      body{font-family:'Tajawal', sans-serif;padding:20px; color:#333;} 
+      h1{color:#1e6f5c;text-align:center; font-size:26px; margin-bottom:5px;} 
+      h2{color:#555;text-align:center; font-size:20px; margin-bottom:20px; font-weight:500;}
+      table{width:100%;border-collapse:collapse;margin-top:10px; font-size:15px;} 
+      th,td{border:1px solid #ccc;padding:10px;text-align:center; font-weight:500; vertical-align:middle;} 
+      th{background:#1e6f5c;color:#fff;} 
+      .signature{margin-top:50px; text-align:left; font-weight:500; font-size:18px; padding:0 20px;}
+    </style></head>
+    <body>
+      <h1>تقرير الجلسات</h1>
+      <h2>${currentUser.room}</h2>
+      
+      <table>
+        <thead><tr><th>كود الملف</th><th>اسم العميل</th><th>الخدمة المقدمة</th><th>التاريخ</th></tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+      
+      <div class="signature">
+        <b>التوقيع:</b> ..................................................
+      </div>
+    </body></html>
+  `);
   win.document.close(); win.print();
 }
 
