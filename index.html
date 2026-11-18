@@ -17,7 +17,7 @@
   input, select { width: 100%; padding: 12px; border: 1.5px solid #ccd1d1; border-radius: 8px; font-size: 16px; background: #fff; font-weight: 400; }
   input:focus, select:focus { border-color: var(--p); outline: none; }
   input:read-only { background-color: #e9ecef; color: #495057; cursor: not-allowed; border-color: #ced4da; }
-  button { background: var(--p); color: #fff; border: none; padding: 14px; border-radius: 8px; font-size: 17px; cursor: pointer; margin-top: 15px; width: 100%; font-weight: 500; display: flex; justify-content: center; align-items: center; gap: 8px; }
+  button { background: var(--p); color: #fff; border: none; padding: 14px; border-radius: 8px; font-size: 17px; cursor: pointer; margin-top: 15px; width: 100%; font-weight: 500; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.2s; }
   button:hover { background: var(--pd); }
   button:disabled { background: #95a5a6; cursor: not-allowed; }
   button.secondary { background: #7f8c8d; } button.danger { background: var(--d); } button.admin { background: var(--i); }
@@ -26,7 +26,6 @@
   .visit { border-right: 5px solid var(--p); background: #f9fbfb; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e1e8e6; }
   .visit h3 { font-size: 18px; color: var(--p); margin-bottom: 8px; border: none; padding: 0; }
   .visit p { font-size: 15px; margin: 4px 0; color: #444; }
-  .attach-link { display: inline-block; margin-top: 8px; background: #e3efec; color: var(--p); padding: 5px 10px; border-radius: 6px; text-decoration: none; font-size: 14px; border: 1px solid var(--p); }
   .empty { text-align: center; color: #777; padding: 20px; font-style: italic; font-size: 16px; }
   .badge { display: inline-block; background: #e3efec; color: var(--p); padding: 3px 8px; border-radius: 6px; font-size: 13px; }
   .hidden { display: none !important; }
@@ -41,30 +40,63 @@
   .search-result b { color: var(--p); }
   #loginScreen { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; max-width: 400px; margin: 0 auto; }
 
-  /* 🎨 تنسيق أزرار العرض والتعديل لتكون متساوية */
-  .action-buttons { display: flex; gap: 8px; margin-top: 10px; }
-  .action-buttons a, .action-buttons button {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      font-size: 14px;
-      font-weight: 500;
-      border-radius: 6px;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      height: 40px;
+  /* 🎨 تنسيق أزرار العرض والتعديل على خط واحد */
+  .action-buttons { 
+    display: flex; 
+    gap: 10px; 
+    margin-top: 12px; 
+    align-items: center; 
   }
-  .action-buttons a.attach-link { background: #e3efec; color: var(--p); border: 1px solid var(--p); margin-top: 0; }
-  .action-buttons button.edit-btn { background: var(--i); color: #fff; }
+  .action-buttons > * {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    height: 42px;
+    box-sizing: border-box;
+    text-align: center;
+    margin: 0 !important;
+  }
+  .action-buttons a.attach-link { 
+    background: #e3efec; 
+    color: var(--p); 
+    border: 1.5px solid var(--p); 
+  }
+  .action-buttons a.attach-link:hover { 
+    background: var(--p); 
+    color: #fff; 
+  }
+  .action-buttons button.edit-btn { 
+    background: var(--i); 
+    color: #fff; 
+  }
+  .action-buttons button.edit-btn:hover { 
+    background: #2471a3; 
+  }
+  .action-buttons .no-attach-btn {
+    background: #f1f2f6;
+    color: #95a5a6;
+    border: 1px dashed #bdc3c7;
+    cursor: not-allowed;
+  }
   
-  /* 🎨 زر كل جلساتي */
+  /* 🎨 فلاتر الإحصائيات الزمنية */
+  .filter-box { background: #fdfefe; border: 1px solid #d5dbdb; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+  .filter-quick-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .filter-quick-btns button { flex: 1; min-width: 75px; font-size: 13px; padding: 6px 10px; }
+  .filter-summary { font-size: 14px; color: var(--p); font-weight: bold; margin-top: 10px; text-align: center; }
+
   .btn-show-cases {
-      background: #2980b9 !important;
-      color: white !important;
-      font-weight: bold;
+    background: #2980b9 !important;
+    color: white !important;
+    font-weight: bold;
   }
 </style>
 </head>
@@ -168,16 +200,20 @@
 <div id="adminMode" class="hidden">
   <div class="topbar">
     <h1 style="margin:0;">🧠 لوحة المدير - الدعم النفسي بالغربية</h1>
-    <button class="secondary" onclick="logout()">⬅️ تسجيل الخروج</button>
+    <button class="secondary" onclick="logoutAdmin()">⬅️ تسجيل الخروج</button>
   </div>
-  <div class="card">
+
+  <!-- شاشة الدخول للمدير -->
+  <div class="card" id="adminLoginCard">
     <h3>🔐 تسجيل دخول المدير</h3>
     <label>كلمة السر</label>
     <input type="password" id="adminPass" placeholder="أدخل كلمة سر المدير">
     <button onclick="loginAdmin()">دخول</button>
+    <button class="secondary" onclick="showScreen('loginScreen')" style="margin-top:10px;">⬅️ عودة لشاشة الأخصائيين</button>
     <div id="loginStatusAdmin" class="status hidden"></div>
   </div>
 
+  <!-- لوحة الإدارة بعد الدخول المعتمد -->
   <div id="adminPanel" class="hidden">
     <div class="card">
       <h3>⚙️ إعدادات النظام</h3>
@@ -185,27 +221,51 @@
       <input type="text" id="apiUrl" placeholder="https://script.google.com/...">
       <div class="row">
         <button class="secondary" onclick="saveApiUrl()">💾 حفظ الرابط</button>
-        <button class="secondary" onclick="fetchData()">🔄 تحديث</button>
+        <button class="secondary" onclick="fetchData()">🔄 تحديث البيانات</button>
       </div>
       <div id="fetchStatus" class="status hidden"></div>
     </div>
 
+    <!-- بطاقة الإحصائيات مع الفلترة الزمنية -->
     <div class="card">
-      <h3>📊 إحصائيات عامة</h3>
-      <button class="secondary" onclick="printGeneralStats()" style="margin-bottom:15px;">🖨️ طباعة الإحصائيات</button>
-      <button class="danger" onclick="deleteAllCases()" style="margin-bottom:15px;">🗑️ حذف كل الحالات</button>
+      <h3>📊 إحصائيات عامة وفلاتر زمنية</h3>
+      
+      <div class="filter-box">
+        <div class="row" style="margin-top:0;">
+          <div>
+            <label style="margin-top:0;">من تاريخ:</label>
+            <input type="date" id="filterStartDate" onchange="updateStats()">
+          </div>
+          <div>
+            <label style="margin-top:0;">إلى تاريخ:</label>
+            <input type="date" id="filterEndDate" onchange="updateStats()">
+          </div>
+        </div>
+        <div class="filter-quick-btns">
+          <button type="button" class="secondary" onclick="setDateFilter('all')">📅 كل الفترات</button>
+          <button type="button" class="secondary" onclick="setDateFilter('today')">اليوم</button>
+          <button type="button" class="secondary" onclick="setDateFilter('this_week')">هذا الأسبوع</button>
+          <button type="button" class="secondary" onclick="setDateFilter('this_month')">هذا الشهر</button>
+        </div>
+        <div id="filterSummaryText" class="filter-summary"></div>
+      </div>
+
+      <div class="row" style="margin-bottom:15px;">
+        <button class="secondary" onclick="printGeneralStats()">🖨️ طباعة الإحصائيات</button>
+        <button class="danger" onclick="deleteAllCases()">🗑️ حذف كل الحالات</button>
+      </div>
       <div id="generalStatsTable"></div>
     </div>
 
     <div class="card">
-      <h3>👨‍⚕️ إحصائيات الأخصائيين</h3>
+      <h3>👨⚕️ إحصائيات الأخصائيين</h3>
       <button class="secondary" onclick="printGuideStats()" style="margin-bottom:15px;">🖨️ طباعة إحصائيات الأخصائيين</button>
       <div id="guideStatsTable"></div>
     </div>
 
     <div class="card">
       <h3>🔍 بحث في الجلسات</h3>
-      <input type="text" id="searchBox" oninput="renderAdminCases()" placeholder="بحث...">
+      <input type="text" id="searchBox" oninput="renderAdminCases()" placeholder="بحث باسم العميل أو الأخصائي...">
       <div id="adminList" style="margin-top:15px;"></div>
     </div>
   </div>
@@ -214,8 +274,7 @@
 <script>
 const LS_USER = 'psy_user_v3';
 const LS_API = 'psy_api_v3';
-const LS_ADMIN_PASS = 'psy_admin_v3';
-const DEFAULT_ADMIN_PASS = 'admin123';
+const DEFAULT_FALLBACK_ADMIN_PASS = 'admin123'; // احتياطي في حال عدم تحديث كود Apps Script
 
 /* ⬇️ الرابط الخاص بك ⬇️ */
 const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbx-_Z7jTdwL_DmlxhMfQBBHI-AAJTF1hzXmg54sowm0uIJY4uaP2mlAuTfbUbLZfayb/exec'; 
@@ -224,8 +283,9 @@ let currentUser = JSON.parse(localStorage.getItem(LS_USER) || 'null');
 let tempUserForSetup = null;
 let guideCasesGlobal = [];
 let adminData = { cases: [], guides: [] };
+let adminAuthPassword = sessionStorage.getItem('psy_admin_token') || '';
 
-/* ================== شاشة الدخول ================== */
+/* ================== شاشات النظام ================== */
 function showScreen(screenId) {
   ['loginScreen', 'setupPasswordScreen', 'guideMode', 'adminMode'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
@@ -239,7 +299,7 @@ async function loginUser() {
   const status = document.getElementById('loginStatus');
 
   if (!nationalId || !password) {
-    status.className = 'status err'; status.textContent = '❌ املأ البيانات'; status.classList.remove('hidden'); return;
+    status.className = 'status err'; status.textContent = '❌ يرجى ملء جميع الحقول'; status.classList.remove('hidden'); return;
   }
 
   status.className = 'status info'; status.textContent = '⏳ جاري التحقق...'; status.classList.remove('hidden');
@@ -259,10 +319,10 @@ async function loginUser() {
       tempUserForSetup = nationalId;
       showScreen('setupPasswordScreen');
     } else {
-      status.className = 'status err'; status.textContent = '❌ ' + data.error; status.classList.remove('hidden');
+      status.className = 'status err'; status.textContent = '❌ ' + (data.error || 'بيانات الدخول غير صحيحة'); status.classList.remove('hidden');
     }
   } catch (err) {
-    status.className = 'status err'; status.textContent = '❌ فشل الاتصال'; status.classList.remove('hidden');
+    status.className = 'status err'; status.textContent = '❌ تعذر الاتصال بالخادم'; status.classList.remove('hidden');
   }
 }
 
@@ -272,7 +332,7 @@ async function createPassword() {
   const status = document.getElementById('setupStatus');
 
   if (!pass1 || pass1.length < 4) {
-    status.className = 'status err'; status.textContent = '❌ كلمة المرور 4 أحرف على الأقل'; status.classList.remove('hidden'); return;
+    status.className = 'status err'; status.textContent = '❌ كلمة المرور يجب ألا تقل عن 4 خانات'; status.classList.remove('hidden'); return;
   }
   if (pass1 !== pass2) {
     status.className = 'status err'; status.textContent = '❌ كلمتا المرور غير متطابقتين'; status.classList.remove('hidden'); return;
@@ -314,22 +374,70 @@ function logout() {
   location.reload();
 }
 
-/* ================== لوحة المدير ================== */
+/* ================== إدارة المدير والأمان ================== */
 function showAdminLogin() {
   showScreen('adminMode');
-}
-
-function loginAdmin() {
-  const input = document.getElementById('adminPass').value;
-  const status = document.getElementById('loginStatusAdmin');
-  if (input === (localStorage.getItem(LS_ADMIN_PASS) || DEFAULT_ADMIN_PASS)) {
+  if (adminAuthPassword) {
+    document.getElementById('adminLoginCard').classList.add('hidden');
     document.getElementById('adminPanel').classList.remove('hidden');
-    status.className = 'status ok'; status.textContent = '✅ تم الدخول'; status.classList.remove('hidden');
     document.getElementById('apiUrl').value = localStorage.getItem(LS_API) || HARDCODED_API;
     fetchData();
   } else {
-    status.className = 'status err'; status.textContent = '❌ كلمة السر خاطئة'; status.classList.remove('hidden');
+    document.getElementById('adminLoginCard').classList.remove('hidden');
+    document.getElementById('adminPanel').classList.add('hidden');
   }
+}
+
+async function loginAdmin() {
+  const input = document.getElementById('adminPass').value.trim();
+  const status = document.getElementById('loginStatusAdmin');
+  
+  if (!input) {
+    status.className = 'status err'; status.textContent = '❌ يرجى إدخال كلمة المرور'; status.classList.remove('hidden'); return;
+  }
+
+  status.className = 'status info'; status.textContent = '⏳ جاري التحقق من الصلاحيات...'; status.classList.remove('hidden');
+
+  try {
+    const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API), {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'adminLogin', adminPass: input })
+    });
+    const data = await res.json();
+
+    // التحقق من جهة السيرفر أولاً
+    if (data.ok) {
+      grantAdminAccess(input);
+    } else if (data.error === 'UNKNOWN_ACTION' && input === DEFAULT_FALLBACK_ADMIN_PASS) {
+      // توافق مؤقت حتى تحدث كود السيرفر
+      grantAdminAccess(input);
+    } else {
+      status.className = 'status err'; status.textContent = '❌ ' + (data.error || 'كلمة المرور غير صحيحة أو غير مصرح لك'); status.classList.remove('hidden');
+    }
+  } catch (err) {
+    // في حال عدم دعم السيرفر لطلب POST adminLogin بعد
+    if (input === DEFAULT_FALLBACK_ADMIN_PASS) {
+      grantAdminAccess(input);
+    } else {
+      status.className = 'status err'; status.textContent = '❌ فشل التحقق من صلاحيات المدير'; status.classList.remove('hidden');
+    }
+  }
+}
+
+function grantAdminAccess(pass) {
+  adminAuthPassword = pass;
+  sessionStorage.setItem('psy_admin_token', pass);
+  document.getElementById('adminLoginCard').classList.add('hidden');
+  document.getElementById('adminPanel').classList.remove('hidden');
+  document.getElementById('apiUrl').value = localStorage.getItem(LS_API) || HARDCODED_API;
+  fetchData();
+}
+
+function logoutAdmin() {
+  adminAuthPassword = '';
+  sessionStorage.removeItem('psy_admin_token');
+  showScreen('loginScreen');
 }
 
 function saveApiUrl() {
@@ -339,7 +447,204 @@ function saveApiUrl() {
   alert('✅ تم حفظ الرابط');
 }
 
-/* ================== البحث عن عميل ================== */
+async function fetchData() {
+  const status = document.getElementById('fetchStatus'); 
+  status.className = 'status info'; status.textContent = '⏳ جاري تحميل البيانات...'; status.classList.remove('hidden');
+  try {
+    const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API) + '?t=' + Date.now()); 
+    const data = await res.json();
+    if (data.ok) { 
+      adminData = data; 
+      updateStats(); 
+      renderAdminCases(); 
+      status.className = 'status ok'; status.textContent = `✅ تم التحديث (${data.cases.length} جلسة مسجلة)`; 
+    } else {
+      status.className = 'status err'; status.textContent = '❌ ' + data.error;
+    }
+  } catch (err) { 
+    status.className = 'status err'; status.textContent = '❌ فشل تحميل البيانات من الخادم'; 
+  }
+}
+
+/* ================== فلاتر زمنية وإحصائيات ================== */
+function setDateFilter(type) {
+  const startInput = document.getElementById('filterStartDate');
+  const endInput = document.getElementById('filterEndDate');
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+  
+  if (type === 'all') {
+    startInput.value = '';
+    endInput.value = '';
+  } else if (type === 'today') {
+    startInput.value = today;
+    endInput.value = today;
+  } else if (type === 'this_week') {
+    const now = new Date();
+    const weekAgo = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000);
+    startInput.value = weekAgo.toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+    endInput.value = today;
+  } else if (type === 'this_month') {
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    startInput.value = firstDay.toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+    endInput.value = today;
+  }
+  updateStats();
+}
+
+function getFilteredCases() {
+  const start = document.getElementById('filterStartDate') ? document.getElementById('filterStartDate').value : '';
+  const end = document.getElementById('filterEndDate') ? document.getElementById('filterEndDate').value : '';
+  
+  if (!adminData || !adminData.cases) return [];
+  
+  return adminData.cases.filter(c => {
+    if (!c.date) return false;
+    if (start && c.date < start) return false;
+    if (end && c.date > end) return false;
+    return true;
+  });
+}
+
+function updateStats() {
+  const roomOrder = ['المديرية', 'شرق طنطا', 'غرب طنطا', 'شرق المحلة', 'غرب المحلة', 'زفتى', 'السنطة', 'كفر الزيات', 'سمنود', 'قطور', 'بسيون'];
+  const filteredCases = getFilteredCases();
+  
+  const start = document.getElementById('filterStartDate').value;
+  const end = document.getElementById('filterEndDate').value;
+  const summaryBox = document.getElementById('filterSummaryText');
+  
+  if (start || end) {
+    summaryBox.textContent = `📌 الفترة المحددة: من (${start || 'البداية'}) إلى (${end || 'اليوم'}) — الإجمالي: ${filteredCases.length} جلسة`;
+  } else {
+    summaryBox.textContent = `📌 عرض كل الفترات — إجمالي الجلسات: ${filteredCases.length}`;
+  }
+
+  // 1. الإحصائيات العامة
+  let generalObj = {}; 
+  filteredCases.forEach(c => { 
+    const key = `${c.room}|${c.service}`; 
+    generalObj[key] = (generalObj[key] || 0) + 1; 
+  });
+
+  let generalHtml = `<table><tr><th>الغرفة</th><th>الخدمة</th><th>العدد</th></tr>`; 
+  let totalGeneral = 0;
+  
+  Object.entries(generalObj).sort((a, b) => {
+    const roomA = a[0].split('|')[0];
+    const roomB = b[0].split('|')[0];
+    return roomOrder.indexOf(roomA) - roomOrder.indexOf(roomB);
+  }).forEach(([key, count]) => { 
+    const [room, service] = key.split('|'); 
+    generalHtml += `<tr><td>${room}</td><td>${service}</td><td>${count}</td></tr>`; 
+    totalGeneral += count; 
+  });
+  
+  generalHtml += `<tr style="background:#d4edda; font-weight:bold;"><td colspan="2">الإجمالي</td><td>${totalGeneral}</td></tr></table>`; 
+  document.getElementById('generalStatsTable').innerHTML = generalHtml;
+
+  // 2. إحصائيات الأخصائيين
+  let guideObj = {}; 
+  filteredCases.forEach(c => { 
+    const key = `${c.guideName}|${c.room}|${c.service}`; 
+    guideObj[key] = (guideObj[key] || 0) + 1; 
+  });
+  
+  let guideHtml = `<table><tr><th>الأخصائي</th><th>الغرفة</th><th>الخدمة</th><th>العدد</th></tr>`;
+  Object.entries(guideObj).sort((a, b) => {
+    const roomA = a[0].split('|')[1];
+    const roomB = b[0].split('|')[1];
+    return roomOrder.indexOf(roomA) - roomOrder.indexOf(roomB);
+  }).forEach(([key, count]) => { 
+    const [name, room, service] = key.split('|'); 
+    guideHtml += `<tr><td>${name}</td><td>${room}</td><td>${service}</td><td>${count}</td></tr>`; 
+  });
+  guideHtml += `</table>`; 
+  document.getElementById('guideStatsTable').innerHTML = guideHtml;
+}
+
+function printGeneralStats() { 
+  const win = window.open('', '', 'width=800,height=600'); 
+  const tableHtml = document.getElementById('generalStatsTable').innerHTML; 
+  const summaryText = document.getElementById('filterSummaryText').textContent;
+  win.document.write(`
+    <html dir="rtl"><head><title>تقرير الإحصائيات العامة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>body{font-family:'Tajawal', sans-serif;padding:20px; color:#333;} h1{color:#1e6f5c;text-align:center;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ccc;padding:10px;text-align:center;} th{background:#1e6f5c;color:#fff;}</style>
+    </head><body>
+      <h1>تقرير الإحصائيات العامة</h1>
+      <p style="text-align:center; font-weight:bold; color:#555;">${summaryText}</p>
+      <p><b>تاريخ الطباعة:</b> ${new Date().toLocaleDateString('ar-EG')}</p>
+      ${tableHtml}
+    </body></html>
+  `); 
+  win.document.close(); win.print(); 
+}
+
+function printGuideStats() { 
+  const win = window.open('', '', 'width=800,height=600'); 
+  const tableHtml = document.getElementById('guideStatsTable').innerHTML; 
+  const summaryText = document.getElementById('filterSummaryText').textContent;
+  win.document.write(`
+    <html dir="rtl"><head><title>إحصائيات الأخصائيين</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>body{font-family:'Tajawal', sans-serif;padding:20px; color:#333;} h1{color:#1e6f5c;text-align:center;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ccc;padding:10px;text-align:center;} th{background:#1e6f5c;color:#fff;}</style>
+    </head><body>
+      <h1>إحصائيات الأخصائيين</h1>
+      <p style="text-align:center; font-weight:bold; color:#555;">${summaryText}</p>
+      <p><b>تاريخ الطباعة:</b> ${new Date().toLocaleDateString('ar-EG')}</p>
+      ${tableHtml}
+    </body></html>
+  `); 
+  win.document.close(); win.print(); 
+}
+
+/* ================== إدارة الحالات والبحث ================== */
+function renderAdminCases() {
+  const q = document.getElementById('searchBox').value.trim().toLowerCase(); 
+  const list = document.getElementById('adminList'); 
+  const filtered = adminData.cases.filter(c => c.clientName.toLowerCase().includes(q) || c.guideName.toLowerCase().includes(q));
+  
+  if (filtered.length === 0) { list.innerHTML = '<p class="empty">لا توجد نتائج مطابقة</p>'; return; }
+  
+  list.innerHTML = filtered.map(c => { 
+    let attachHtml = (c.attachments || []).map(a => `<a href="${a.data}" target="_blank" class="attach-link" style="padding:6px 10px; border-radius:6px; background:#e3efec; border:1px solid var(--p); color:var(--p); text-decoration:none;">📎 عرض المرفق</a>`).join(' '); 
+    return `<div class="visit">
+      <h3>${c.clientName} <span class="badge">${c.date}</span></h3>
+      <p><b>الأخصائي:</b> ${c.guideName} (${c.room})</p>
+      <p><b>الخدمة:</b> ${c.service}</p>
+      <p><b>كود الملف:</b> ${c.id}</p>
+      ${attachHtml ? `<div style="margin-top:10px;">${attachHtml}</div>` : ''}
+      <button class="danger small" onclick="deleteSingleCase('${c.id}')" style="margin-top:12px;">🗑️ حذف الجلسة</button>
+    </div>`; 
+  }).join('');
+}
+
+async function deleteSingleCase(id) { 
+  if (!confirm('هل أنت متأكد من حذف هذه الجلسة نهائياً؟')) return; 
+  try { 
+    await fetch((localStorage.getItem(LS_API) || HARDCODED_API), { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+      body: JSON.stringify({ action: 'deleteCase', caseId: id, adminPass: adminAuthPassword }) 
+    }); 
+    fetchData(); 
+  } catch (err) { alert('حدث خطأ أثناء الحذف'); } 
+}
+
+async function deleteAllCases() { 
+  if (!confirm('⚠️ تحذير شديد: هل أنت متأكد من حذف كافة الحالات من قاعدة البيانات بالكامل؟')) return; 
+  try { 
+    await fetch((localStorage.getItem(LS_API) || HARDCODED_API), { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+      body: JSON.stringify({ action: 'deleteAllCases', adminPass: adminAuthPassword }) 
+    }); 
+    fetchData(); 
+  } catch (err) { alert('حدث خطأ أثناء مسح البيانات'); } 
+}
+
+/* ================== عمليات الأخصائي وجلساته ================== */
 function searchPatient() {
   const q = document.getElementById('searchPatientName').value.trim().toLowerCase();
   const resultsBox = document.getElementById('searchResults');
@@ -351,7 +656,7 @@ function searchPatient() {
   const clients = Object.values(uniqueClients);
   
   if (clients.length === 0) {
-    resultsBox.innerHTML = '<p style="color:#e74c3c; font-size:14px; margin-top:10px;">لم يتم العثور على عميل.</p>';
+    resultsBox.innerHTML = '<p style="color:#e74c3c; font-size:14px; margin-top:10px;">لم يتم العثور على عميل سابق بهذا الاسم.</p>';
     return;
   }
   resultsBox.innerHTML = clients.map(c => `<div class="search-result" onclick="selectExistingPatient('${c.id}', '${c.clientName}')"><b>الاسم:</b> ${c.clientName} <br><b>كود الملف:</b> ${c.id}</div>`).join('');
@@ -372,11 +677,10 @@ function selectExistingPatient(caseId, clientName) {
   document.getElementById('searchResults').innerHTML = '';
   document.getElementById('searchPatientName').value = '';
   
-  alert(`✅ تم اختيار العميل: ${clientName}\nهذه الجلسة ستُضاف إلى ملفه.`);
+  alert(`✅ تم اختيار العميل: ${clientName}\nالجلسة الجديدة ستُضاف لنفس الملف.`);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/* ================== تعديل جلسة ================== */
 function editCase(caseId) {
   const c = guideCasesGlobal.find(x => String(x.id) === String(caseId));
   if (!c) return;
@@ -393,11 +697,11 @@ function editCase(caseId) {
   document.getElementById('existingCaseId').value = c.id;
   document.getElementById('editMode').value = 'true';
   
-  document.getElementById('formTitle').textContent = '✏️ تعديل الجلسة';
+  document.getElementById('formTitle').textContent = '✏️ تعديل بيانات الجلسة';
   document.getElementById('saveCaseBtn').textContent = '🔄 تحديث الجلسة';
   document.getElementById('cancelEditBtn').classList.remove('hidden');
   
-  alert(`✏️ جاري تعديل جلسة: ${c.clientName}\n(أدخل مرفقات جديدة لتحل محل القديمة)`);
+  alert(`✏️ جاري تعديل جلسة: ${c.clientName}\n(أدخل مرفقات جديدة لتحل محل المرفقات الحالية)`);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -418,7 +722,6 @@ function cancelEdit() {
   document.getElementById('caseCodeDisplay').classList.add('hidden');
 }
 
-/* ================== إضافة/تعديل جلسة ================== */
 function compressImage(file, maxWidth = 800, quality = 0.6) {
   return new Promise(resolve => {
     if (!file.type.startsWith('image/')) return resolve(null);
@@ -447,25 +750,35 @@ async function addCase() {
   const status = document.getElementById('caseStatus');
   const codeDisplay = document.getElementById('caseCodeDisplay');
   
-  if (!clientName || !service) { status.className = 'status err'; status.textContent = '❌ املأ البيانات'; status.classList.remove('hidden'); return; }
+  if (!clientName || !service) { 
+    status.className = 'status err'; status.textContent = '❌ يرجى استكمال بيانات العميل والخدمة'; status.classList.remove('hidden'); return; 
+  }
   
   const fileInput = document.getElementById('files');
-  if (!fileInput.files || fileInput.files.length === 0) { status.className = 'status err'; status.textContent = '⚠️ مرفق إجباري (حتى في التعديل)'; status.classList.remove('hidden'); return; }
+  if (!fileInput.files || fileInput.files.length === 0) { 
+    status.className = 'status err'; status.textContent = '⚠️ يرجى رفع مرفق الجلسة'; status.classList.remove('hidden'); return; 
+  }
   
-  const btn = document.getElementById('saveCaseBtn'); btn.disabled = true; btn.textContent = '⏳ جاري...';
-  const files = Array.from(fileInput.files); const attachments = [];
+  const btn = document.getElementById('saveCaseBtn'); 
+  btn.disabled = true; btn.textContent = '⏳ جاري الحفظ...';
+  const files = Array.from(fileInput.files); 
+  const attachments = [];
   
   for (const file of files) {
     if (file.type.startsWith('image/')) {
       const compressed = await compressImage(file);
       if (compressed) attachments.push({ name: file.name, type: 'image/jpeg', data: compressed });
     } else {
-      const data = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(file); });
+      const data = await new Promise(res => { 
+        const r = new FileReader(); 
+        r.onload = e => res(e.target.result); 
+        r.readAsDataURL(file); 
+      });
       attachments.push({ name: file.name, type: file.type, data });
     }
   }
   
-  status.className = 'status info'; status.textContent = '⏳ إرسال...'; status.classList.remove('hidden');
+  status.className = 'status info'; status.textContent = '⏳ جاري إرسال البيانات...'; status.classList.remove('hidden');
   codeDisplay.classList.add('hidden');
   
   const actionType = editMode ? 'updateCase' : 'addCase';
@@ -482,48 +795,68 @@ async function addCase() {
     });
     const data = await res.json();
     if (data.ok) {
-      status.className = 'status ok'; status.textContent = editMode ? '✅ تم تحديث الجلسة' : '✅ تم حفظ الجلسة';
-      codeDisplay.innerHTML = `كود: <br><span style="font-size:24px;">${data.caseCode}</span>`; codeDisplay.classList.remove('hidden');
+      status.className = 'status ok'; status.textContent = editMode ? '✅ تم تحديث بيانات الجلسة بنجاح' : '✅ تم حفظ الجلسة بنجاح';
+      codeDisplay.innerHTML = `كود الملف: <br><span style="font-size:24px; font-weight:bold;">${data.caseCode}</span>`; 
+      codeDisplay.classList.remove('hidden');
       
       cancelEdit();
       if (!document.getElementById('myCasesCard').classList.contains('hidden')) showMyCases();
-    } else { status.className = 'status err'; status.textContent = '❌ ' + data.error; }
-  } catch (err) { status.className = 'status err'; status.textContent = '❌ فشل'; } finally { btn.disabled = false; }
+    } else { 
+      status.className = 'status err'; status.textContent = '❌ ' + data.error; 
+    }
+  } catch (err) { 
+    status.className = 'status err'; status.textContent = '❌ تعذر إرسال البيانات للخادم'; 
+  } finally { 
+    btn.disabled = false; 
+  }
 }
 
-/* ================== سجل حالات الأخصائي ================== */
+/* ================== عرض جلسات الأخصائي ومحاذاة الأزرار ================== */
 function showMyCases() {
-  const card = document.getElementById('myCasesCard'); const list = document.getElementById('myCasesList');
-  card.classList.remove('hidden'); list.innerHTML = '<p class="empty">جاري التحميل...</p>';
+  const card = document.getElementById('myCasesCard'); 
+  const list = document.getElementById('myCasesList');
+  card.classList.remove('hidden'); 
+  list.innerHTML = '<p class="empty">⏳ جاري تحميل الجلسات...</p>';
   
-  fetch((localStorage.getItem(LS_API) || HARDCODED_API)).then(res => res.json()).then(data => {
+  fetch((localStorage.getItem(LS_API) || HARDCODED_API) + '?t=' + Date.now())
+  .then(res => res.json())
+  .then(data => {
     if (data.ok) {
-      guideCasesGlobal = data.cases.filter(c => String(c.nationalId) === String(currentUser.nationalId));
-      if (guideCasesGlobal.length === 0) { list.innerHTML = '<p class="empty">لا توجد</p>'; return; }
+      guideCasesGlobal = (data.cases || []).filter(c => String(c.nationalId) === String(currentUser.nationalId));
+      if (guideCasesGlobal.length === 0) { 
+        list.innerHTML = '<p class="empty">لا توجد جلسات مسجلة لك حتى الآن</p>'; 
+        return; 
+      }
+      
       list.innerHTML = guideCasesGlobal.map(c => {
-        // الأزرار متساوية بفضل الكلاس action-buttons
-        let attachHtml = c.attachments.map(a => `<a href="${a.data}" target="_blank" class="attach-link">📎 عرض</a>`).join(' ');
+        const attaches = c.attachments || [];
+        let attachButtonHtml = attaches.length > 0 
+          ? `<a href="${attaches[0].data}" target="_blank" class="attach-link">📎 عرض المرفق</a>`
+          : `<span class="no-attach-btn">لا يوجد مرفق</span>`;
+
+        // 🎨 الزران متساويان على نفس السطر
         let actionBtns = `
           <div class="action-buttons">
-            ${attachHtml ? attachHtml : '<span style="flex:1;text-align:center;font-size:12px;color:#777;padding:10px;">لا يوجد مرفق</span>'}
-            <button class="edit-btn" onclick="editCase('${c.id}')">✏️ تعديل</button>
+            ${attachButtonHtml}
+            <button class="edit-btn" onclick="editCase('${c.id}')">✏️ تعديل الجلسة</button>
           </div>
         `;
         
         return `<div class="visit">
           <h3>${c.clientName} <span class="badge">${c.date}</span></h3>
-          <p><b>كود:</b> ${c.id}</p>
+          <p><b>كود الملف:</b> ${c.id}</p>
           <p><b>الخدمة:</b> ${c.service}</p>
           ${actionBtns}
         </div>`;
       }).join('');
     }
+  }).catch(() => {
+    list.innerHTML = '<p class="empty" style="color:var(--d);">❌ حدث خطأ أثناء جلب الجلسات</p>';
   });
 }
 
-/* 🖨️ طباعة التقرير المعدلة */
 function printMyCasesPDF() {
-  if (!currentUser || guideCasesGlobal.length === 0) { alert('لا توجد'); return; }
+  if (!currentUser || guideCasesGlobal.length === 0) { alert('لا توجد بيانات للطباعة'); return; }
   
   let tableRows = guideCasesGlobal.map((c) => { 
     return `<tr><td>${c.id}</td><td>${c.clientName}</td><td>${c.service}</td><td>${c.date}</td></tr>`; 
@@ -544,7 +877,7 @@ function printMyCasesPDF() {
     </style></head>
     <body>
       <h1>تقرير الجلسات</h1>
-      <h2>${currentUser.room}</h2>
+      <h2>${currentUser.room} — ${currentUser.name}</h2>
       
       <table>
         <thead><tr><th>كود الملف</th><th>اسم العميل</th><th>الخدمة المقدمة</th><th>التاريخ</th></tr></thead>
@@ -552,68 +885,14 @@ function printMyCasesPDF() {
       </table>
       
       <div class="signature">
-        <b>التوقيع:</b> ..................................................
+        <b>توقيع الأخصائي:</b> ..................................................
       </div>
     </body></html>
   `);
   win.document.close(); win.print();
 }
 
-/* ================== إدارة المدير ================== */
-async function fetchData() {
-  const status = document.getElementById('fetchStatus'); status.className = 'status info'; status.textContent = '⏳ جاري...'; status.classList.remove('hidden');
-  try {
-    const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API) + '?t=' + Date.now()); const data = await res.json();
-    if (data.ok) { adminData = data; updateStats(); renderAdminCases(); status.className = 'status ok'; status.textContent = `✅ ${data.cases.length} جلسة`; }
-  } catch (err) { status.className = 'status err'; status.textContent = '❌ فشل التحميل'; }
-}
-
-/* 📊 تحديث الإحصائيات (بترتيب الغرف المطلوب) */
-function updateStats() {
-  const roomOrder = ['المديرية', 'شرق طنطا', 'غرب طنطا', 'شرق المحلة', 'غرب المحلة', 'زفتى', 'السنطة', 'كفر الزيات', 'سمنود', 'قطور', 'بسيون'];
-
-  let generalObj = {}; adminData.cases.forEach(c => { const key = `${c.room}|${c.service}`; generalObj[key] = (generalObj[key] || 0) + 1; });
-  let generalHtml = `<table><tr><th>الغرفة</th><th>الخدمة</th><th>العدد</th></tr>`; let totalGeneral = 0;
-  Object.entries(generalObj).sort((a, b) => {
-    const roomA = a[0].split('|')[0];
-    const roomB = b[0].split('|')[0];
-    return roomOrder.indexOf(roomA) - roomOrder.indexOf(roomB);
-  }).forEach(([key, count]) => { 
-    const [room, service] = key.split('|'); 
-    generalHtml += `<tr><td>${room}</td><td>${service}</td><td>${count}</td></tr>`; 
-    totalGeneral += count; 
-  });
-  generalHtml += `<tr style="background:#d4edda; font-weight:bold;"><td colspan="2">الإجمالي</td><td>${totalGeneral}</td></tr></table>`; 
-  document.getElementById('generalStatsTable').innerHTML = generalHtml;
-
-  let guideObj = {}; 
-  adminData.cases.forEach(c => { const key = `${c.guideName}|${c.room}|${c.service}`; guideObj[key] = (guideObj[key] || 0) + 1; });
-  let guideHtml = `<table><tr><th>الأخصائي</th><th>الغرفة</th><th>الخدمة</th><th>العدد</th></tr>`;
-  Object.entries(guideObj).sort((a, b) => {
-    const roomA = a[0].split('|')[1];
-    const roomB = b[0].split('|')[1];
-    return roomOrder.indexOf(roomA) - roomOrder.indexOf(roomB);
-  }).forEach(([key, count]) => { 
-    const [name, room, service] = key.split('|'); 
-    guideHtml += `<tr><td>${name}</td><td>${room}</td><td>${service}</td><td>${count}</td></tr>`; 
-  });
-  guideHtml += `</table>`; 
-  document.getElementById('guideStatsTable').innerHTML = guideHtml;
-}
-
-function printGeneralStats() { const win = window.open('', '', 'width=800,height=600'); const tableHtml = document.getElementById('generalStatsTable').innerHTML; win.document.write(`<html dir="rtl"><head><title>إحصائيات</title><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"><style>body{font-family:'Tajawal', sans-serif;padding:20px;} h1{color:#1e6f5c;text-align:center;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ccc;padding:10px;text-align:center;} th{background:#1e6f5c;color:#fff;}</style></head><body><h1>تقرير الإحصائيات</h1><p><b>التاريخ:</b> ${new Date().toLocaleDateString('ar-EG')}</p>${tableHtml}</body></html>`); win.document.close(); win.print(); }
-function printGuideStats() { const win = window.open('', '', 'width=800,height=600'); const tableHtml = document.getElementById('guideStatsTable').innerHTML; win.document.write(`<html dir="rtl"><head><title>إحصائيات</title><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"><style>body{font-family:'Tajawal', sans-serif;padding:20px;} h1{color:#1e6f5c;text-align:center;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ccc;padding:10px;text-align:center;} th{background:#1e6f5c;color:#fff;}</style></head><body><h1>إحصائيات الأخصائيين</h1><p><b>التاريخ:</b> ${new Date().toLocaleDateString('ar-EG')}</p>${tableHtml}</body></html>`); win.document.close(); win.print(); }
-
-function renderAdminCases() {
-  const q = document.getElementById('searchBox').value.trim().toLowerCase(); const list = document.getElementById('adminList'); const filtered = adminData.cases.filter(c => c.clientName.toLowerCase().includes(q) || c.guideName.toLowerCase().includes(q));
-  if (filtered.length === 0) { list.innerHTML = '<p class="empty">لا توجد</p>'; return; }
-  list.innerHTML = filtered.map(c => { let attachHtml = c.attachments.map(a => `<a href="${a.data}" target="_blank" class="attach-link">📎</a>`).join(' '); return `<div class="visit"><h3>${c.clientName} <span class="badge">${c.date}</span></h3><p><b>الأخصائي:</b> ${c.guideName} (${c.room})</p><p><b>الخدمة:</b> ${c.service}</p><p><b>كود:</b> ${c.id}</p>${attachHtml ? `<div style="margin-top:10px;">${attachHtml}</div>` : ''}<button class="danger small" onclick="deleteSingleCase('${c.id}')" style="margin-top:15px;">🗑️ حذف</button></div>`; }).join('');
-}
-
-async function deleteSingleCase(id) { if (!confirm('تأكيد الحذف؟')) return; try { await fetch((localStorage.getItem(LS_API) || HARDCODED_API), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'deleteCase', caseId: id }) }); fetchData(); } catch (err) { alert('خطأ'); } }
-async function deleteAllCases() { if (!confirm('حذف الكل؟')) return; try { await fetch((localStorage.getItem(LS_API) || HARDCODED_API), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'deleteAllCases' }) }); fetchData(); } catch (err) { alert('خطأ'); } }
-
-/* ================== بدء التطبيق ================== */
+/* ================== تشغيل التطبيق ================== */
 window.onload = () => {
   if (currentUser) {
     startUserSession();
