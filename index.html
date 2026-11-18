@@ -40,6 +40,32 @@
   .search-result:hover { background: #e3efec; }
   .search-result b { color: var(--p); }
   #loginScreen { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; max-width: 400px; margin: 0 auto; }
+
+  /* 🎨 تنسيق أزرار العرض والتعديل لتكون متساوية */
+  .action-buttons { display: flex; gap: 8px; margin-top: 10px; }
+  .action-buttons a, .action-buttons button {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 6px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      height: 40px;
+  }
+  .action-buttons a.attach-link { background: #e3efec; color: var(--p); border: 1px solid var(--p); margin-top: 0; }
+  .action-buttons button.edit-btn { background: var(--i); color: #fff; }
+  
+  /* 🎨 زر كل جلساتي */
+  .btn-show-cases {
+      background: #2980b9 !important;
+      color: white !important;
+      font-weight: bold;
+  }
 </style>
 </head>
 <body>
@@ -85,7 +111,7 @@
     <h3>👤 بيانات الأخصائي</h3>
     <div id="guideInfoText" style="line-height:2;"></div>
     <div class="row">
-      <button class="secondary" onclick="showMyCases()">📂 كل جلساتي</button>
+      <button class="btn-show-cases" onclick="showMyCases()">📂 كل جلساتي</button>
     </div>
   </div>
 
@@ -191,7 +217,7 @@ const LS_API = 'psy_api_v3';
 const LS_ADMIN_PASS = 'psy_admin_v3';
 const DEFAULT_ADMIN_PASS = 'admin123';
 
-/* ⬇️ الرابط الجديد الخاص بك ⬇️ */
+/* ⬇️ الرابط الخاص بك ⬇️ */
 const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbx-_Z7jTdwL_DmlxhMfQBBHI-AAJTF1hzXmg54sowm0uIJY4uaP2mlAuTfbUbLZfayb/exec'; 
 
 let currentUser = JSON.parse(localStorage.getItem(LS_USER) || 'null');
@@ -355,11 +381,9 @@ function editCase(caseId) {
   const c = guideCasesGlobal.find(x => String(x.id) === String(caseId));
   if (!c) return;
   
-  // قفل شاشة البحث
   document.getElementById('searchPatientName').value = '';
   document.getElementById('searchResults').innerHTML = '';
   
-  // تعبئة الفورم
   document.getElementById('clientName').value = c.clientName;
   document.getElementById('clientName').setAttribute('readonly', true);
   document.getElementById('clientName').style.backgroundColor = '#e9ecef';
@@ -369,7 +393,6 @@ function editCase(caseId) {
   document.getElementById('existingCaseId').value = c.id;
   document.getElementById('editMode').value = 'true';
   
-  // تغيير شكل الفورم
   document.getElementById('formTitle').textContent = '✏️ تعديل الجلسة';
   document.getElementById('saveCaseBtn').textContent = '🔄 تحديث الجلسة';
   document.getElementById('cancelEditBtn').classList.remove('hidden');
@@ -478,13 +501,20 @@ function showMyCases() {
       guideCasesGlobal = data.cases.filter(c => String(c.nationalId) === String(currentUser.nationalId));
       if (guideCasesGlobal.length === 0) { list.innerHTML = '<p class="empty">لا توجد</p>'; return; }
       list.innerHTML = guideCasesGlobal.map(c => {
+        // الأزرار متساوية بفضل الكلاس action-buttons
         let attachHtml = c.attachments.map(a => `<a href="${a.data}" target="_blank" class="attach-link">📎 عرض</a>`).join(' ');
+        let actionBtns = `
+          <div class="action-buttons">
+            ${attachHtml ? attachHtml : '<span style="flex:1;text-align:center;font-size:12px;color:#777;padding:10px;">لا يوجد مرفق</span>'}
+            <button class="edit-btn" onclick="editCase('${c.id}')">✏️ تعديل</button>
+          </div>
+        `;
+        
         return `<div class="visit">
           <h3>${c.clientName} <span class="badge">${c.date}</span></h3>
           <p><b>كود:</b> ${c.id}</p>
           <p><b>الخدمة:</b> ${c.service}</p>
-          ${attachHtml ? `<div style="margin-top:10px;">${attachHtml}</div>` : ''}
-          <button class="secondary small" onclick="editCase('${c.id}')" style="margin-top:10px;">✏️ تعديل</button>
+          ${actionBtns}
         </div>`;
       }).join('');
     }
