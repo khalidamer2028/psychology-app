@@ -4,11 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>الدعم النفسي بالغربية</title>
+
+<!-- 📱 إعدادات تثبيت التطبيق باسم Psy Support والأيقونة الخاصة بك -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Psy Support">
+<meta name="theme-color" content="#1e6f5c">
+
+<!-- أيقونة التطبيق لشاشات الهاتف والمتصفح -->
+<link rel="icon" type="image/png" href="https://ibb.co/example-link">
+<link rel="apple-touch-icon" href="https://ibb.co/example-link">
+<link rel="manifest" href='data:application/manifest+json,{"name":"Psychological Support","short_name":"Psy Support","start_url":".","display":"standalone","background_color":"#f4f7f6","theme_color":"#1e6f5c","icons":[{"src":"https://ibb.co/example-link","sizes":"192x192 512x512","type":"image/png"}]}'>
+
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root { --p: #1e6f5c; --pd: #145043; --bg: #f4f7f6; --t: #2c3e50; --c: #fff; --d: #e74c3c; --i: #3498db; }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-  body { background: var(--bg); color: var(--t); padding: 15px; padding-bottom: 50px; font-size: 17px; }
+  body { background: var(--bg); color: var(--t); padding: 15px; padding-bottom: 75px; font-size: 17px; }
   h1 { text-align: center; color: var(--p); margin-bottom: 10px; font-size: 26px; font-weight: 700; }
   .subtitle { text-align: center; color: #555; font-size: 15px; margin-bottom: 20px; }
   .card h3 { color: var(--p); margin-bottom: 15px; font-size: 19px; font-weight: 600; border-bottom: 2px solid #e1e8e6; padding-bottom: 8px; }
@@ -40,7 +53,38 @@
   .search-result b { color: var(--p); }
   #loginScreen { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; max-width: 400px; margin: 0 auto; }
 
-  /* 🎨 تنسيق أزرار العرض والتعديل على خط واحد متساوي */
+  /* 🎨 شريط تثبيت التطبيق أسفل الشاشة */
+  .install-banner {
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    right: 15px;
+    max-width: 420px;
+    margin: 0 auto;
+    background: #ffffff;
+    border: 2px solid var(--p);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    z-index: 99999;
+  }
+  .install-banner button.install-btn {
+    width: auto;
+    margin-top: 0;
+    padding: 8px 16px;
+    font-size: 14px;
+    background: var(--p);
+    color: #fff;
+    border-radius: 8px;
+    white-space: nowrap;
+    font-weight: bold;
+  }
+
+  /* 🎨 تنسيق أزرار العرض والتعديل على خط واحد */
   .action-buttons { 
     display: flex; 
     gap: 10px; 
@@ -101,6 +145,18 @@
 </style>
 </head>
 <body>
+
+<!-- شريط تثبيت التطبيق على الهاتف -->
+<div id="pwaInstallBanner" class="install-banner hidden">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <img src="https://ibb.co/example-link" alt="Psy Support" style="width:36px; height:36px; border-radius:8px; object-fit:cover;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3063/3063822.png'">
+    <div>
+      <b style="color:var(--p); font-size:14px;">Psy Support</b>
+      <p style="font-size:12px; margin:0; color:#666;">ثبّت التطبيق لفتحه بسرعة من الشاشة</p>
+    </div>
+  </div>
+  <button onclick="installPWA()" class="install-btn">تثبيت الآن</button>
+</div>
 
 <!-- شاشة تسجيل الدخول -->
 <div id="loginScreen">
@@ -179,7 +235,6 @@
     <label>التاريخ</label><input type="date" id="date">
     
     <label>المرفقات <span style="color:#c0392b;">*إجباري</span></label>
-    <!-- تم ضبط الحقل ليدعم الكاميرا والملفات و PDF والصور المتعددة -->
     <input type="file" id="files" accept="image/*,application/pdf" multiple>
     
     <button onclick="addCase()" id="saveCaseBtn">💾 حفظ</button>
@@ -200,7 +255,7 @@
 <!-- لوحة المدير -->
 <div id="adminMode" class="hidden">
   <div class="topbar">
-    <h1 style="margin:0;">🧠الدعم النفسي بالغربية</h1>
+    <h1 style="margin:0;">🧠 الدعم النفسي بالغربية</h1>
     <button class="secondary" onclick="logoutAdmin()">⬅️ تسجيل الخروج</button>
   </div>
 
@@ -275,16 +330,42 @@
 <script>
 const LS_USER = 'psy_user_v3';
 const LS_API = 'psy_api_v3';
-const DEFAULT_FALLBACK_ADMIN_PASS = 'khalid@1968';
+const DEFAULT_FALLBACK_ADMIN_PASS = 'admin123';
 
 /* ⬇️ الرابط الخاص بك ⬇️ */
-const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbwCgYLo5-5Ya4rGFEmFWiKwlQv4zhhR40acVV5b-EXcz7QcAM72CqwiM6UzABS3xIuW/exec'; 
+const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbx-_Z7jTdwL_DmlxhMfQBBHI-AAJTF1hzXmg54sowm0uIJY4uaP2mlAuTfbUbLZfayb/exec'; 
 
 let currentUser = JSON.parse(localStorage.getItem(LS_USER) || 'null');
 let tempUserForSetup = null;
 let guideCasesGlobal = [];
 let adminData = { cases: [], guides: [] };
 let adminAuthPassword = sessionStorage.getItem('psy_admin_token') || '';
+
+/* ================== تشغيل وتثبيت التطبيق (PWA) ================== */
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  if (!window.matchMedia('(display-mode: standalone)').matches) {
+    const banner = document.getElementById('pwaInstallBanner');
+    if (banner) banner.classList.remove('hidden');
+  }
+});
+
+function installPWA() {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        document.getElementById('pwaInstallBanner').classList.add('hidden');
+      }
+      deferredInstallPrompt = null;
+    });
+  } else {
+    alert('📱 لتثبيت التطبيق على شاشتك:\n1. اضغط على زر الخيارات في المتصفح (⋮ أو زر المشاركة في آيفون).\n2. اختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية (Add to Home screen)".');
+  }
+}
 
 /* ================== دوال ضبط وتنسيق التاريخ (2026/11/18) ================== */
 function formatDisplayDate(dateStr) {
@@ -296,7 +377,7 @@ function formatDisplayDate(dateStr) {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
-  return `${year}/${month}/${day}`; // النتيجة: 2026/11/18
+  return `${year}/${month}/${day}`;
 }
 
 function toStandardDateStr(dateStr) {
@@ -308,7 +389,7 @@ function toStandardDateStr(dateStr) {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`; // النتيجة: 2026-11-18 لحقول الإدخال والفلترة
+  return `${year}-${month}-${day}`;
 }
 
 /* ================== شاشات النظام ================== */
