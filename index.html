@@ -98,9 +98,11 @@
     <div id="searchResults" style="margin-top:15px;"></div>
   </div>
 
-  <div class="card">
-    <h3>📝 جلسة جديدة</h3>
+  <div class="card" id="formCard">
+    <h3 id="formTitle">📝 جلسة جديدة</h3>
     <input type="hidden" id="existingCaseId" value="">
+    <input type="hidden" id="editMode" value="false">
+    
     <label>اسم العميل</label><input type="text" id="clientName" placeholder="اسم رباعي">
     <label>الخدمة</label>
     <select id="service">
@@ -117,8 +119,13 @@
       <option value="أخرى">أخرى</option>
     </select>
     <label>التاريخ</label><input type="date" id="date">
-    <label>المرفقات <span style="color:#c0392b;">*إجباري</span></label><input type="file" id="files" accept="image/*,application/pdf" multiple>
+    
+    <label>المرفقات <span style="color:#c0392b;">*إجباري</span></label>
+    <input type="file" id="files" accept="image/*,application/pdf" multiple capture="environment">
+    
     <button onclick="addCase()" id="saveCaseBtn">💾 حفظ</button>
+    <button onclick="cancelEdit()" id="cancelEditBtn" class="secondary hidden" style="margin-top:10px;">❌ إلغاء التعديل</button>
+    
     <div id="caseStatus" class="status hidden"></div>
     <div id="caseCodeDisplay" class="case-code hidden"></div>
   </div>
@@ -179,13 +186,13 @@
 </div>
 
 <script>
-const LS_USER = 'psy_user_v2';
-const LS_API = 'psy_api_v2';
-const LS_ADMIN_PASS = 'psy_admin_v2';
+const LS_USER = 'psy_user_v3';
+const LS_API = 'psy_api_v3';
+const LS_ADMIN_PASS = 'psy_admin_v3';
 const DEFAULT_ADMIN_PASS = 'admin123';
 
-/* ⬇️ الرابط الخاص بك ⬇️ */
-const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbwbeG0orRH1bx4Zo6HmdEIYCe3rB56uVIix3_2EooZghSxWgEFArxYLhqugUOOSJPBX/exec'; 
+/* ⬇️ الرابط الجديد الخاص بك ⬇️ */
+const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbx-_Z7jTdwL_DmlxhMfQBBHI-AAJTF1hzXmg54sowm0uIJY4uaP2mlAuTfbUbLZfayb/exec'; 
 
 let currentUser = JSON.parse(localStorage.getItem(LS_USER) || 'null');
 let tempUserForSetup = null;
@@ -327,18 +334,68 @@ function searchPatient() {
 function selectExistingPatient(caseId, clientName) {
   const nameInput = document.getElementById('clientName');
   nameInput.value = clientName;
-  nameInput.setAttribute('readonly', true); // قفل الحقل
-  nameInput.style.backgroundColor = '#e9ecef'; // لون رمادي
+  nameInput.setAttribute('readonly', true);
+  nameInput.style.backgroundColor = '#e9ecef';
   
   document.getElementById('existingCaseId').value = caseId;
+  document.getElementById('editMode').value = 'false';
+  document.getElementById('formTitle').textContent = '📝 جلسة جديدة (لعميل مسجل)';
+  document.getElementById('saveCaseBtn').textContent = '💾 حفظ الجلسة';
+  document.getElementById('cancelEditBtn').classList.add('hidden');
+  
   document.getElementById('searchResults').innerHTML = '';
   document.getElementById('searchPatientName').value = '';
   
-  alert(`✅ تم اختيار العميل: ${clientName}\nهذه الجلسة ستُضاف إلى ملفه.\n(خانة الاسم مقفولة الآن، أكمل الخدمة والتاريخ والمرفقات).`);
+  alert(`✅ تم اختيار العميل: ${clientName}\nهذه الجلسة ستُضاف إلى ملفه.`);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/* ================== إضافة جلسة ================== */
+/* ================== تعديل جلسة ================== */
+function editCase(caseId) {
+  const c = guideCasesGlobal.find(x => String(x.id) === String(caseId));
+  if (!c) return;
+  
+  // قفل شاشة البحث
+  document.getElementById('searchPatientName').value = '';
+  document.getElementById('searchResults').innerHTML = '';
+  
+  // تعبئة الفورم
+  document.getElementById('clientName').value = c.clientName;
+  document.getElementById('clientName').setAttribute('readonly', true);
+  document.getElementById('clientName').style.backgroundColor = '#e9ecef';
+  
+  document.getElementById('service').value = c.service;
+  document.getElementById('date').value = c.date;
+  document.getElementById('existingCaseId').value = c.id;
+  document.getElementById('editMode').value = 'true';
+  
+  // تغيير شكل الفورم
+  document.getElementById('formTitle').textContent = '✏️ تعديل الجلسة';
+  document.getElementById('saveCaseBtn').textContent = '🔄 تحديث الجلسة';
+  document.getElementById('cancelEditBtn').classList.remove('hidden');
+  
+  alert(`✏️ جاري تعديل جلسة: ${c.clientName}\n(أدخل مرفقات جديدة لتحل محل القديمة)`);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function cancelEdit() {
+  document.getElementById('formTitle').textContent = '📝 جلسة جديدة';
+  document.getElementById('saveCaseBtn').textContent = '💾 حفظ';
+  document.getElementById('cancelEditBtn').classList.add('hidden');
+  
+  document.getElementById('clientName').value = '';
+  document.getElementById('clientName').removeAttribute('readonly');
+  document.getElementById('clientName').style.backgroundColor = '#fff';
+  
+  document.getElementById('service').value = '';
+  document.getElementById('files').value = '';
+  document.getElementById('existingCaseId').value = '';
+  document.getElementById('editMode').value = 'false';
+  document.getElementById('caseStatus').classList.add('hidden');
+  document.getElementById('caseCodeDisplay').classList.add('hidden');
+}
+
+/* ================== إضافة/تعديل جلسة ================== */
 function compressImage(file, maxWidth = 800, quality = 0.6) {
   return new Promise(resolve => {
     if (!file.type.startsWith('image/')) return resolve(null);
@@ -363,13 +420,14 @@ async function addCase() {
   const service = document.getElementById('service').value;
   const date = document.getElementById('date').value;
   const existingCaseId = document.getElementById('existingCaseId').value;
+  const editMode = document.getElementById('editMode').value === 'true';
   const status = document.getElementById('caseStatus');
   const codeDisplay = document.getElementById('caseCodeDisplay');
   
   if (!clientName || !service) { status.className = 'status err'; status.textContent = '❌ املأ البيانات'; status.classList.remove('hidden'); return; }
   
   const fileInput = document.getElementById('files');
-  if (!fileInput.files || fileInput.files.length === 0) { status.className = 'status err'; status.textContent = '⚠️ مرفق إجباري'; status.classList.remove('hidden'); return; }
+  if (!fileInput.files || fileInput.files.length === 0) { status.className = 'status err'; status.textContent = '⚠️ مرفق إجباري (حتى في التعديل)'; status.classList.remove('hidden'); return; }
   
   const btn = document.getElementById('saveCaseBtn'); btn.disabled = true; btn.textContent = '⏳ جاري...';
   const files = Array.from(fileInput.files); const attachments = [];
@@ -387,28 +445,27 @@ async function addCase() {
   status.className = 'status info'; status.textContent = '⏳ إرسال...'; status.classList.remove('hidden');
   codeDisplay.classList.add('hidden');
   
+  const actionType = editMode ? 'updateCase' : 'addCase';
+  
   try {
     const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API), {
       method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'addCase', nationalId: currentUser.nationalId, guideName: currentUser.name, room: currentUser.room, clientName, service, date, attachments, existingCaseId })
+      body: JSON.stringify({ 
+        action: actionType, 
+        caseId: editMode ? existingCaseId : null,
+        nationalId: currentUser.nationalId, guideName: currentUser.name, room: currentUser.room, 
+        clientName, service, date, attachments, existingCaseId 
+      })
     });
     const data = await res.json();
     if (data.ok) {
-      status.className = 'status ok'; status.textContent = existingCaseId ? '✅ تم إضافة الجلسة' : '✅ تم إنشاء ملف';
+      status.className = 'status ok'; status.textContent = editMode ? '✅ تم تحديث الجلسة' : '✅ تم حفظ الجلسة';
       codeDisplay.innerHTML = `كود: <br><span style="font-size:24px;">${data.caseCode}</span>`; codeDisplay.classList.remove('hidden');
       
-      // تصفير الفورم وفك قفل الاسم
-      document.getElementById('clientName').value = ''; 
-      document.getElementById('clientName').removeAttribute('readonly'); 
-      document.getElementById('clientName').style.backgroundColor = '#fff';
-      
-      document.getElementById('service').value = ''; 
-      document.getElementById('files').value = ''; 
-      document.getElementById('existingCaseId').value = '';
-      
+      cancelEdit();
       if (!document.getElementById('myCasesCard').classList.contains('hidden')) showMyCases();
     } else { status.className = 'status err'; status.textContent = '❌ ' + data.error; }
-  } catch (err) { status.className = 'status err'; status.textContent = '❌ فشل'; } finally { btn.disabled = false; btn.textContent = '💾 حفظ'; }
+  } catch (err) { status.className = 'status err'; status.textContent = '❌ فشل'; } finally { btn.disabled = false; }
 }
 
 /* ================== سجل حالات الأخصائي ================== */
@@ -422,7 +479,13 @@ function showMyCases() {
       if (guideCasesGlobal.length === 0) { list.innerHTML = '<p class="empty">لا توجد</p>'; return; }
       list.innerHTML = guideCasesGlobal.map(c => {
         let attachHtml = c.attachments.map(a => `<a href="${a.data}" target="_blank" class="attach-link">📎 عرض</a>`).join(' ');
-        return `<div class="visit"><h3>${c.clientName} <span class="badge">${c.date}</span></h3><p><b>كود:</b> ${c.id}</p><p><b>الخدمة:</b> ${c.service}</p>${attachHtml ? `<div style="margin-top:10px;">${attachHtml}</div>` : ''}</div>`;
+        return `<div class="visit">
+          <h3>${c.clientName} <span class="badge">${c.date}</span></h3>
+          <p><b>كود:</b> ${c.id}</p>
+          <p><b>الخدمة:</b> ${c.service}</p>
+          ${attachHtml ? `<div style="margin-top:10px;">${attachHtml}</div>` : ''}
+          <button class="secondary small" onclick="editCase('${c.id}')" style="margin-top:10px;">✏️ تعديل</button>
+        </div>`;
       }).join('');
     }
   });
@@ -433,7 +496,6 @@ function printMyCasesPDF() {
   if (!currentUser || guideCasesGlobal.length === 0) { alert('لا توجد'); return; }
   
   let tableRows = guideCasesGlobal.map((c) => { 
-    // بدلنا المرفق بالتاريخ هنا
     return `<tr><td>${c.id}</td><td>${c.clientName}</td><td>${c.service}</td><td>${c.date}</td></tr>`; 
   }).join('');
   
@@ -476,16 +538,37 @@ async function fetchData() {
   } catch (err) { status.className = 'status err'; status.textContent = '❌ فشل التحميل'; }
 }
 
+/* 📊 تحديث الإحصائيات (بترتيب الغرف المطلوب) */
 function updateStats() {
+  const roomOrder = ['المديرية', 'شرق طنطا', 'غرب طنطا', 'شرق المحلة', 'غرب المحلة', 'زفتى', 'السنطة', 'كفر الزيات', 'سمنود', 'قطور', 'بسيون'];
+
   let generalObj = {}; adminData.cases.forEach(c => { const key = `${c.room}|${c.service}`; generalObj[key] = (generalObj[key] || 0) + 1; });
   let generalHtml = `<table><tr><th>الغرفة</th><th>الخدمة</th><th>العدد</th></tr>`; let totalGeneral = 0;
-  Object.entries(generalObj).sort().forEach(([key, count]) => { const [room, service] = key.split('|'); generalHtml += `<tr><td>${room}</td><td>${service}</td><td>${count}</td></tr>`; totalGeneral += count; });
-  generalHtml += `<tr style="background:#d4edda; font-weight:bold;"><td colspan="2">الإجمالي</td><td>${totalGeneral}</td></tr></table>`; document.getElementById('generalStatsTable').innerHTML = generalHtml;
+  Object.entries(generalObj).sort((a, b) => {
+    const roomA = a[0].split('|')[0];
+    const roomB = b[0].split('|')[0];
+    return roomOrder.indexOf(roomA) - roomOrder.indexOf(roomB);
+  }).forEach(([key, count]) => { 
+    const [room, service] = key.split('|'); 
+    generalHtml += `<tr><td>${room}</td><td>${service}</td><td>${count}</td></tr>`; 
+    totalGeneral += count; 
+  });
+  generalHtml += `<tr style="background:#d4edda; font-weight:bold;"><td colspan="2">الإجمالي</td><td>${totalGeneral}</td></tr></table>`; 
+  document.getElementById('generalStatsTable').innerHTML = generalHtml;
 
-  let guideObj = {}; adminData.cases.forEach(c => { const key = `${c.guideName}|${c.room}|${c.service}`; guideObj[key] = (guideObj[key] || 0) + 1; });
+  let guideObj = {}; 
+  adminData.cases.forEach(c => { const key = `${c.guideName}|${c.room}|${c.service}`; guideObj[key] = (guideObj[key] || 0) + 1; });
   let guideHtml = `<table><tr><th>الأخصائي</th><th>الغرفة</th><th>الخدمة</th><th>العدد</th></tr>`;
-  Object.entries(guideObj).sort().forEach(([key, count]) => { const [name, room, service] = key.split('|'); guideHtml += `<tr><td>${name}</td><td>${room}</td><td>${service}</td><td>${count}</td></tr>`; });
-  guideHtml += `</table>`; document.getElementById('guideStatsTable').innerHTML = guideHtml;
+  Object.entries(guideObj).sort((a, b) => {
+    const roomA = a[0].split('|')[1];
+    const roomB = b[0].split('|')[1];
+    return roomOrder.indexOf(roomA) - roomOrder.indexOf(roomB);
+  }).forEach(([key, count]) => { 
+    const [name, room, service] = key.split('|'); 
+    guideHtml += `<tr><td>${name}</td><td>${room}</td><td>${service}</td><td>${count}</td></tr>`; 
+  });
+  guideHtml += `</table>`; 
+  document.getElementById('guideStatsTable').innerHTML = guideHtml;
 }
 
 function printGeneralStats() { const win = window.open('', '', 'width=800,height=600'); const tableHtml = document.getElementById('generalStatsTable').innerHTML; win.document.write(`<html dir="rtl"><head><title>إحصائيات</title><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"><style>body{font-family:'Tajawal', sans-serif;padding:20px;} h1{color:#1e6f5c;text-align:center;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ccc;padding:10px;text-align:center;} th{background:#1e6f5c;color:#fff;}</style></head><body><h1>تقرير الإحصائيات</h1><p><b>التاريخ:</b> ${new Date().toLocaleDateString('ar-EG')}</p>${tableHtml}</body></html>`); win.document.close(); win.print(); }
