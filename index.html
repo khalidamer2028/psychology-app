@@ -143,6 +143,9 @@
     table { font-size: 13.5px; min-width: 520px; }
     th, td { padding: 8px 6px; }
     .filter-quick-btns button { font-size: 12px; padding: 6px 4px; min-width: 70px; }
+    #myCasesCard > div:first-child { flex-direction: column; gap: 10px; align-items: stretch !important; text-align: center; }
+    #myCasesCard > div:first-child h3 { text-align: center; }
+    #myCasesCard > div:first-child button { width: 100% !important; }
   }
 </style>
 </head>
@@ -806,7 +809,7 @@ async function exportReportToPdfMobile(filename, htmlContent) {
     document.body.appendChild(container);
   }
   
-  container.style.cssText = 'position:fixed; left:0; top:0; width:100%; max-width:800px; background:#fff; padding:20px; z-index:-999; opacity:0; pointer-events:none; font-family:"Tajawal", sans-serif; direction:rtl;';
+  container.style.cssText = 'position:fixed; left:-10000px; top:0; width:794px; background:#fff; padding:20px; z-index:-1; opacity:1; pointer-events:none; font-family:"Tajawal", sans-serif; direction:rtl;';
   container.innerHTML = `
     <style>
       .print-header { text-align:center; border-bottom:2px solid #1e6f5c; padding-bottom:8px; margin-bottom:12px; }
@@ -832,7 +835,7 @@ async function exportReportToPdfMobile(filename, htmlContent) {
     margin: [10, 10, 10, 10],
     filename: filename.endsWith('.pdf') ? filename : filename + '.pdf',
     image: { type: 'jpeg', quality: 0.95 },
-    html2canvas: { scale: 2, useCORS: true, logging: false },
+    html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 794 },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
 
