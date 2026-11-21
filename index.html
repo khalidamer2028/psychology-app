@@ -64,6 +64,31 @@
   .btn-new-case { background: var(--p) !important; color: white !important; font-weight: bold; }
   .add-session-btn { background: var(--s) !important; color: #fff !important; }
   .add-session-btn:hover { background: #219150 !important; }
+
+  /* 📱 تحسينات التجاوب مع شاشات الموبايل */
+  #generalStatsTable, #guideStatsTable {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 650px) {
+    body { padding: 10px; padding-bottom: 40px; font-size: 15px; }
+    h1 { font-size: 21px; }
+    .card { padding: 14px; margin-bottom: 14px; border-radius: 10px; }
+    .topbar { flex-direction: column; gap: 8px; align-items: stretch; text-align: center; }
+    .topbar button { width: 100%; }
+    .row { flex-direction: column; gap: 8px; }
+    .client-footer-actions { flex-direction: column; gap: 8px; }
+    .client-footer-actions button { width: 100%; margin-top: 0; }
+    .session-item { flex-direction: column; align-items: stretch; gap: 10px; }
+    .session-actions { width: 100%; justify-content: flex-end; }
+    table { font-size: 13.5px; min-width: 520px; }
+    th, td { padding: 8px 6px; }
+    .filter-quick-btns button { font-size: 12px; padding: 6px 4px; min-width: 70px; }
+  }
 </style>
 </head>
 <body>
@@ -690,20 +715,67 @@ function printGuideStats() {
 function renderAdminCases() {
   const q = document.getElementById('searchBox').value.trim().toLowerCase(); 
   const list = document.getElementById('adminList'); 
-  const filtered = adminData.cases.filter(c => c.clientName.toLowerCase().includes(q) || c.guideName.toLowerCase().includes(q));
+  const filtered = adminData.cases.filter(c => 
+    (c.clientName && c.clientName.toLowerCase().includes(q)) || 
+    (c.guideName && c.guideName.toLowerCase().includes(q)) ||
+    (c.id && String(c.id).toLowerCase().includes(q)) ||
+    (c.room && c.room.toLowerCase().includes(q))
+  );
   
   if (filtered.length === 0) { list.innerHTML = '<p class="empty">لا توجد نتائج مطابقة</p>'; return; }
   
-  list.innerHTML = filtered.map(c => { 
-    let attachHtml = (c.attachments || []).map((a, i) => `<a href="${a.data}" target="_blank" class="attach-link" style="margin-left:5px;">📎 مرفق ${i+1}</a>`).join(''); 
-    return `<div class="visit" style="border-right: 5px solid var(--p); background:#f9fbfb; padding:15px; border-radius:8px; margin-bottom:12px; border:1px solid #e1e8e6;">
-      <h3 style="display:flex; justify-content:space-between; margin:0 0 8px 0; color:var(--p);"><span>${c.clientName}</span> <span class="badge">${formatDisplayDate(c.date)}</span></h3>
-      <p style="margin:4px 0;"><b>الأخصائي:</b> ${c.guideName} (${c.room})</p>
-      <p style="margin:4px 0;"><b>الخدمة:</b> ${c.service}</p>
-      <p style="margin:4px 0;"><b>كود الملف:</b> ${c.id}</p>
-      ${attachHtml ? `<div style="margin-top:10px;">${attachHtml}</div>` : ''}
-      <button class="danger small" onclick="deleteSingleCase('${c.id}', ${c.rowIndex})" style="margin-top:12px;">🗑️ حذف هذه الجلسة</button>
-    </div>`; 
+  // تجميع الحالات حسب العميل
+  const clientGroups = {};
+  filtered.forEach(c => {
+    const key = c.id || c.clientName;
+    if (!clientGroups[key]) {
+      clientGroups[key] = {
+        id: c.id,
+        clientName: c.clientName,
+        sessions: []
+      };
+    }
+    clientGroups[key].sessions.push(c);
+  });
+
+  list.innerHTML = Object.values(clientGroups).map(group => {
+    let sessionsHtml = group.sessions.map((s, idx) => {
+      const attaches = s.attachments || [];
+      let attachButtonsHtml = attaches.length > 0 
+        ? attaches.map((a, i) => `<a href="${a.data}" target="_blank" class="attach-link">📎 مرفق ${attaches.length > 1 ? (i+1) : ''}</a>`).join(' ')
+        : `<span class="no-attach-btn">بدون مرفق</span>`;
+
+      return `
+        <div class="session-item">
+          <div class="session-info">
+            <span class="session-num">جلسة ${idx + 1}</span>
+            <span class="badge">${formatDisplayDate(s.date)}</span>
+            <b style="color:#2c3e50;">${s.service}</b>
+            <span style="font-size:13px; color:#555;">(الأخصائي: <b>${s.guideName}</b> - ${s.room})</span>
+          </div>
+          <div class="session-actions">
+            ${attachButtonsHtml}
+            <button class="danger small small-btn" onclick="deleteSingleCase('${s.id}', ${s.rowIndex})">🗑️ حذف الجلسة</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="client-card">
+        <div class="client-header">
+          <h3 style="margin:0 0 5px 0; font-size:18px; color:var(--p); border:none; padding:0;">👤 ${group.clientName}</h3>
+          <div style="font-size:14px; color:#555;">
+            <b>كود الملف:</b> <span class="badge">${group.id}</span> 
+            <span style="margin: 0 6px;">|</span>
+            <b>عدد الجلسات:</b> <span class="badge" style="background:#d4edda; color:#155724;">${group.sessions.length} جلسة</span>
+          </div>
+        </div>
+        <div class="sessions-list">
+          ${sessionsHtml}
+        </div>
+      </div>
+    `;
   }).join('');
 }
 
