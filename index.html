@@ -762,7 +762,7 @@ function updateStats() {
   document.getElementById('guideStatsTable').innerHTML = guideHtml;
 }
 
-/* ================== نظام الطباعة الهجين الذكي (كمبيوتر: نافذة مباشرة / موبايل: إعادة توجيه للمتصفح بصيغة PDF) ================== */
+/* ================== نظام الطباعة الهجين الذكي (كمبيوتر: نافذة مباشرة / موبايل: تحميل PDF) ================== */
 function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768);
 }
@@ -795,70 +795,7 @@ function printHtmlDesktop(title, htmlContent) {
   setTimeout(() => { win.print(); }, 400);
 }
 
-function buildStandaloneReportHtml(title, htmlContent) {
-  return `<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${title}</title>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-  @page { size: auto; margin: 14mm 10mm 14mm 10mm; }
-  * { box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
-  body { margin: 0; padding: 14px; color: #2c3e50; background: #fff; }
-  .mobile-bar {
-    position: sticky; top: 0; z-index: 99;
-    background: #1e6f5c; color: #fff; padding: 10px 12px;
-    border-radius: 10px; margin-bottom: 14px;
-    display: flex; gap: 8px; justify-content: space-between; align-items: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-  }
-  .mobile-bar span { font-size: 13px; font-weight: 700; }
-  .mobile-bar button {
-    background: #fff; color: #1e6f5c; border: none; border-radius: 8px;
-    padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer;
-  }
-  .print-header { text-align: center; border-bottom: 2px solid #1e6f5c; padding-bottom: 8px; margin-bottom: 12px; }
-  .print-header h1 { color: #1e6f5c; margin: 0; font-size: 20px; }
-  .print-header p { color: #555; margin: 4px 0 0 0; font-size: 13px; }
-  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-  thead { display: table-header-group; }
-  tfoot { display: table-footer-group; }
-  tr { page-break-inside: avoid; }
-  th, td { border: 1px solid #999; padding: 7px 5px; text-align: center; }
-  th { background: #1e6f5c; color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .client-info-box { background: #f9fbfb; border: 1px solid #d5dbdb; padding: 10px; border-radius: 8px; margin-bottom: 12px; line-height: 1.8; font-size: 14px; text-align: right; }
-  .signature { margin-top: 30px; text-align: left; font-weight: bold; font-size: 14px; padding: 0 10px; }
-  @media print {
-    .mobile-bar { display: none !important; }
-    body { padding: 0; }
-  }
-</style>
-</head>
-<body>
-  <div class="mobile-bar">
-    <span>📄 معاينة التقرير وحفظه PDF</span>
-    <button type="button" onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
-  </div>
-  ${htmlContent}
-</body>
-</html>`;
-}
-
 async function exportReportToPdfMobile(filename, htmlContent) {
-  const fullHtml = buildStandaloneReportHtml(filename, htmlContent);
-  const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
-  const blobUrl = URL.createObjectURL(blob);
-
-  // محاولة إعادة التوجيه للمتصفح / فتح نافذة مستقلة لمعاينة الملف وحفظه كـ PDF
-  let openedWin = null;
-  try {
-    openedWin = window.open(blobUrl, '_blank', 'noopener,noreferrer');
-  } catch (e) {
-    openedWin = null;
-  }
-
   const existingToast = document.getElementById('pdfDownloadToast');
   if (existingToast) existingToast.remove();
 
@@ -868,38 +805,24 @@ async function exportReportToPdfMobile(filename, htmlContent) {
 
   const msg = document.createElement('div');
   msg.style.cssText = 'line-height:1.6; font-size:13px;';
-  msg.innerHTML = openedWin
-    ? '🌐 تم فتح التقرير في المتصفح للمعاينة والتحميل للطباعة بصيغة <b>PDF</b>.'
-    : '📱 اضغط على <b>فتح في المتصفح</b> لمعاينة الملف وتحميله للطباعة بصيغة <b>PDF</b>.';
+  msg.innerHTML = '📱 حفظ PDF على الموبايل قد لا يعمل بشكل سليم. الأفضل الطباعة/الحفظ من الكمبيوتر.';
 
   const btnRow = document.createElement('div');
   btnRow.style.cssText = 'display:flex; gap:8px; width:100%; align-items:stretch;';
 
-  const openBtn = document.createElement('a');
-  openBtn.href = blobUrl;
-  openBtn.target = '_blank';
-  openBtn.rel = 'noopener noreferrer';
-  openBtn.textContent = '🌐 فتح في المتصفح (PDF)';
-  openBtn.style.cssText = 'flex:1; background:#fff;color:#1e6f5c;border:none;padding:10px 12px;border-radius:10px;font-weight:bold;font-size:13px;cursor:pointer;margin:0;width:auto;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;';
+  const openBtn = document.createElement('button');
+  openBtn.type = 'button';
+  openBtn.textContent = '🖨️ فتح للطباعة';
+  openBtn.style.cssText = 'flex:1; background:#fff;color:#1e6f5c;border:none;padding:10px 12px;border-radius:10px;font-weight:bold;font-size:13px;cursor:pointer;margin:0;width:auto;';
   openBtn.onclick = () => {
-    try {
-      const w = window.open(blobUrl, '_blank', 'noopener,noreferrer');
-      if (!w) {
-        window.location.href = blobUrl;
-      }
-    } catch (err) {
-      window.location.href = blobUrl;
-    }
+    printHtmlDesktop(filename, htmlContent);
   };
 
   const closeBtn = document.createElement('button');
   closeBtn.type = 'button';
   closeBtn.textContent = 'إغلاق';
   closeBtn.style.cssText = 'background:transparent;color:#fff;border:1px solid rgba(255,255,255,.7);padding:10px 14px;border-radius:10px;font-size:13px;cursor:pointer;width:auto;margin:0;white-space:nowrap;';
-  closeBtn.onclick = () => {
-    statusEl.remove();
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-  };
+  closeBtn.onclick = () => statusEl.remove();
 
   btnRow.append(openBtn, closeBtn);
   statusEl.append(msg, btnRow);
