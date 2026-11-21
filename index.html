@@ -779,8 +779,46 @@ function printGeneralStats() {
       tr { page-break-inside: avoid; }
       th, td { border:1px solid #999; padding:8px; text-align:center; }
       th { background:#1e6f5c; color:#fff; }
+      @media print {
+        .no-print { display: none !important; }
+      }
+      .mobile-print-bar {
+        background: #eef7f4;
+        border: 2px solid #1e6f5c;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 15px;
+        text-align: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      }
+      .mobile-print-bar button {
+        background: #1e6f5c;
+        color: #ffffff;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 6px;
+        font-size: 15px;
+        font-family: 'Tajawal', sans-serif;
+        font-weight: bold;
+        cursor: pointer;
+        margin: 4px;
+      }
+      .mobile-print-bar button.close-btn {
+        background: #7f8c8d;
+      }
+      .mobile-tip {
+        font-size: 12.5px;
+        color: #555;
+        margin-top: 6px;
+      }
     </style>
     </head><body>
+      <div class="mobile-print-bar no-print">
+        <button type="button" onclick="window.print()">🖨️ اضغط هنا للطباعة أو الحفظ بصيغة PDF</button>
+        <button type="button" class="close-btn" onclick="window.close()">❌ إغلاق التقرير</button>
+        <div class="mobile-tip">📱 لمستخدمي الموبايل: اضغط الزر الأخضر أعلاه لاختيار "حفظ بتنسيق PDF"، أو من قائمة المتصفح (⋮) اختر "مشاركة" ثم "طباعة".</div>
+      </div>
+
       <div class="print-header">
         <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
         <p><b>تقرير الإحصائيات العامة للخدمات</b></p>
@@ -813,8 +851,46 @@ function printGuideStats() {
       tr { page-break-inside: avoid; }
       th, td { border:1px solid #999; padding:8px; text-align:center; }
       th { background:#1e6f5c; color:#fff; }
+      @media print {
+        .no-print { display: none !important; }
+      }
+      .mobile-print-bar {
+        background: #eef7f4;
+        border: 2px solid #1e6f5c;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 15px;
+        text-align: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      }
+      .mobile-print-bar button {
+        background: #1e6f5c;
+        color: #ffffff;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 6px;
+        font-size: 15px;
+        font-family: 'Tajawal', sans-serif;
+        font-weight: bold;
+        cursor: pointer;
+        margin: 4px;
+      }
+      .mobile-print-bar button.close-btn {
+        background: #7f8c8d;
+      }
+      .mobile-tip {
+        font-size: 12.5px;
+        color: #555;
+        margin-top: 6px;
+      }
     </style>
     </head><body>
+      <div class="mobile-print-bar no-print">
+        <button type="button" onclick="window.print()">🖨️ اضغط هنا للطباعة أو الحفظ بصيغة PDF</button>
+        <button type="button" class="close-btn" onclick="window.close()">❌ إغلاق التقرير</button>
+        <div class="mobile-tip">📱 لمستخدمي الموبايل: اضغط الزر الأخضر أعلاه لاختيار "حفظ بتنسيق PDF"، أو من قائمة المتصفح (⋮) اختر "مشاركة" ثم "طباعة".</div>
+      </div>
+
       <div class="print-header">
         <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
         <p><b>تقرير إحصائيات الأخصائيين والخدمات المنفذة</b></p>
@@ -1259,8 +1335,46 @@ function printSingleClientReport(caseId) {
       th, td { border:1px solid #999; padding:8px; text-align:center; } 
       th { background:#1e6f5c; color:#fff; } 
       .signature { margin-top:40px; text-align:left; font-weight:bold; font-size:15px; padding:0 20px; }
+      @media print {
+        .no-print { display: none !important; }
+      }
+      .mobile-print-bar {
+        background: #eef7f4;
+        border: 2px solid #1e6f5c;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 15px;
+        text-align: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      }
+      .mobile-print-bar button {
+        background: #1e6f5c;
+        color: #ffffff;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 6px;
+        font-size: 15px;
+        font-family: 'Tajawal', sans-serif;
+        font-weight: bold;
+        cursor: pointer;
+        margin: 4px;
+      }
+      .mobile-print-bar button.close-btn {
+        background: #7f8c8d;
+      }
+      .mobile-tip {
+        font-size: 12.5px;
+        color: #555;
+        margin-top: 6px;
+      }
     </style></head>
     <body>
+      <div class="mobile-print-bar no-print">
+        <button type="button" onclick="window.print()">🖨️ اضغط هنا للطباعة أو الحفظ بصيغة PDF</button>
+        <button type="button" class="close-btn" onclick="window.close()">❌ إغلاق التقرير</button>
+        <div class="mobile-tip">📱 لمستخدمي الموبايل: اضغط الزر الأخضر أعلاه لاختيار "حفظ بتنسيق PDF"، أو من قائمة المتصفح (⋮) اختر "مشاركة" ثم "طباعة".</div>
+      </div>
+
       <div class="print-header">
         <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
         <p><b>تقرير ملف حالة المستفيد وسجل الزيارات</b></p>
@@ -1323,8 +1437,46 @@ function printMyCasesSummaryPDF() {
       th, td { border:1px solid #999; padding:8px; text-align:center; } 
       th { background:#1e6f5c; color:#fff; } 
       .signature { margin-top:40px; text-align:left; font-weight:bold; font-size:15px; padding:0 20px; }
+      @media print {
+        .no-print { display: none !important; }
+      }
+      .mobile-print-bar {
+        background: #eef7f4;
+        border: 2px solid #1e6f5c;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 15px;
+        text-align: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      }
+      .mobile-print-bar button {
+        background: #1e6f5c;
+        color: #ffffff;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 6px;
+        font-size: 15px;
+        font-family: 'Tajawal', sans-serif;
+        font-weight: bold;
+        cursor: pointer;
+        margin: 4px;
+      }
+      .mobile-print-bar button.close-btn {
+        background: #7f8c8d;
+      }
+      .mobile-tip {
+        font-size: 12.5px;
+        color: #555;
+        margin-top: 6px;
+      }
     </style></head>
     <body>
+      <div class="mobile-print-bar no-print">
+        <button type="button" onclick="window.print()">🖨️ اضغط هنا للطباعة أو الحفظ بصيغة PDF</button>
+        <button type="button" class="close-btn" onclick="window.close()">❌ إغلاق التقرير</button>
+        <div class="mobile-tip">📱 لمستخدمي الموبايل: اضغط الزر الأخضر أعلاه لاختيار "حفظ بتنسيق PDF"، أو من قائمة المتصفح (⋮) اختر "مشاركة" ثم "طباعة".</div>
+      </div>
+
       <div class="print-header">
         <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
         <p><b>تقرير سجل الجلسات العام</b></p>
