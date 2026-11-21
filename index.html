@@ -40,7 +40,7 @@
   .search-result b { color: var(--p); }
   #loginScreen { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; max-width: 400px; margin: 0 auto; }
 
-  /* 🎨 تنسيق أزرار الإجراءات على خط واحد متساوي */
+  /* 🎨 أزرار الإجراءات على خط واحد متساوي */
   .action-buttons { 
     display: flex; 
     gap: 8px; 
@@ -155,8 +155,8 @@
     <h3>👤 بيانات الأخصائي</h3>
     <div id="guideInfoText" style="line-height:2;"></div>
     <div class="row">
-      <button class="btn-show-cases" onclick="showMyCases()">📂 كل جلساتي</button>
-      <button class="btn-new-case" onclick="startFreshNewCase()">➕ عميل جديد (لأول مرة)</button>
+      <button class="btn-show-cases" onclick="showMyCases()">📂 جلساتي</button>
+      <button class="btn-new-case" onclick="startFreshNewCase()">🤝 حالة جديدة</button>
     </div>
   </div>
 
@@ -681,37 +681,31 @@ async function deleteAllCases() {
 /* ================== عمليات الأخصائي وجلساته ================== */
 function startFreshNewCase() {
   cancelEdit();
-  document.getElementById('formTitle').textContent = '📝 جلسة جديدة (لعميل جديد لأول مرة)';
+  document.getElementById('formTitle').textContent = '📝 حالة جديدة (لأول مرة)';
   document.getElementById('formCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   document.getElementById('clientName').focus();
 }
 
 function addNewSessionForClient(caseId, clientName) {
-  // إغلاق قائمة الجلسات
   document.getElementById('myCasesCard').classList.add('hidden');
   
-  // تثبيت اسم العميل وجعله للقراءة فقط
   const nameInput = document.getElementById('clientName');
   nameInput.value = clientName;
   nameInput.setAttribute('readonly', true);
   nameInput.style.backgroundColor = '#e9ecef';
   
-  // ربط الجلسة الجديدة بنفس كود الملف الأصلي
   document.getElementById('existingCaseId').value = caseId;
   document.getElementById('editMode').value = 'false';
   
-  // تصفير مدخلات الجلسة وتجهيز تاريخ اليوم
   document.getElementById('service').value = '';
   document.getElementById('files').value = '';
   document.getElementById('date').value = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
   
-  // تغيير العنوان وزر الحفظ
-  document.getElementById('formTitle').innerHTML = `📝 إضافة جلسة جديدة للعميل: <br><span style="color:var(--p); font-size:16px;">${clientName} (كود الملف: ${caseId})</span>`;
-  document.getElementById('saveCaseBtn').textContent = '💾 حفظ الجلسة الجديدة';
+  document.getElementById('formTitle').innerHTML = `📝 إضافة جلسة للعميل: <br><span style="color:var(--p); font-size:16px;">${clientName} (كود الملف: ${caseId})</span>`;
+  document.getElementById('saveCaseBtn').textContent = '💾 حفظ الجلسة';
   document.getElementById('cancelEditBtn').classList.remove('hidden');
   document.getElementById('cancelEditBtn').textContent = '❌ إلغاء وتفريغ النموذج';
   
-  // التمرير بسلاسة إلى نموذج الإدخال
   document.getElementById('formCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -729,7 +723,7 @@ function searchPatient() {
     resultsBox.innerHTML = '<p style="color:#e74c3c; font-size:14px; margin-top:10px;">لم يتم العثور على عميل سابق بهذا الاسم.</p>';
     return;
   }
-  resultsBox.innerHTML = clients.map(c => `<div class="search-result" onclick="addNewSessionForClient('${c.id}', '${c.clientName.replace(/'/g, "\\'")}')"><b>الاسم:</b> ${c.clientName} <br><b>كود الملف:</b> ${c.id} <br><span style="color:var(--s); font-size:13px; font-weight:bold;">➕ اضغط هنا لإضافة جلسة جديدة له</span></div>`).join('');
+  resultsBox.innerHTML = clients.map(c => `<div class="search-result" onclick="addNewSessionForClient('${c.id}', '${c.clientName.replace(/'/g, "\\'")}')"><b>الاسم:</b> ${c.clientName} <br><b>كود الملف:</b> ${c.id} <br><span style="color:var(--s); font-size:13px; font-weight:bold;">🤝 اضغط هنا لإضافة جلسة</span></div>`).join('');
 }
 
 function selectExistingPatient(caseId, clientName) {
@@ -868,7 +862,7 @@ async function addCase() {
   }
 }
 
-/* ================== عرض جلسات الأخصائي مع زر جلسة جديدة ================== */
+/* ================== عرض جلسات الأخصائي ================== */
 function showMyCases() {
   const card = document.getElementById('myCasesCard'); 
   const list = document.getElementById('myCasesList');
@@ -893,11 +887,10 @@ function showMyCases() {
 
         let safeClientName = c.clientName.replace(/'/g, "\\'");
 
-        // 🎨 3 أزرار متساوية: المرفق - جلسة جديدة لنفس العميل - تعديل
         let actionBtns = `
           <div class="action-buttons">
             ${attachButtonHtml}
-            <button class="add-session-btn" onclick="addNewSessionForClient('${c.id}', '${safeClientName}')">➕ جلسة جديدة</button>
+            <button class="add-session-btn" onclick="addNewSessionForClient('${c.id}', '${safeClientName}')">🤝 إضافة جلسة</button>
             <button class="edit-btn" onclick="editCase('${c.id}')">✏️ تعديل</button>
           </div>
         `;
