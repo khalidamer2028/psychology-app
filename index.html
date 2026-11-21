@@ -143,6 +143,68 @@
     th, td { padding: 8px 6px; }
     .filter-quick-btns button { font-size: 12px; padding: 6px 4px; min-width: 70px; }
   }
+
+  /* 🖨️ تنسيقات التقرير المطبوع ونظام الطباعة المباشر */
+  .print-actions-toolbar {
+    display: flex; gap: 10px; padding: 12px 16px; background: #eef7f4;
+    border-bottom: 2px solid var(--p); justify-content: center; align-items: center; flex-wrap: wrap;
+  }
+  .btn-do-print {
+    background: var(--p) !important; color: white !important; font-weight: bold !important;
+    padding: 12px 22px !important; border-radius: 8px !important; width: auto !important;
+    margin: 0 !important; font-size: 15px !important; cursor: pointer !important;
+  }
+  .btn-close-report {
+    background: #7f8c8d !important; color: white !important; padding: 12px 18px !important;
+    border-radius: 8px !important; width: auto !important; margin: 0 !important;
+    font-size: 15px !important; cursor: pointer !important;
+  }
+  .print-modal-content {
+    max-width: 950px; width: 95%; height: 92vh; background: #fff;
+  }
+  .print-modal-body {
+    background: #fff !important; padding: 25px !important; display: block !important; overflow-y: auto !important;
+  }
+  .print-header { text-align: center; border-bottom: 2px solid #1e6f5c; padding-bottom: 8px; margin-bottom: 15px; }
+  .print-header h1 { color: #1e6f5c; margin: 0; font-size: 22px; }
+  .print-header p { color: #555; margin: 4px 0 0 0; font-size: 14px; }
+  .client-info-box { background: #f9fbfb; border: 1px solid #d5dbdb; padding: 12px; border-radius: 8px; margin-bottom: 15px; line-height: 1.9; font-size: 15px; text-align: right; }
+  .signature { margin-top: 40px; text-align: left; font-weight: bold; font-size: 15px; padding: 0 20px; }
+
+  /* 🖨️ السحر عند الضغط على طباعة (عزل التقرير ليظهر وحده بدون أزرار أو شاشات أخرى) */
+  @media print {
+    body > *:not(#printReportModal) {
+      display: none !important;
+    }
+    .no-print, .modal-header, .print-actions-toolbar, .close-modal-btn {
+      display: none !important;
+    }
+    body {
+      background: #fff !important; padding: 0 !important; margin: 0 !important; color: #2c3e50 !important;
+    }
+    #printReportModal {
+      position: static !important; display: block !important; background: transparent !important;
+      padding: 0 !important; margin: 0 !important; width: 100% !important; height: auto !important;
+      overflow: visible !important; z-index: auto !important;
+    }
+    .print-modal-content {
+      box-shadow: none !important; border: none !important; border-radius: 0 !important;
+      max-width: 100% !important; width: 100% !important; height: auto !important;
+      max-height: none !important; overflow: visible !important; display: block !important;
+    }
+    .print-modal-body {
+      padding: 0 !important; overflow: visible !important;
+    }
+    @page {
+      size: auto; margin: 12mm 10mm;
+    }
+    thead { display: table-header-group; }
+    tfoot { display: table-footer-group; }
+    tr { page-break-inside: avoid; }
+    table { width: 100% !important; min-width: unset !important; border-collapse: collapse !important; font-size: 14px !important; }
+    th, td { border: 1px solid #999 !important; padding: 8px !important; text-align: center !important; }
+    th { background: #1e6f5c !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
 </style>
 </head>
 <body>
@@ -758,150 +820,156 @@ function updateStats() {
   document.getElementById('guideStatsTable').innerHTML = guideHtml;
 }
 
-/* ================== الطباعة مع تكرار العنوان في كل صفحة ================== */
+/* ================== دوال استعراض وطباعة التقارير المباشرة ================== */
+function openPrintReport(title, contentHtml) {
+  document.getElementById('printReportTitle').textContent = title;
+  document.getElementById('printReportContent').innerHTML = contentHtml;
+  document.getElementById('printReportModal').classList.remove('hidden');
+}
+
+function closePrintReport() {
+  document.getElementById('printReportModal').classList.add('hidden');
+  document.getElementById('printReportContent').innerHTML = '';
+}
 
 function printGeneralStats() { 
-  const win = window.open('', '', 'width=850,height=650'); 
   const tableHtml = document.getElementById('generalStatsTable').innerHTML; 
   const summaryText = document.getElementById('filterSummaryText').textContent;
-  win.document.write(`
-    <html dir="rtl"><head><title>تقرير الإحصائيات العامة</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-      @page { size: auto; margin: 15mm 12mm 15mm 12mm; }
-      body { font-family:'Tajawal', sans-serif; padding:10px; color:#2c3e50; }
-      .print-header { text-align:center; border-bottom:2px solid #1e6f5c; padding-bottom:8px; margin-bottom:12px; }
-      .print-header h1 { color:#1e6f5c; margin:0; font-size:22px; }
-      .print-header p { color:#555; margin:4px 0 0 0; font-size:14px; }
-      table { width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; }
-      thead { display: table-header-group; } /* يكرر رأس الجدول في كل صفحة */
-      tfoot { display: table-footer-group; }
-      tr { page-break-inside: avoid; }
-      th, td { border:1px solid #999; padding:8px; text-align:center; }
-      th { background:#1e6f5c; color:#fff; }
-      @media print {
-        .no-print { display: none !important; }
-      }
-      .mobile-print-bar {
-        background: #eef7f4;
-        border: 2px solid #1e6f5c;
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 15px;
-        text-align: center;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      }
-      .mobile-print-bar button {
-        background: #1e6f5c;
-        color: #ffffff;
-        border: none;
-        padding: 10px 18px;
-        border-radius: 6px;
-        font-size: 15px;
-        font-family: 'Tajawal', sans-serif;
-        font-weight: bold;
-        cursor: pointer;
-        margin: 4px;
-      }
-      .mobile-print-bar button.close-btn {
-        background: #7f8c8d;
-      }
-      .mobile-tip {
-        font-size: 12.5px;
-        color: #555;
-        margin-top: 6px;
-      }
-    </style>
-    </head><body>
-      <div class="mobile-print-bar no-print">
-        <button type="button" onclick="window.print()">🖨️ اضغط هنا للطباعة أو الحفظ بصيغة PDF</button>
-        <button type="button" class="close-btn" onclick="window.close()">❌ إغلاق التقرير</button>
-        <div class="mobile-tip">📱 لمستخدمي الموبايل: اضغط الزر الأخضر أعلاه لاختيار "حفظ بتنسيق PDF"، أو من قائمة المتصفح (⋮) اختر "مشاركة" ثم "طباعة".</div>
-      </div>
-
-      <div class="print-header">
-        <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
-        <p><b>تقرير الإحصائيات العامة للخدمات</b></p>
-        <p style="font-weight:bold; color:#1e6f5c;">${summaryText}</p>
-        <p><b>تاريخ الطباعة:</b> ${formatDisplayDate(new Date())}</p>
-      </div>
-      ${tableHtml}
-    </body></html>
-  `); 
-  win.document.close(); 
-  setTimeout(() => { win.print(); }, 400);
+  const content = `
+    <div class="print-header">
+      <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
+      <p><b>تقرير الإحصائيات العامة للخدمات</b></p>
+      <p style="font-weight:bold; color:#1e6f5c;">${summaryText}</p>
+      <p><b>تاريخ الطباعة:</b> ${formatDisplayDate(new Date())}</p>
+    </div>
+    ${tableHtml}
+  `;
+  openPrintReport('📊 تقرير الإحصائيات العامة', content);
 }
 
 function printGuideStats() { 
-  const win = window.open('', '', 'width=850,height=650'); 
   const tableHtml = document.getElementById('guideStatsTable').innerHTML; 
   const summaryText = document.getElementById('filterSummaryText').textContent;
-  win.document.write(`
-    <html dir="rtl"><head><title>إحصائيات الأخصائيين</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-      @page { size: auto; margin: 15mm 12mm 15mm 12mm; }
-      body { font-family:'Tajawal', sans-serif; padding:10px; color:#2c3e50; }
-      .print-header { text-align:center; border-bottom:2px solid #1e6f5c; padding-bottom:8px; margin-bottom:12px; }
-      .print-header h1 { color:#1e6f5c; margin:0; font-size:22px; }
-      .print-header p { color:#555; margin:4px 0 0 0; font-size:14px; }
-      table { width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; }
-      thead { display: table-header-group; } /* يكرر رأس الجدول في كل صفحة */
-      tfoot { display: table-footer-group; }
-      tr { page-break-inside: avoid; }
-      th, td { border:1px solid #999; padding:8px; text-align:center; }
-      th { background:#1e6f5c; color:#fff; }
-      @media print {
-        .no-print { display: none !important; }
-      }
-      .mobile-print-bar {
-        background: #eef7f4;
-        border: 2px solid #1e6f5c;
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 15px;
-        text-align: center;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      }
-      .mobile-print-bar button {
-        background: #1e6f5c;
-        color: #ffffff;
-        border: none;
-        padding: 10px 18px;
-        border-radius: 6px;
-        font-size: 15px;
-        font-family: 'Tajawal', sans-serif;
-        font-weight: bold;
-        cursor: pointer;
-        margin: 4px;
-      }
-      .mobile-print-bar button.close-btn {
-        background: #7f8c8d;
-      }
-      .mobile-tip {
-        font-size: 12.5px;
-        color: #555;
-        margin-top: 6px;
-      }
-    </style>
-    </head><body>
-      <div class="mobile-print-bar no-print">
-        <button type="button" onclick="window.print()">🖨️ اضغط هنا للطباعة أو الحفظ بصيغة PDF</button>
-        <button type="button" class="close-btn" onclick="window.close()">❌ إغلاق التقرير</button>
-        <div class="mobile-tip">📱 لمستخدمي الموبايل: اضغط الزر الأخضر أعلاه لاختيار "حفظ بتنسيق PDF"، أو من قائمة المتصفح (⋮) اختر "مشاركة" ثم "طباعة".</div>
-      </div>
+  const content = `
+    <div class="print-header">
+      <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
+      <p><b>تقرير إحصائيات الأخصائيين والخدمات المنفذة</b></p>
+      <p style="font-weight:bold; color:#1e6f5c;">${summaryText}</p>
+      <p><b>تاريخ الطباعة:</b> ${formatDisplayDate(new Date())}</p>
+    </div>
+    ${tableHtml}
+  `;
+  openPrintReport('👨 تقرير إحصائيات الأخصائيين', content);
+}
 
-      <div class="print-header">
-        <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
-        <p><b>تقرير إحصائيات الأخصائيين والخدمات المنفذة</b></p>
-        <p style="font-weight:bold; color:#1e6f5c;">${summaryText}</p>
-        <p><b>تاريخ الطباعة:</b> ${formatDisplayDate(new Date())}</p>
-      </div>
-      ${tableHtml}
-    </body></html>
-  `); 
-  win.document.close(); 
-  setTimeout(() => { win.print(); }, 400);
+function printSingleClientReport(caseId) {
+  const clientSessions = guideCasesGlobal.filter(c => String(c.id) === String(caseId));
+  if (clientSessions.length === 0) { alert('لا توجد بيانات لهذا العميل'); return; }
+
+  const clientName = clientSessions[0].clientName;
+  const room = clientSessions[0].room;
+  const guideName = currentUser ? currentUser.name : '';
+
+  let tableRows = clientSessions.map((s, idx) => {
+    return `<tr>
+      <td>${idx + 1}</td>
+      <td>${formatDisplayDate(s.date)}</td>
+      <td>${s.service}</td>
+      <td>${(s.attachments || []).length} مرفق</td>
+    </tr>`;
+  }).join('');
+
+  let attachmentsSectionHtml = '';
+  clientSessions.forEach((s, idx) => {
+    if (s.attachments && s.attachments.length > 0) {
+      attachmentsSectionHtml += `
+        <div style="page-break-before: always; margin-top:25px;">
+          <div class="print-header">
+            <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
+            <p><b>مرفقات ووثائق الجلسة (${idx + 1}) — للمستفيد: ${clientName} (كود: ${caseId})</b></p>
+            <p>التاريخ: ${formatDisplayDate(s.date)} | الخدمة: ${s.service}</p>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:20px; align-items:center; margin-top:15px;">
+            ${s.attachments.map((a, aIdx) => `
+              <div style="text-align:center; width:100%;">
+                <p style="font-weight:bold; margin-bottom:5px; color:#555;">${a.name || 'مرفق ' + (aIdx + 1)}</p>
+                <img src="${getBestAttachmentUrl(a.data) || a.viewUrl || a.data}" style="max-width:95%; max-height:750px; border:1px solid #ccc; border-radius:8px;" alt="مرفق">
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+  });
+
+  const content = `
+    <div class="print-header">
+      <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
+      <p><b>تقرير ملف حالة المستفيد وسجل الزيارات</b></p>
+    </div>
+    
+    <div class="client-info-box">
+      <b>اسم المستفيد:</b> ${clientName} <br>
+      <b>كود الملف:</b> ${caseId} <br>
+      <b>الغرفة / المركز:</b> ${room} <br>
+      <b>الأخصائي المسؤول:</b> ${guideName} <br>
+      <b>إجمالي الجلسات المنفذة:</b> ${clientSessions.length} جلسة
+    </div>
+    
+    <h3 style="margin-bottom:8px;">سجل الزيارات والجلسات المنفذة:</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>رقم الجلسة</th>
+          <th>تاريخ الجلسة</th>
+          <th>الخدمة المقدمة</th>
+          <th>المرفقات</th>
+        </tr>
+      </thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+
+    ${attachmentsSectionHtml}
+    
+    <div class="signature">
+      <b>توقيع واعتماد الأخصائي:</b> ..................................................
+    </div>
+  `;
+  openPrintReport(`📄 ملف العميل: ${clientName}`, content);
+}
+
+function printMyCasesSummaryPDF() {
+  if (!currentUser || guideCasesGlobal.length === 0) { alert('لا توجد بيانات للطباعة'); return; }
+  
+  let tableRows = guideCasesGlobal.map((c) => { 
+    return `<tr><td>${c.id}</td><td>${c.clientName}</td><td>${c.service}</td><td>${formatDisplayDate(c.date)}</td></tr>`; 
+  }).join('');
+  
+  const content = `
+    <div class="print-header">
+      <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
+      <p><b>تقرير سجل الجلسات العام</b></p>
+      <p><b>الغرفة:</b> ${currentUser.room} — <b>الأخصائي:</b> ${currentUser.name}</p>
+      <p><b>تاريخ التقرير:</b> ${formatDisplayDate(new Date())}</p>
+    </div>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>كود الملف</th>
+          <th>اسم العميل</th>
+          <th>الخدمة المقدمة</th>
+          <th>التاريخ</th>
+        </tr>
+      </thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+    
+    <div class="signature">
+      <b>توقيع واعتماد الأخصائي:</b> ..................................................
+    </div>
+  `;
+  openPrintReport('📂 تقرير سجل الجلسات العام', content);
 }
 
 /* ================== إدارة الحالات والبحث ================== */
@@ -1276,235 +1344,6 @@ function showMyCases() {
   });
 }
 
-/* ================== طباعة ملف العميل الكامل مع وثائقه ومرفقاته ================== */
-function printSingleClientReport(caseId) {
-  const clientSessions = guideCasesGlobal.filter(c => String(c.id) === String(caseId));
-  if (clientSessions.length === 0) { alert('لا توجد بيانات لهذا العميل'); return; }
-
-  const clientName = clientSessions[0].clientName;
-  const room = clientSessions[0].room;
-  const guideName = currentUser ? currentUser.name : '';
-
-  let tableRows = clientSessions.map((s, idx) => {
-    return `<tr>
-      <td>${idx + 1}</td>
-      <td>${formatDisplayDate(s.date)}</td>
-      <td>${s.service}</td>
-      <td>${(s.attachments || []).length} مرفق</td>
-    </tr>`;
-  }).join('');
-
-  let attachmentsSectionHtml = '';
-  clientSessions.forEach((s, idx) => {
-    if (s.attachments && s.attachments.length > 0) {
-      attachmentsSectionHtml += `
-        <div style="page-break-before: always; margin-top:20px;">
-          <div class="print-header">
-            <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
-            <p><b>مرفقات ووثائق الجلسة (${idx + 1}) — للمستفيد: ${clientName} (كود: ${caseId})</b></p>
-            <p>التاريخ: ${formatDisplayDate(s.date)} | الخدمة: ${s.service}</p>
-          </div>
-          <div style="display:flex; flex-direction:column; gap:20px; align-items:center; margin-top:15px;">
-            ${s.attachments.map((a, aIdx) => `
-              <div style="text-align:center; width:100%;">
-                <p style="font-weight:bold; margin-bottom:5px; color:#555;">${a.name || 'مرفق ' + (aIdx + 1)}</p>
-                <img src="${a.viewUrl || a.data}" style="max-width:95%; max-height:750px; border:1px solid #ccc; border-radius:8px;" alt="مرفق">
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-    }
-  });
-
-  const win = window.open('', '', 'width=900,height=700');
-  win.document.write(`
-    <html dir="rtl"><head><title>ملف حالة عميل - ${clientName}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-      @page { size: auto; margin: 15mm 12mm 15mm 12mm; }
-      body { font-family:'Tajawal', sans-serif; padding:10px; color:#2c3e50; } 
-      .print-header { text-align:center; border-bottom:2px solid #1e6f5c; padding-bottom:8px; margin-bottom:12px; }
-      .print-header h1 { color:#1e6f5c; margin:0; font-size:22px; }
-      .print-header p { color:#555; margin:3px 0 0 0; font-size:14px; }
-      .client-info-box { background:#f9fbfb; border:1px solid #d5dbdb; padding:12px; border-radius:8px; margin-bottom:15px; line-height:1.9; font-size:15px; }
-      table { width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; } 
-      thead { display: table-header-group; }
-      tfoot { display: table-footer-group; }
-      tr { page-break-inside: avoid; }
-      th, td { border:1px solid #999; padding:8px; text-align:center; } 
-      th { background:#1e6f5c; color:#fff; } 
-      .signature { margin-top:40px; text-align:left; font-weight:bold; font-size:15px; padding:0 20px; }
-      @media print {
-        .no-print { display: none !important; }
-      }
-      .mobile-print-bar {
-        background: #eef7f4;
-        border: 2px solid #1e6f5c;
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 15px;
-        text-align: center;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      }
-      .mobile-print-bar button {
-        background: #1e6f5c;
-        color: #ffffff;
-        border: none;
-        padding: 10px 18px;
-        border-radius: 6px;
-        font-size: 15px;
-        font-family: 'Tajawal', sans-serif;
-        font-weight: bold;
-        cursor: pointer;
-        margin: 4px;
-      }
-      .mobile-print-bar button.close-btn {
-        background: #7f8c8d;
-      }
-      .mobile-tip {
-        font-size: 12.5px;
-        color: #555;
-        margin-top: 6px;
-      }
-    </style></head>
-    <body>
-      <div class="mobile-print-bar no-print">
-        <button type="button" onclick="window.print()">🖨️ اضغط هنا للطباعة أو الحفظ بصيغة PDF</button>
-        <button type="button" class="close-btn" onclick="window.close()">❌ إغلاق التقرير</button>
-        <div class="mobile-tip">📱 لمستخدمي الموبايل: اضغط الزر الأخضر أعلاه لاختيار "حفظ بتنسيق PDF"، أو من قائمة المتصفح (⋮) اختر "مشاركة" ثم "طباعة".</div>
-      </div>
-
-      <div class="print-header">
-        <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
-        <p><b>تقرير ملف حالة المستفيد وسجل الزيارات</b></p>
-      </div>
-      
-      <div class="client-info-box">
-        <b>اسم المستفيد:</b> ${clientName} <br>
-        <b>كود الملف:</b> ${caseId} <br>
-        <b>الغرفة / المركز:</b> ${room} <br>
-        <b>الأخصائي المسؤول:</b> ${guideName} <br>
-        <b>إجمالي الجلسات المنفذة:</b> ${clientSessions.length} جلسة
-      </div>
-      
-      <h3 style="margin-bottom:8px;">سجل الزيارات والجلسات المنفذة:</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>رقم الجلسة</th>
-            <th>تاريخ الجلسة</th>
-            <th>الخدمة المقدمة</th>
-            <th>المرفقات</th>
-          </tr>
-        </thead>
-        <tbody>${tableRows}</tbody>
-      </table>
-
-      ${attachmentsSectionHtml}
-      
-      <div class="signature">
-        <b>توقيع واعتماد الأخصائي:</b> ..................................................
-      </div>
-    </body></html>
-  `);
-  win.document.close();
-  setTimeout(() => { win.print(); }, 700);
-}
-
-// طباعة السجل العام السريع لجميع الحالات
-function printMyCasesSummaryPDF() {
-  if (!currentUser || guideCasesGlobal.length === 0) { alert('لا توجد بيانات للطباعة'); return; }
-  
-  let tableRows = guideCasesGlobal.map((c) => { 
-    return `<tr><td>${c.id}</td><td>${c.clientName}</td><td>${c.service}</td><td>${formatDisplayDate(c.date)}</td></tr>`; 
-  }).join('');
-  
-  const win = window.open('', '', 'width=850,height=650');
-  win.document.write(`
-    <html dir="rtl"><head><title>تقرير سجل الجلسات العام</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-      @page { size: auto; margin: 15mm 12mm 15mm 12mm; }
-      body { font-family:'Tajawal', sans-serif; padding:10px; color:#2c3e50; } 
-      .print-header { text-align:center; border-bottom:2px solid #1e6f5c; padding-bottom:8px; margin-bottom:12px; }
-      .print-header h1 { color:#1e6f5c; margin:0; font-size:22px; }
-      .print-header p { color:#555; margin:3px 0 0 0; font-size:14px; }
-      table { width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; } 
-      thead { display: table-header-group; }
-      tfoot { display: table-footer-group; }
-      tr { page-break-inside: avoid; }
-      th, td { border:1px solid #999; padding:8px; text-align:center; } 
-      th { background:#1e6f5c; color:#fff; } 
-      .signature { margin-top:40px; text-align:left; font-weight:bold; font-size:15px; padding:0 20px; }
-      @media print {
-        .no-print { display: none !important; }
-      }
-      .mobile-print-bar {
-        background: #eef7f4;
-        border: 2px solid #1e6f5c;
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 15px;
-        text-align: center;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      }
-      .mobile-print-bar button {
-        background: #1e6f5c;
-        color: #ffffff;
-        border: none;
-        padding: 10px 18px;
-        border-radius: 6px;
-        font-size: 15px;
-        font-family: 'Tajawal', sans-serif;
-        font-weight: bold;
-        cursor: pointer;
-        margin: 4px;
-      }
-      .mobile-print-bar button.close-btn {
-        background: #7f8c8d;
-      }
-      .mobile-tip {
-        font-size: 12.5px;
-        color: #555;
-        margin-top: 6px;
-      }
-    </style></head>
-    <body>
-      <div class="mobile-print-bar no-print">
-        <button type="button" onclick="window.print()">🖨️ اضغط هنا للطباعة أو الحفظ بصيغة PDF</button>
-        <button type="button" class="close-btn" onclick="window.close()">❌ إغلاق التقرير</button>
-        <div class="mobile-tip">📱 لمستخدمي الموبايل: اضغط الزر الأخضر أعلاه لاختيار "حفظ بتنسيق PDF"، أو من قائمة المتصفح (⋮) اختر "مشاركة" ثم "طباعة".</div>
-      </div>
-
-      <div class="print-header">
-        <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
-        <p><b>تقرير سجل الجلسات العام</b></p>
-        <p><b>الغرفة:</b> ${currentUser.room} — <b>الأخصائي:</b> ${currentUser.name}</p>
-        <p><b>تاريخ التقرير:</b> ${formatDisplayDate(new Date())}</p>
-      </div>
-      
-      <table>
-        <thead>
-          <tr>
-            <th>كود الملف</th>
-            <th>اسم العميل</th>
-            <th>الخدمة المقدمة</th>
-            <th>التاريخ</th>
-          </tr>
-        </thead>
-        <tbody>${tableRows}</tbody>
-      </table>
-      
-      <div class="signature">
-        <b>توقيع واعتماد الأخصائي:</b> ..................................................
-      </div>
-    </body></html>
-  `);
-  win.document.close();
-  setTimeout(() => { win.print(); }, 400);
-}
-
 /* ================== تشغيل التطبيق ================== */
 window.onload = () => {
   if (currentUser) {
@@ -1530,6 +1369,29 @@ window.onload = () => {
         🌐 فتح في صفحة مستقلة
       </a>
       <button type="button" class="secondary small-btn" onclick="closeAttachmentModal()">❌ إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة استعراض وطباعة التقارير المباشرة (تعمل على الموبايل والكمبيوتر 100%) -->
+<div id="printReportModal" class="modal-overlay hidden">
+  <div class="modal-content print-modal-content">
+    <div class="modal-header no-print">
+      <h3 id="printReportTitle" style="margin:0; font-size:18px; color:var(--p); border:none; padding:0;">📄 تقرير للطباعة</h3>
+      <button type="button" class="close-modal-btn" onclick="closePrintReport()">✖</button>
+    </div>
+    
+    <div class="print-actions-toolbar no-print">
+      <button type="button" class="btn-do-print" onclick="window.print()">
+        🖨️ اضغط للطباعة / الحفظ كـ PDF
+      </button>
+      <button type="button" class="btn-close-report" onclick="closePrintReport()">
+        ❌ إغلاق التقرير
+      </button>
+    </div>
+    
+    <div class="modal-body print-modal-body" id="printReportContent">
+      <!-- محتوى التقرير -->
     </div>
   </div>
 </div>
