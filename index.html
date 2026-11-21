@@ -650,81 +650,79 @@ function updateStats() {
   document.getElementById('guideStatsTable').innerHTML = guideHtml;
 }
 
-/* ================== توليد صفحة التقرير المستقلة للطباعة ================== */
-function openReportInNewTab(title, contentHtml) {
-  const html = `
-    <!DOCTYPE html>
-    <html dir="rtl" lang="ar">
+/* ================== نظام الطباعة الجديد (بدون فتح نوافذ جديدة) ================== */
+function openReportPreview(title, contentHtml, filename) {
+  const modal = document.getElementById('reportPreviewModal');
+  const modalBody = document.getElementById('reportPreviewBody');
+  const modalTitle = document.getElementById('reportPreviewTitle');
+  
+  modalTitle.textContent = title;
+  modalBody.innerHTML = contentHtml;
+  modal.style.display = 'flex';
+  
+  // حفظ المحتوى في متغير عشان نستخدمه في الطباعة والتحميل
+  window.currentReportHtml = contentHtml;
+  window.currentReportFilename = filename || title;
+}
+
+function closeReportPreview() {
+  document.getElementById('reportPreviewModal').style.display = 'none';
+}
+
+function printReportFromModal() {
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <html dir="rtl">
     <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>${title}</title>
-      <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+      <title>طباعة</title>
+      <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
       <style>
-        body { font-family: 'Tajawal', sans-serif; padding: 20px; background: #f4f7f6; color: #2c3e50; }
-        .report-container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); max-width: 1000px; margin: 0 auto; }
-        .action-bar { display: flex; gap: 10px; justify-content: center; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 2px dashed #ddd; }
-        .action-bar button { font-family: 'Tajawal'; padding: 12px 24px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-print { background: #1e6f5c; color: #fff; }
-        .btn-print:hover { background: #145043; }
-        .btn-pdf { background: #e74c3c; color: #fff; }
-        .btn-pdf:hover { background: #c0392b; }
-        .print-header { text-align: center; border-bottom: 2px solid #1e6f5c; padding-bottom: 10px; margin-bottom: 20px; }
+        @page { size: auto; margin: 10mm; }
+        body { font-family: 'Tajawal', sans-serif; padding: 10px; color: #2c3e50; }
+        .print-header { text-align: center; border-bottom: 2px solid #1e6f5c; padding-bottom: 10px; margin-bottom: 15px; }
         .print-header h1 { color: #1e6f5c; margin: 0 0 5px 0; font-size: 24px; }
-        .print-header p { color: #555; margin: 3px 0; font-size: 15px; font-weight: 500; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 15px; }
+        .print-header p { color: #555; margin: 3px 0; font-size: 14px; font-weight: 500; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
         th, td { border: 1px solid #999; padding: 10px; text-align: center; }
-        th { background: #1e6f5c !important; color: #fff !important; }
-        .client-info-box { background: #f9fbfb; border: 1px solid #d5dbdb; padding: 15px; border-radius: 8px; margin-bottom: 20px; line-height: 2; font-size: 16px; text-align: right; }
-        .signature { margin-top: 50px; text-align: left; font-weight: bold; font-size: 17px; padding: 0 20px; }
-        
-        @media print {
-          @page { size: auto; margin: 10mm; }
-          body { background: #fff !important; padding: 0; }
-          .report-container { box-shadow: none; padding: 0; }
-          .action-bar { display: none !important; }
-        }
+        th { background: #1e6f5c !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .client-info-box { background: #f9fbfb; border: 1px solid #d5dbdb; padding: 15px; border-radius: 8px; margin-bottom: 20px; line-height: 2; font-size: 15px; text-align: right; }
+        .signature { margin-top: 50px; text-align: left; font-weight: bold; font-size: 16px; padding: 0 20px; }
       </style>
     </head>
-    <body>
-      <div class="report-container" id="reportContent">
-        <div class="action-bar">
-          <button class="btn-print" onclick="window.print()">🖨️ طباعة التقرير</button>
-          <button class="btn-pdf" onclick="downloadAsPDF()">⬇️ تحميل PDF</button>
-        </div>
-        ${contentHtml}
-      </div>
-
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
-      <script>
-        function downloadAsPDF() {
-          const element = document.getElementById('reportContent');
-          const actionBar = document.querySelector('.action-bar');
-          actionBar.style.display = 'none';
-          
-          const opt = {
-            margin: [10, 10, 10, 10],
-            filename: '${title}.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, allowTaint: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-          };
-          
-          html2pdf().set(opt).from(element).save().then(() => {
-            actionBar.style.display = 'flex';
-          }).catch(() => {
-            actionBar.style.display = 'flex';
-            alert('حدث خطأ أثناء تحميل PDF. جرب الطباعة المباشرة.');
-          });
-        }
-      <\/script>
-    </body>
+    <body>${window.currentReportHtml}</body>
     </html>
-  `;
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  setTimeout(() => { printWindow.print(); }, 500);
+}
 
-  const blob = new Blob([html], {type: 'text/html'});
-  const url = URL.createObjectURL(blob);
-  window.open(url, '_blank');
+function downloadReportPDF() {
+  const element = document.getElementById('reportPreviewBody');
+  const filename = (window.currentReportFilename || 'تقرير') + '.pdf';
+  
+  const opt = {
+    margin: [10, 10, 10, 10],
+    filename: filename,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, allowTaint: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+  
+  // إظهار رسالة تحميل
+  const btn = event.target;
+  const originalText = btn.textContent;
+  btn.textContent = '⏳ جاري التحميل...';
+  btn.disabled = true;
+
+  html2pdf().set(opt).from(element).save().then(() => {
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }).catch((err) => {
+    btn.textContent = originalText;
+    btn.disabled = false;
+    alert('حدث خطأ في تحميل PDF. جرب الطباعة بدلاً من ذلك.');
+  });
 }
 
 function printGeneralStats() { 
@@ -739,7 +737,7 @@ function printGeneralStats() {
     </div>
     ${tableHtml}
   `;
-  openReportInNewTab('تقرير_الإحصائيات_العامة', content);
+  openReportPreview('تقرير الإحصائيات العامة', content, 'تقرير_الإحصائيات_العامة');
 }
 
 function printGuideStats() { 
@@ -754,7 +752,7 @@ function printGuideStats() {
     </div>
     ${tableHtml}
   `;
-  openReportInNewTab('تقرير_إحصائيات_الأخصائيين', content);
+  openReportPreview('تقرير إحصائيات الأخصائيين', content, 'تقرير_إحصائيات_الأخصائيين');
 }
 
 function printSingleClientReport(caseId) {
@@ -818,7 +816,7 @@ function printSingleClientReport(caseId) {
       <b>توقيع واعتماد الأخصائي:</b> ..................................................
     </div>
   `;
-  openReportInNewTab(`ملف_حالة_${clientName.replace(/\s+/g, '_')}`, content);
+  openReportPreview(`ملف حالة: ${clientName}`, content, `ملف_حالة_${clientName.replace(/\s+/g, '_')}`);
 }
 
 function printMyCasesSummaryPDF() {
@@ -845,7 +843,7 @@ function printMyCasesSummaryPDF() {
       <b>توقيع واعتماد الأخصائي:</b> ..................................................
     </div>
   `;
-  openReportInNewTab('سجل_الجلسات_العام', content);
+  openReportPreview('سجل الجلسات العام', content, 'سجل_الجلسات_العام');
 }
 
 /* ================== إدارة الحالات والبحث ================== */
@@ -1209,7 +1207,7 @@ window.onload = () => {
 };
 </script>
 
-<!-- نافذة معاينة المرفقات -->
+<!-- 🖼️ نافذة معاينة المرفقات -->
 <div id="attachmentModal" class="modal-overlay hidden" onclick="if(event.target === this) closeAttachmentModal()">
   <div class="modal-content">
     <div class="modal-header">
@@ -1220,6 +1218,23 @@ window.onload = () => {
     <div class="modal-footer">
       <a id="modalDirectLink" href="#" target="_blank" class="attach-link" style="text-decoration:none; height:36px;">🌐 فتح في صفحة مستقلة</a>
       <button type="button" class="secondary small-btn" onclick="closeAttachmentModal()">❌ إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- 📄 نافذة معاينة وطباعة التقرير الجديدة -->
+<div id="reportPreviewModal" class="modal-overlay" style="display:none; z-index:100000;">
+  <div class="modal-content" style="max-width: 950px; height: 95vh;">
+    <div class="modal-header" style="background:#f4f7f6; border-bottom:2px solid var(--p);">
+      <h3 id="reportPreviewTitle" style="margin:0; font-size:18px; color:var(--p); border:none; padding:0;">تقرير</h3>
+      <div style="display:flex; gap:10px;">
+        <button type="button" class="btn-print" onclick="printReportFromModal()" style="padding:8px 16px; font-size:14px; border-radius:6px; margin:0; width:auto; background:var(--p); color:#fff;">🖨️ طباعة</button>
+        <button type="button" class="btn-pdf" onclick="downloadReportPDF()" style="padding:8px 16px; font-size:14px; border-radius:6px; margin:0; width:auto; background:var(--d); color:#fff;">⬇️ تحميل PDF</button>
+        <button type="button" class="close-modal-btn" onclick="closeReportPreview()" style="color:#e74c3c; font-size:24px;">✖</button>
+      </div>
+    </div>
+    <div class="modal-body" id="reportPreviewBody" style="background:#fff; display:block; padding:25px; overflow-y:auto;">
+      <!-- سيتم وضع محتوى التقرير هنا -->
     </div>
   </div>
 </div>
