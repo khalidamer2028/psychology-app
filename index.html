@@ -24,6 +24,8 @@
   button.secondary { background: #7f8c8d; } button.danger { background: var(--d); } button.admin { background: var(--i); }
   button.small { padding: 8px 12px; font-size: 14px; width: auto; margin: 0; }
   .row { display: flex; gap: 10px; margin-top: 10px; } .row > * { flex: 1; }
+  
+  /* 🎨 كروت العملاء والجلسات المجمعة */
   .client-card { background: #fff; border: 1.5px solid #d5dbdb; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
   .client-header { border-bottom: 2px solid #e3efec; padding-bottom: 10px; margin-bottom: 12px; }
   .sessions-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
@@ -34,9 +36,11 @@
   .small-btn { padding: 6px 12px !important; font-size: 13px !important; height: 34px !important; margin: 0 !important; width: auto !important; border-radius: 6px !important; }
   .client-footer-actions { display: flex; gap: 10px; border-top: 1px dashed #d5dbdb; padding-top: 12px; margin-top: 8px; }
   .client-footer-actions button { margin-top: 0; flex: 1; font-size: 14px; }
+  
   .attach-link { display: inline-flex; align-items: center; justify-content: center; background: #e3efec; color: var(--p); padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; border: 1px solid var(--p); height: 34px; box-sizing: border-box; cursor: pointer; }
   .attach-link:hover { background: var(--p); color: #fff; }
   .no-attach-btn { display: inline-flex; align-items: center; justify-content: center; background: #f1f2f6; color: #95a5a6; padding: 6px 10px; border-radius: 6px; font-size: 13px; border: 1px dashed #bdc3c7; height: 34px; box-sizing: border-box; }
+  
   .empty { text-align: center; color: #777; padding: 20px; font-style: italic; font-size: 16px; }
   .badge { display: inline-block; background: #e3efec; color: var(--p); padding: 3px 8px; border-radius: 6px; font-size: 13px; font-weight: bold; }
   .hidden { display: none !important; }
@@ -50,27 +54,79 @@
   .search-result:hover { background: #e3efec; }
   .search-result b { color: var(--p); }
   #loginScreen { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; max-width: 400px; margin: 0 auto; }
+
+  /* 🎨 فلاتر الإحصائيات الزمنية */
   .filter-box { background: #fdfefe; border: 1px solid #d5dbdb; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
   .filter-quick-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
   .filter-quick-btns button { flex: 1; min-width: 75px; font-size: 13px; padding: 6px 10px; }
   .filter-summary { font-size: 14px; color: var(--p); font-weight: bold; margin-top: 10px; text-align: center; }
+
   .btn-show-cases { background: #2980b9 !important; color: white !important; font-weight: bold; }
   .btn-new-case { background: var(--p) !important; color: white !important; font-weight: bold; }
   .add-session-btn { background: var(--s) !important; color: #fff !important; }
   .add-session-btn:hover { background: #219150 !important; }
-  #generalStatsTable, #guideStatsTable { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; margin-top: 10px; }
+
+  /* 📱 تحسينات التجاوب مع شاشات الموبايل */
+  #generalStatsTable, #guideStatsTable {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    margin-top: 10px;
+  }
+
+  /* 🔍 شريط وزر البحث المطور */
   .search-patient-bar { display: flex; gap: 10px; align-items: center; margin-top: 5px; }
   .search-patient-bar input { flex: 1; margin: 0; }
-  .btn-search-patient { background: #2c3e50 !important; color: white !important; font-weight: bold !important; width: auto !important; min-width: 150px !important; margin-top: 0 !important; padding: 12px 16px !important; font-size: 15px !important; white-space: nowrap !important; border-radius: 8px !important; }
+  .btn-search-patient {
+    background: #2c3e50 !important;
+    color: white !important;
+    font-weight: bold !important;
+    width: auto !important;
+    min-width: 150px !important;
+    margin-top: 0 !important;
+    padding: 12px 16px !important;
+    font-size: 15px !important;
+    white-space: nowrap !important;
+    border-radius: 8px !important;
+  }
   .btn-search-patient:hover { background: #1a252f !important; }
-  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center; z-index: 99999; padding: 15px; }
-  .modal-content { background: #fff; border-radius: 12px; max-width: 900px; width: 100%; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: modalFadeIn 0.2s ease-out; }
-  @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-  .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; border-bottom: 1px solid #e1e8e6; background: #fdfefe; }
-  .close-modal-btn { background: transparent !important; color: #7f8c8d !important; border: none !important; font-size: 20px !important; width: auto !important; margin: 0 !important; padding: 4px 8px !important; cursor: pointer !important; line-height: 1 !important; }
+
+  /* 🖼️ نافذة معاينة المرفقات المنبثقة لمنع أخطاء 500 على الموبايل */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 99999; padding: 15px;
+  }
+  .modal-content {
+    background: #fff; border-radius: 12px; max-width: 900px; width: 100%;
+    max-height: 92vh; display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: modalFadeIn 0.2s ease-out;
+  }
+  @keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 18px; border-bottom: 1px solid #e1e8e6; background: #fdfefe;
+  }
+  .close-modal-btn {
+    background: transparent !important; color: #7f8c8d !important; border: none !important;
+    font-size: 20px !important; width: auto !important; margin: 0 !important;
+    padding: 4px 8px !important; cursor: pointer !important; line-height: 1 !important;
+  }
   .close-modal-btn:hover { color: var(--d) !important; }
-  .modal-body { padding: 15px; overflow-y: auto; flex: 1; display: flex; justify-content: center; align-items: center; background: #f8f9fa; }
-  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 12px 18px; border-top: 1px solid #e1e8e6; background: #fff; }
+  .modal-body {
+    padding: 15px; overflow-y: auto; flex: 1; display: flex;
+    justify-content: center; align-items: center; background: #f8f9fa;
+  }
+  .modal-footer {
+    display: flex; justify-content: flex-end; gap: 10px;
+    padding: 12px 18px; border-top: 1px solid #e1e8e6; background: #fff;
+  }
+
   @media (max-width: 650px) {
     .search-patient-bar { flex-direction: column; align-items: stretch; gap: 8px; }
     .btn-search-patient { width: 100% !important; margin-top: 4px !important; padding: 14px !important; font-size: 16px !important; }
@@ -91,7 +147,8 @@
 </style>
 </head>
 <body>
-  <!-- شاشة تسجيل الدخول -->
+
+<!-- شاشة تسجيل الدخول -->
 <div id="loginScreen">
   <h1 style="text-align:center; margin-bottom:10px;">🧠 الدعم النفسي بالغربية</h1>
   <p class="subtitle">تسجيل الدخول للنظام</p>
@@ -192,10 +249,11 @@
 <!-- لوحة المدير -->
 <div id="adminMode" class="hidden">
   <div class="topbar">
-    <h1 style="margin:0;">🧠 لوحة المدير - الدعم النفسي بالغربية</h1>
+    <h1 style="margin:0;">🧠الدعم النفسي بالغربية</h1>
     <button class="secondary" onclick="logoutAdmin()">⬅️ تسجيل الخروج</button>
   </div>
 
+  <!-- شاشة الدخول للمدير -->
   <div class="card" id="adminLoginCard">
     <h3>🔐 تسجيل دخول المدير</h3>
     <label>كلمة السر</label>
@@ -205,6 +263,7 @@
     <div id="loginStatusAdmin" class="status hidden"></div>
   </div>
 
+  <!-- لوحة الإدارة بعد الدخول المعتمد -->
   <div id="adminPanel" class="hidden">
     <div class="card">
       <h3>⚙️ إعدادات النظام</h3>
@@ -217,6 +276,7 @@
       <div id="fetchStatus" class="status hidden"></div>
     </div>
 
+    <!-- بطاقة الإحصائيات مع الفلترة الزمنية -->
     <div class="card">
       <h3>📊 إحصائيات عامة وفلاتر زمنية</h3>
       
@@ -261,44 +321,13 @@
   </div>
 </div>
 
-<!-- 🖼️ نافذة معاينة المرفقات -->
-<div id="attachmentModal" class="modal-overlay hidden" onclick="if(event.target === this) closeAttachmentModal()">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="modalTitle" style="margin:0; font-size:17px; color:var(--p); border:none; padding:0;">📎 معاينة المرفق</h3>
-      <button type="button" class="close-modal-btn" onclick="closeAttachmentModal()">✖</button>
-    </div>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="modal-footer">
-      <a id="modalDirectLink" href="#" target="_blank" class="attach-link" style="text-decoration:none; height:36px;">🌐 فتح في صفحة مستقلة</a>
-      <button type="button" class="secondary small-btn" onclick="closeAttachmentModal()">❌ إغلاق</button>
-    </div>
-  </div>
-</div>
-
-<!-- 📄 نافذة معاينة وطباعة التقرير -->
-<div id="reportPreviewModal" class="modal-overlay" style="display:none; z-index:100000;">
-  <div class="modal-content" style="max-width: 950px; height: 95vh;">
-    <div class="modal-header" style="background:#f4f7f6; border-bottom:2px solid var(--p); flex-wrap:wrap; gap:10px;">
-      <h3 id="reportPreviewTitle" style="margin:0; font-size:18px; color:var(--p); border:none; padding:0;">تقرير</h3>
-      <div style="display:flex; gap:8px; flex-wrap:wrap;">
-        <button type="button" class="btn-print" onclick="printReportFromModal()" style="padding:8px 16px; font-size:14px; border-radius:6px; margin:0; width:auto; background:var(--p); color:#fff;">🖨️ طباعة</button>
-        <button type="button" class="btn-pdf" onclick="downloadReportPDF()" style="padding:8px 16px; font-size:14px; border-radius:6px; margin:0; width:auto; background:var(--d); color:#fff;">⬇️ تحميل PDF</button>
-        <button type="button" class="close-modal-btn" onclick="closeReportPreview()" style="color:#e74c3c; font-size:24px;">✖</button>
-      </div>
-    </div>
-    <div class="modal-body" id="reportPreviewBody" style="background:#fff; display:block; padding:25px; overflow-y:auto;">
-      <!-- سيتم وضع محتوى التقرير هنا -->
-    </div>
-  </div>
-</div>
 <script>
 const LS_USER = 'psy_user_v3';
 const LS_API = 'psy_api_v3';
 const DEFAULT_FALLBACK_ADMIN_PASS = 'khalid@1968';
 
 /* ⬇️ الرابط المعتمد الخاص بك ⬇️ */
-const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbx-_Z7jTdwL_DmlxhMfQBBHI-AAJTF1hzXmg54sowm0uIJY4uaP2mlAuTfbUbLZfayb/exec'; 
+const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbz0vbpklYlwmejbJuTmwUs5xpFqh-q2o_aIK-EgJegdHrVzxHqDCWtUjOiFpRDbQNJv/exec'; 
 
 let currentUser = JSON.parse(localStorage.getItem(LS_USER) || 'null');
 let tempUserForSetup = null;
@@ -306,19 +335,23 @@ let guideCasesGlobal = [];
 let adminData = { cases: [], guides: [] };
 let adminAuthPassword = sessionStorage.getItem('psy_admin_token') || '';
 
-/* ================== دوال معاينة المرفقات ================== */
+/* ================== دوال معاينة المرفقات بأمان وتفادي خطأ 500 ================== */
 function getBestAttachmentUrl(url) {
   if (!url) return '';
   if (url.includes('googleusercontent.com')) return url;
   const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m && m[1]) { return `https://lh3.googleusercontent.com/d/${m[1]}=w1200`; }
+  if (m && m[1]) {
+    return `https://lh3.googleusercontent.com/d/${m[1]}=w1200`;
+  }
   return url;
 }
 
 function getDrivePreviewUrl(url) {
   if (!url) return '';
   const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m && m[1]) { return `https://drive.google.com/file/d/${m[1]}/preview`; }
+  if (m && m[1]) {
+    return `https://drive.google.com/file/d/${m[1]}/preview`;
+  }
   return url;
 }
 
@@ -329,8 +362,10 @@ function openAttachmentModal(rawUrl, title) {
   const directLink = document.getElementById('modalDirectLink');
   
   modalTitle.textContent = title || '📎 معاينة المرفق';
+  
   const cdnUrl = getBestAttachmentUrl(rawUrl);
   const previewUrl = getDrivePreviewUrl(rawUrl);
+  
   directLink.href = cdnUrl;
   
   modalBody.innerHTML = `
@@ -339,6 +374,7 @@ function openAttachmentModal(rawUrl, title) {
       <img src="${cdnUrl}" alt="مرفق" style="max-width:100%; max-height:70vh; object-fit:contain; border-radius:6px; box-shadow:0 2px 10px rgba(0,0,0,0.15);" onload="document.getElementById('modalLoading').style.display='none'" onerror="handleModalImgError(this, '${previewUrl}')">
     </div>
   `;
+  
   modal.classList.remove('hidden');
 }
 
@@ -362,11 +398,13 @@ function closeAttachmentModal() {
   if (modalBody) modalBody.innerHTML = '';
 }
 
-/* ================== دوال ضبط التاريخ ================== */
+/* ================== دوال ضبط وتنسيق التاريخ ================== */
 function formatDisplayDate(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
-  if (isNaN(d.getTime())) { return String(dateStr).split('T')[0].replace(/-/g, '/'); }
+  if (isNaN(d.getTime())) {
+    return String(dateStr).split('T')[0].replace(/-/g, '/');
+  }
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
@@ -376,14 +414,16 @@ function formatDisplayDate(dateStr) {
 function toStandardDateStr(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
-  if (isNaN(d.getTime())) { return String(dateStr).split('T')[0].replace(/\//g, '-'); }
+  if (isNaN(d.getTime())) {
+    return String(dateStr).split('T')[0].replace(/\//g, '-');
+  }
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
 
-/* ================== شاشات ================== */
+/* ================== شاشات النظام ================== */
 function showScreen(screenId) {
   ['loginScreen', 'setupPasswordScreen', 'guideMode', 'adminMode'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
@@ -472,7 +512,7 @@ function logout() {
   location.reload();
 }
 
-/* ================== المدير ================== */
+/* ================== إدارة المدير والأمان ================== */
 function showAdminLogin() {
   showScreen('adminMode');
   if (adminAuthPassword) {
@@ -498,7 +538,8 @@ async function loginAdmin() {
 
   try {
     const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API), {
-      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ action: 'adminLogin', adminPass: input })
     });
     const data = await res.json();
@@ -560,7 +601,7 @@ async function fetchData() {
   }
 }
 
-/* ================== الفلاتر والإحصائيات ================== */
+/* ================== فلاتر زمنية وإحصائيات المدير المطورة ================== */
 function setDateFilter(type) {
   const startInput = document.getElementById('filterStartDate');
   const endInput = document.getElementById('filterEndDate');
@@ -617,6 +658,7 @@ function updateStats() {
     summaryBox.textContent = `📌 عرض كل الفترات — إجمالي الحالات: ${totalUniqueClients} حالة مستفيدة | إجمالي الجلسات: ${filteredCases.length} جلسة`;
   }
 
+  // 1. الإحصائيات العامة (عدد الحالات قبل عدد الجلسات)
   let generalObj = {}; 
   filteredCases.forEach(c => { 
     const key = `${c.room}|${c.service}`; 
@@ -627,19 +669,43 @@ function updateStats() {
     generalObj[key].sessionsCount++;
   });
 
-  let generalHtml = `<table><thead><tr><th>الغرفة</th><th>الخدمة</th><th>عدد الحالات</th><th>عدد الجلسات</th></tr></thead><tbody>`; 
+  let generalHtml = `<table>
+    <thead>
+      <tr>
+        <th>الغرفة</th>
+        <th>الخدمة</th>
+        <th>عدد الحالات</th>
+        <th>عدد الجلسات</th>
+      </tr>
+    </thead>
+    <tbody>`; 
+  
   let totalGeneralSessions = 0;
   
   Object.values(generalObj).sort((a, b) => {
     return roomOrder.indexOf(a.room) - roomOrder.indexOf(b.room);
   }).forEach(item => { 
-    generalHtml += `<tr><td>${item.room}</td><td>${item.service}</td><td><b>${item.clients.size}</b></td><td>${item.sessionsCount}</td></tr>`; 
+    generalHtml += `<tr>
+      <td>${item.room}</td>
+      <td>${item.service}</td>
+      <td><b>${item.clients.size}</b></td>
+      <td>${item.sessionsCount}</td>
+    </tr>`; 
     totalGeneralSessions += item.sessionsCount; 
   });
   
-  generalHtml += `</tbody><tfoot><tr style="background:#d4edda; font-weight:bold;"><td colspan="2">الإجمالي العام</td><td>${totalUniqueClients} حالة</td><td>${totalGeneralSessions} جلسة</td></tr></tfoot></table>`; 
+  generalHtml += `</tbody>
+    <tfoot>
+      <tr style="background:#d4edda; font-weight:bold;">
+        <td colspan="2">الإجمالي العام</td>
+        <td>${totalUniqueClients} حالة</td>
+        <td>${totalGeneralSessions} جلسة</td>
+      </tr>
+    </tfoot>
+  </table>`; 
   document.getElementById('generalStatsTable').innerHTML = generalHtml;
 
+  // 2. إحصائيات الأخصائيين (مرتبة بالغرفة أولاً ثم باسم الأخصائي ثانياً لتجميع خدماته)
   let guideObj = {}; 
   filteredCases.forEach(c => { 
     const key = `${c.room}|${c.guideName}|${c.service}`; 
@@ -650,6 +716,7 @@ function updateStats() {
     guideObj[key].sessionsCount++;
   });
   
+  // الترتيب: 1. الغرفة  2. اسم الأخصائي  3. الخدمة
   const sortedGuides = Object.values(guideObj).sort((a, b) => {
     const roomDiff = roomOrder.indexOf(a.room) - roomOrder.indexOf(b.room);
     if (roomDiff !== 0) return roomDiff;
@@ -658,81 +725,136 @@ function updateStats() {
     return a.service.localeCompare(b.service, 'ar');
   });
 
-  let guideHtml = `<table><thead><tr><th>الغرفة</th><th>الأخصائي</th><th>الخدمة</th><th>عدد الحالات</th><th>عدد الجلسات</th></tr></thead><tbody>`;
+  let guideHtml = `<table>
+    <thead>
+      <tr>
+        <th>الغرفة</th>
+        <th>الأخصائي</th>
+        <th>الخدمة</th>
+        <th>عدد الحالات</th>
+        <th>عدد الجلسات</th>
+      </tr>
+    </thead>
+    <tbody>`;
+
   sortedGuides.forEach(item => { 
-    guideHtml += `<tr><td>${item.room}</td><td><b>${item.guideName}</b></td><td>${item.service}</td><td><b>${item.clients.size}</b></td><td>${item.sessionsCount}</td></tr>`; 
+    guideHtml += `<tr>
+      <td>${item.room}</td>
+      <td><b>${item.guideName}</b></td>
+      <td>${item.service}</td>
+      <td><b>${item.clients.size}</b></td>
+      <td>${item.sessionsCount}</td>
+    </tr>`; 
   });
-  guideHtml += `</tbody><tfoot><tr style="background:#d4edda; font-weight:bold;"><td colspan="3">الإجمالي العام</td><td>${totalUniqueClients} حالة</td><td>${totalGeneralSessions} جلسة</td></tr></tfoot></table>`; 
+  
+  guideHtml += `</tbody>
+    <tfoot>
+      <tr style="background:#d4edda; font-weight:bold;">
+        <td colspan="3">الإجمالي العام</td>
+        <td>${totalUniqueClients} حالة</td>
+        <td>${totalGeneralSessions} جلسة</td>
+      </tr>
+    </tfoot>
+  </table>`; 
   document.getElementById('guideStatsTable').innerHTML = guideHtml;
 }
 
-/* ================== نظام الطباعة الجديد (بدون فتح نوافذ جديدة) ================== */
-function openReportPreview(title, contentHtml, filename) {
-  document.getElementById('reportPreviewTitle').textContent = title;
-  document.getElementById('reportPreviewBody').innerHTML = contentHtml;
-  document.getElementById('reportPreviewModal').style.display = 'flex';
-  
-  window.currentReportHtml = contentHtml;
-  window.currentReportFilename = filename || title;
+/* ================== نظام الطباعة الهجين الذكي (كمبيوتر: نافذة مباشرة / موبايل: تحميل PDF) ================== */
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768);
 }
 
-function closeReportPreview() {
-  document.getElementById('reportPreviewModal').style.display = 'none';
-}
-
-function printReportFromModal() {
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write(`
-    <html dir="rtl">
-    <head>
-      <title>طباعة</title>
-      <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-      <style>
-        @page { size: auto; margin: 10mm; }
-        body { font-family: 'Tajawal', sans-serif; padding: 10px; color: #2c3e50; }
-        .print-header { text-align: center; border-bottom: 2px solid #1e6f5c; padding-bottom: 10px; margin-bottom: 15px; }
-        .print-header h1 { color: #1e6f5c; margin: 0 0 5px 0; font-size: 24px; }
-        .print-header p { color: #555; margin: 3px 0; font-size: 14px; font-weight: 500; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
-        th, td { border: 1px solid #999; padding: 10px; text-align: center; }
-        th { background: #1e6f5c !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        .client-info-box { background: #f9fbfb; border: 1px solid #d5dbdb; padding: 15px; border-radius: 8px; margin-bottom: 20px; line-height: 2; font-size: 15px; text-align: right; }
-        .signature { margin-top: 50px; text-align: left; font-weight: bold; font-size: 16px; padding: 0 20px; }
-      </style>
-    </head>
-    <body>${window.currentReportHtml}</body>
-    </html>
+function printHtmlDesktop(title, htmlContent) {
+  const win = window.open('', '', 'width=900,height=700');
+  win.document.write(`
+    <html dir="rtl"><head><title>${title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+      @page { size: auto; margin: 15mm 12mm 15mm 12mm; }
+      body { font-family:'Tajawal', sans-serif; padding:10px; color:#2c3e50; }
+      .print-header { text-align:center; border-bottom:2px solid #1e6f5c; padding-bottom:8px; margin-bottom:12px; }
+      .print-header h1 { color:#1e6f5c; margin:0; font-size:22px; }
+      .print-header p { color:#555; margin:4px 0 0 0; font-size:14px; }
+      table { width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; }
+      thead { display: table-header-group; }
+      tfoot { display: table-footer-group; }
+      tr { page-break-inside: avoid; }
+      th, td { border:1px solid #999; padding:8px; text-align:center; }
+      th { background:#1e6f5c; color:#fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .client-info-box { background:#f9fbfb; border:1px solid #d5dbdb; padding:12px; border-radius:8px; margin-bottom:15px; line-height:1.9; font-size:15px; text-align:right; }
+      .signature { margin-top:40px; text-align:left; font-weight:bold; font-size:15px; padding:0 20px; }
+    </style>
+    </head><body>
+      ${htmlContent}
+    </body></html>
   `);
-  printWindow.document.close();
-  printWindow.focus();
-  setTimeout(() => { printWindow.print(); }, 500);
+  win.document.close();
+  setTimeout(() => { win.print(); }, 400);
 }
 
-function downloadReportPDF() {
-  const element = document.getElementById('reportPreviewBody');
-  const filename = (window.currentReportFilename || 'تقرير') + '.pdf';
+async function exportReportToPdfMobile(filename, htmlContent) {
+  const statusEl = document.createElement('div');
+  statusEl.id = 'pdfDownloadToast';
+  statusEl.style.cssText = 'position:fixed; bottom:25px; left:50%; transform:translateX(-50%); background:#1e6f5c; color:#fff; padding:14px 22px; border-radius:30px; font-weight:bold; font-size:15px; box-shadow:0 4px 15px rgba(0,0,0,0.3); z-index:999999; display:flex; align-items:center; gap:8px; text-align:center;';
+  statusEl.innerHTML = '⏳ جاري تجهيز وتحميل ملف الـ PDF...';
+  document.body.appendChild(statusEl);
+
+  let container = document.getElementById('mobilePdfExportContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'mobilePdfExportContainer';
+    document.body.appendChild(container);
+  }
   
+  container.style.cssText = 'position:fixed; left:0; top:0; width:100%; max-width:800px; background:#fff; padding:20px; z-index:-999; opacity:0; pointer-events:none; font-family:"Tajawal", sans-serif; direction:rtl;';
+  container.innerHTML = `
+    <style>
+      .print-header { text-align:center; border-bottom:2px solid #1e6f5c; padding-bottom:8px; margin-bottom:12px; }
+      .print-header h1 { color:#1e6f5c; margin:0; font-size:22px; }
+      .print-header p { color:#555; margin:4px 0 0 0; font-size:14px; }
+      table { width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }
+      th, td { border:1px solid #999; padding:8px; text-align:center; }
+      th { background:#1e6f5c !important; color:#fff !important; }
+      .client-info-box { background:#f9fbfb; border:1px solid #d5dbdb; padding:12px; border-radius:8px; margin-bottom:15px; line-height:1.9; font-size:14px; text-align:right; }
+      .signature { margin-top:35px; text-align:left; font-weight:bold; font-size:14px; padding:0 20px; }
+    </style>
+    ${htmlContent}
+  `;
+
+  // انتظار اكتمال تحميل أي صور إن وجدت
+  const imgs = container.querySelectorAll('img');
+  await Promise.all(Array.from(imgs).map(img => {
+    if (img.complete) return Promise.resolve();
+    return new Promise(res => { img.onload = res; img.onerror = res; setTimeout(res, 2000); });
+  }));
+
   const opt = {
     margin: [10, 10, 10, 10],
-    filename: filename,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, allowTaint: true },
+    filename: filename.endsWith('.pdf') ? filename : filename + '.pdf',
+    image: { type: 'jpeg', quality: 0.95 },
+    html2canvas: { scale: 2, useCORS: true, logging: false },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
-  
-  const btn = event.target;
-  const originalText = btn.textContent;
-  btn.textContent = '⏳ جاري التحميل...';
-  btn.disabled = true;
 
-  html2pdf().set(opt).from(element).save().then(() => {
-    btn.textContent = originalText;
-    btn.disabled = false;
-  }).catch((err) => {
-    btn.textContent = originalText;
-    btn.disabled = false;
-    alert('حدث خطأ في تحميل PDF. جرب الطباعة بدلاً من ذلك.');
-  });
+  try {
+    if (typeof html2pdf !== 'undefined') {
+      await html2pdf().set(opt).from(container).save();
+      statusEl.style.background = '#27ae60';
+      statusEl.innerHTML = '✅ تم تنزيل الملف! افتح الإشعار لعرضه';
+      setTimeout(() => { statusEl.remove(); }, 3500);
+    } else {
+      throw new Error('مكتبة PDF لم يتم تحميلها بعد');
+    }
+  } catch (err) {
+    statusEl.style.background = '#e74c3c';
+    statusEl.innerHTML = '❌ جاري فتح التقرير في صفحة مستقلة...';
+    setTimeout(() => { 
+      statusEl.remove();
+      printHtmlDesktop(filename, htmlContent);
+    }, 1500);
+  } finally {
+    container.innerHTML = '';
+  }
 }
 
 function printGeneralStats() { 
@@ -742,12 +864,17 @@ function printGeneralStats() {
     <div class="print-header">
       <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
       <p><b>تقرير الإحصائيات العامة للخدمات</b></p>
-      <p style="color:#1e6f5c;">${summaryText}</p>
+      <p style="font-weight:bold; color:#1e6f5c;">${summaryText}</p>
       <p><b>تاريخ الطباعة:</b> ${formatDisplayDate(new Date())}</p>
     </div>
     ${tableHtml}
   `;
-  openReportPreview('تقرير الإحصائيات العامة', content, 'تقرير_الإحصائيات_العامة');
+  const title = 'تقرير_الإحصائيات_العامة';
+  if (isMobileDevice()) {
+    exportReportToPdfMobile(title, content);
+  } else {
+    printHtmlDesktop(title, content);
+  }
 }
 
 function printGuideStats() { 
@@ -757,12 +884,17 @@ function printGuideStats() {
     <div class="print-header">
       <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
       <p><b>تقرير إحصائيات الأخصائيين والخدمات المنفذة</b></p>
-      <p style="color:#1e6f5c;">${summaryText}</p>
+      <p style="font-weight:bold; color:#1e6f5c;">${summaryText}</p>
       <p><b>تاريخ الطباعة:</b> ${formatDisplayDate(new Date())}</p>
     </div>
     ${tableHtml}
   `;
-  openReportPreview('تقرير إحصائيات الأخصائيين', content, 'تقرير_إحصائيات_الأخصائيين');
+  const title = 'تقرير_إحصائيات_الأخصائيين';
+  if (isMobileDevice()) {
+    exportReportToPdfMobile(title, content);
+  } else {
+    printHtmlDesktop(title, content);
+  }
 }
 
 function printSingleClientReport(caseId) {
@@ -774,7 +906,12 @@ function printSingleClientReport(caseId) {
   const guideName = currentUser ? currentUser.name : '';
 
   let tableRows = clientSessions.map((s, idx) => {
-    return `<tr><td>${idx + 1}</td><td>${formatDisplayDate(s.date)}</td><td>${s.service}</td><td>${(s.attachments || []).length} مرفق</td></tr>`;
+    return `<tr>
+      <td>${idx + 1}</td>
+      <td>${formatDisplayDate(s.date)}</td>
+      <td>${s.service}</td>
+      <td>${(s.attachments || []).length} مرفق</td>
+    </tr>`;
   }).join('');
 
   let attachmentsSectionHtml = '';
@@ -791,7 +928,7 @@ function printSingleClientReport(caseId) {
             ${s.attachments.map((a, aIdx) => `
               <div style="text-align:center; width:100%;">
                 <p style="font-weight:bold; margin-bottom:5px; color:#555;">${a.name || 'مرفق ' + (aIdx + 1)}</p>
-                <img src="${getBestAttachmentUrl(a.data) || a.viewUrl || a.data}" style="max-width:95%; max-height:750px; border:1px solid #ccc; border-radius:8px;" alt="مرفق" crossorigin="anonymous">
+                <img src="${getBestAttachmentUrl(a.data) || a.viewUrl || a.data}" style="max-width:95%; max-height:750px; border:1px solid #ccc; border-radius:8px;" alt="مرفق">
               </div>
             `).join('')}
           </div>
@@ -816,7 +953,14 @@ function printSingleClientReport(caseId) {
     
     <h3 style="margin-bottom:8px;">سجل الزيارات والجلسات المنفذة:</h3>
     <table>
-      <thead><tr><th>رقم الجلسة</th><th>تاريخ الجلسة</th><th>الخدمة المقدمة</th><th>المرفقات</th></tr></thead>
+      <thead>
+        <tr>
+          <th>رقم الجلسة</th>
+          <th>تاريخ الجلسة</th>
+          <th>الخدمة المقدمة</th>
+          <th>المرفقات</th>
+        </tr>
+      </thead>
       <tbody>${tableRows}</tbody>
     </table>
 
@@ -826,7 +970,12 @@ function printSingleClientReport(caseId) {
       <b>توقيع واعتماد الأخصائي:</b> ..................................................
     </div>
   `;
-  openReportPreview(`ملف حالة: ${clientName}`, content, `ملف_حالة_${clientName.replace(/\s+/g, '_')}`);
+  const title = `ملف_حالة_${clientName.replace(/\s+/g, '_')}`;
+  if (isMobileDevice()) {
+    exportReportToPdfMobile(title, content);
+  } else {
+    printHtmlDesktop(title, content);
+  }
 }
 
 function printMyCasesSummaryPDF() {
@@ -845,7 +994,14 @@ function printMyCasesSummaryPDF() {
     </div>
     
     <table>
-      <thead><tr><th>كود الملف</th><th>اسم العميل</th><th>الخدمة المقدمة</th><th>التاريخ</th></tr></thead>
+      <thead>
+        <tr>
+          <th>كود الملف</th>
+          <th>اسم العميل</th>
+          <th>الخدمة المقدمة</th>
+          <th>التاريخ</th>
+        </tr>
+      </thead>
       <tbody>${tableRows}</tbody>
     </table>
     
@@ -853,7 +1009,12 @@ function printMyCasesSummaryPDF() {
       <b>توقيع واعتماد الأخصائي:</b> ..................................................
     </div>
   `;
-  openReportPreview('سجل الجلسات العام', content, 'سجل_الجلسات_العام');
+  const title = 'سجل_الجلسات_العام';
+  if (isMobileDevice()) {
+    exportReportToPdfMobile(title, content);
+  } else {
+    printHtmlDesktop(title, content);
+  }
 }
 
 /* ================== إدارة الحالات والبحث ================== */
@@ -869,10 +1030,17 @@ function renderAdminCases() {
   
   if (filtered.length === 0) { list.innerHTML = '<p class="empty">لا توجد نتائج مطابقة</p>'; return; }
   
+  // تجميع الحالات حسب العميل
   const clientGroups = {};
   filtered.forEach(c => {
     const key = c.id || c.clientName;
-    if (!clientGroups[key]) { clientGroups[key] = { id: c.id, clientName: c.clientName, sessions: [] }; }
+    if (!clientGroups[key]) {
+      clientGroups[key] = {
+        id: c.id,
+        clientName: c.clientName,
+        sessions: []
+      };
+    }
     clientGroups[key].sessions.push(c);
   });
 
@@ -913,7 +1081,9 @@ function renderAdminCases() {
             <b>عدد الجلسات:</b> <span class="badge" style="background:#d4edda; color:#155724;">${group.sessions.length} جلسة</span>
           </div>
         </div>
-        <div class="sessions-list">${sessionsHtml}</div>
+        <div class="sessions-list">
+          ${sessionsHtml}
+        </div>
       </div>
     `;
   }).join('');
@@ -923,7 +1093,8 @@ async function deleteSingleCase(id, rowIndex) {
   if (!confirm('هل أنت متأكد من حذف هذه الجلسة بعينها نهائياً؟')) return; 
   try { 
     await fetch((localStorage.getItem(LS_API) || HARDCODED_API), { 
-      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+      method: 'POST', 
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
       body: JSON.stringify({ action: 'deleteCase', caseId: id, rowIndex: rowIndex, adminPass: adminAuthPassword }) 
     }); 
     fetchData(); 
@@ -934,14 +1105,15 @@ async function deleteAllCases() {
   if (!confirm('⚠️ تحذير شديد: هل أنت متأكد من حذف كافة الحالات من قاعدة البيانات بالكامل؟')) return; 
   try { 
     await fetch((localStorage.getItem(LS_API) || HARDCODED_API), { 
-      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+      method: 'POST', 
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
       body: JSON.stringify({ action: 'deleteAllCases', adminPass: adminAuthPassword }) 
     }); 
     fetchData(); 
   } catch (err) { alert('حدث خطأ أثناء مسح البيانات'); } 
 }
 
-/* ================== عمليات الأخصائي ================== */
+/* ================== عمليات الأخصائي وجلساته ================== */
 function startFreshNewCase() {
   cancelEdit();
   document.getElementById('formTitle').textContent = '📝 حالة جديدة (لأول مرة)';
@@ -1131,7 +1303,7 @@ async function addCase() {
   }
 }
 
-/* ================== عرض جلسات الأخصائي ================== */
+/* ================== عرض جلسات الأخصائي المجمعة ================== */
 function showMyCases() {
   const card = document.getElementById('myCasesCard'); 
   const list = document.getElementById('myCasesList');
@@ -1151,7 +1323,13 @@ function showMyCases() {
       const clientGroups = {};
       guideCasesGlobal.forEach(c => {
         const key = c.id || c.clientName;
-        if (!clientGroups[key]) { clientGroups[key] = { id: c.id, clientName: c.clientName, sessions: [] }; }
+        if (!clientGroups[key]) {
+          clientGroups[key] = {
+            id: c.id,
+            clientName: c.clientName,
+            sessions: []
+          };
+        }
         clientGroups[key].sessions.push(c);
       });
 
@@ -1193,10 +1371,14 @@ function showMyCases() {
                 <b>عدد الجلسات:</b> <span class="badge" style="background:#d4edda; color:#155724;">${group.sessions.length} جلسة</span>
               </div>
             </div>
-            <div class="sessions-list">${sessionsHtml}</div>
+
+            <div class="sessions-list">
+              ${sessionsHtml}
+            </div>
+
             <div class="client-footer-actions">
               <button class="add-session-btn" onclick="addNewSessionForClient('${group.id}', '${safeClientName}')">🤝 إضافة جلسة لهذا العميل</button>
-              <button class="secondary" onclick="printSingleClientReport('${group.id}')">🖨️ طباعة ملف العميل</button>
+              <button class="secondary" onclick="printSingleClientReport('${group.id}')">🖨️ طباعة ملف العميل والمرفقات</button>
             </div>
           </div>
         `;
@@ -1207,7 +1389,7 @@ function showMyCases() {
   });
 }
 
-/* ================== بدء التطبيق ================== */
+/* ================== تشغيل التطبيق ================== */
 window.onload = () => {
   if (currentUser) {
     startUserSession();
@@ -1216,5 +1398,25 @@ window.onload = () => {
   }
 };
 </script>
+
+<!-- نافذة منبثقة لمعاينة المرفق بدون 500 Server Error -->
+<div id="attachmentModal" class="modal-overlay hidden" onclick="if(event.target === this) closeAttachmentModal()">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle" style="margin:0; font-size:17px; color:var(--p); border:none; padding:0;">📎 معاينة المرفق</h3>
+      <button type="button" class="close-modal-btn" onclick="closeAttachmentModal()">✖</button>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <!-- محتوى المعاينة -->
+    </div>
+    <div class="modal-footer">
+      <a id="modalDirectLink" href="#" target="_blank" class="attach-link" style="text-decoration:none; height:36px;">
+        🌐 فتح في صفحة مستقلة
+      </a>
+      <button type="button" class="secondary small-btn" onclick="closeAttachmentModal()">❌ إغلاق</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
