@@ -67,65 +67,23 @@
   .add-session-btn:hover { background: #219150 !important; }
 
   /* 📱 تحسينات التجاوب مع شاشات الموبايل */
-  #generalStatsTable, #guideStatsTable {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    border-radius: 8px;
-    margin-top: 10px;
-  }
+  #generalStatsTable, #guideStatsTable { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; margin-top: 10px; }
 
   /* 🔍 شريط وزر البحث المطور */
   .search-patient-bar { display: flex; gap: 10px; align-items: center; margin-top: 5px; }
   .search-patient-bar input { flex: 1; margin: 0; }
-  .btn-search-patient {
-    background: #2c3e50 !important;
-    color: white !important;
-    font-weight: bold !important;
-    width: auto !important;
-    min-width: 150px !important;
-    margin-top: 0 !important;
-    padding: 12px 16px !important;
-    font-size: 15px !important;
-    white-space: nowrap !important;
-    border-radius: 8px !important;
-  }
+  .btn-search-patient { background: #2c3e50 !important; color: white !important; font-weight: bold !important; width: auto !important; min-width: 150px !important; margin-top: 0 !important; padding: 12px 16px !important; font-size: 15px !important; white-space: nowrap !important; border-radius: 8px !important; }
   .btn-search-patient:hover { background: #1a252f !important; }
 
-  /* 🖼️ نافذة معاينة المرفقات المنبثقة لمنع أخطاء 500 على الموبايل */
-  .modal-overlay {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.75);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 99999; padding: 15px;
-  }
-  .modal-content {
-    background: #fff; border-radius: 12px; max-width: 900px; width: 100%;
-    max-height: 92vh; display: flex; flex-direction: column; overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: modalFadeIn 0.2s ease-out;
-  }
-  @keyframes modalFadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  .modal-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 12px 18px; border-bottom: 1px solid #e1e8e6; background: #fdfefe;
-  }
-  .close-modal-btn {
-    background: transparent !important; color: #7f8c8d !important; border: none !important;
-    font-size: 20px !important; width: auto !important; margin: 0 !important;
-    padding: 4px 8px !important; cursor: pointer !important; line-height: 1 !important;
-  }
+  /* 🖼️ نافذة معاينة المرفقات */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center; z-index: 99999; padding: 15px; }
+  .modal-content { background: #fff; border-radius: 12px; max-width: 900px; width: 100%; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: modalFadeIn 0.2s ease-out; }
+  @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; border-bottom: 1px solid #e1e8e6; background: #fdfefe; }
+  .close-modal-btn { background: transparent !important; color: #7f8c8d !important; border: none !important; font-size: 20px !important; width: auto !important; margin: 0 !important; padding: 4px 8px !important; cursor: pointer !important; line-height: 1 !important; }
   .close-modal-btn:hover { color: var(--d) !important; }
-  .modal-body {
-    padding: 15px; overflow-y: auto; flex: 1; display: flex;
-    justify-content: center; align-items: center; background: #f8f9fa;
-  }
-  .modal-footer {
-    display: flex; justify-content: flex-end; gap: 10px;
-    padding: 12px 18px; border-top: 1px solid #e1e8e6; background: #fff;
-  }
+  .modal-body { padding: 15px; overflow-y: auto; flex: 1; display: flex; justify-content: center; align-items: center; background: #f8f9fa; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 12px 18px; border-top: 1px solid #e1e8e6; background: #fff; }
 
   @media (max-width: 650px) {
     .search-patient-bar { flex-direction: column; align-items: stretch; gap: 8px; }
@@ -249,11 +207,10 @@
 <!-- لوحة المدير -->
 <div id="adminMode" class="hidden">
   <div class="topbar">
-    <h1 style="margin:0;">🧠الدعم النفسي بالغربية</h1>
+    <h1 style="margin:0;">🧠 لوحة المدير - الدعم النفسي بالغربية</h1>
     <button class="secondary" onclick="logoutAdmin()">⬅️ تسجيل الخروج</button>
   </div>
 
-  <!-- شاشة الدخول للمدير -->
   <div class="card" id="adminLoginCard">
     <h3>🔐 تسجيل دخول المدير</h3>
     <label>كلمة السر</label>
@@ -263,7 +220,6 @@
     <div id="loginStatusAdmin" class="status hidden"></div>
   </div>
 
-  <!-- لوحة الإدارة بعد الدخول المعتمد -->
   <div id="adminPanel" class="hidden">
     <div class="card">
       <h3>⚙️ إعدادات النظام</h3>
@@ -276,7 +232,6 @@
       <div id="fetchStatus" class="status hidden"></div>
     </div>
 
-    <!-- بطاقة الإحصائيات مع الفلترة الزمنية -->
     <div class="card">
       <h3>📊 إحصائيات عامة وفلاتر زمنية</h3>
       
@@ -327,7 +282,7 @@ const LS_API = 'psy_api_v3';
 const DEFAULT_FALLBACK_ADMIN_PASS = 'khalid@1968';
 
 /* ⬇️ الرابط المعتمد الخاص بك ⬇️ */
-const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbz0vbpklYlwmejbJuTmwUs5xpFqh-q2o_aIK-EgJegdHrVzxHqDCWtUjOiFpRDbQNJv/exec'; 
+const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbx-_Z7jTdwL_DmlxhMfQBBHI-AAJTF1hzXmg54sowm0uIJY4uaP2mlAuTfbUbLZfayb/exec'; 
 
 let currentUser = JSON.parse(localStorage.getItem(LS_USER) || 'null');
 let tempUserForSetup = null;
@@ -335,23 +290,19 @@ let guideCasesGlobal = [];
 let adminData = { cases: [], guides: [] };
 let adminAuthPassword = sessionStorage.getItem('psy_admin_token') || '';
 
-/* ================== دوال معاينة المرفقات بأمان وتفادي خطأ 500 ================== */
+/* ================== دوال معاينة المرفقات ================== */
 function getBestAttachmentUrl(url) {
   if (!url) return '';
   if (url.includes('googleusercontent.com')) return url;
   const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m && m[1]) {
-    return `https://lh3.googleusercontent.com/d/${m[1]}=w1200`;
-  }
+  if (m && m[1]) { return `https://lh3.googleusercontent.com/d/${m[1]}=w1200`; }
   return url;
 }
 
 function getDrivePreviewUrl(url) {
   if (!url) return '';
   const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m && m[1]) {
-    return `https://drive.google.com/file/d/${m[1]}/preview`;
-  }
+  if (m && m[1]) { return `https://drive.google.com/file/d/${m[1]}/preview`; }
   return url;
 }
 
@@ -362,10 +313,8 @@ function openAttachmentModal(rawUrl, title) {
   const directLink = document.getElementById('modalDirectLink');
   
   modalTitle.textContent = title || '📎 معاينة المرفق';
-  
   const cdnUrl = getBestAttachmentUrl(rawUrl);
   const previewUrl = getDrivePreviewUrl(rawUrl);
-  
   directLink.href = cdnUrl;
   
   modalBody.innerHTML = `
@@ -374,7 +323,6 @@ function openAttachmentModal(rawUrl, title) {
       <img src="${cdnUrl}" alt="مرفق" style="max-width:100%; max-height:70vh; object-fit:contain; border-radius:6px; box-shadow:0 2px 10px rgba(0,0,0,0.15);" onload="document.getElementById('modalLoading').style.display='none'" onerror="handleModalImgError(this, '${previewUrl}')">
     </div>
   `;
-  
   modal.classList.remove('hidden');
 }
 
@@ -398,13 +346,11 @@ function closeAttachmentModal() {
   if (modalBody) modalBody.innerHTML = '';
 }
 
-/* ================== دوال ضبط وتنسيق التاريخ ================== */
+/* ================== دوال ضبط التاريخ ================== */
 function formatDisplayDate(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
-  if (isNaN(d.getTime())) {
-    return String(dateStr).split('T')[0].replace(/-/g, '/');
-  }
+  if (isNaN(d.getTime())) { return String(dateStr).split('T')[0].replace(/-/g, '/'); }
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
@@ -414,16 +360,14 @@ function formatDisplayDate(dateStr) {
 function toStandardDateStr(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
-  if (isNaN(d.getTime())) {
-    return String(dateStr).split('T')[0].replace(/\//g, '-');
-  }
+  if (isNaN(d.getTime())) { return String(dateStr).split('T')[0].replace(/\//g, '-'); }
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
 
-/* ================== شاشات النظام ================== */
+/* ================== شاشات ================== */
 function showScreen(screenId) {
   ['loginScreen', 'setupPasswordScreen', 'guideMode', 'adminMode'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
@@ -512,7 +456,7 @@ function logout() {
   location.reload();
 }
 
-/* ================== إدارة المدير والأمان ================== */
+/* ================== المدير ================== */
 function showAdminLogin() {
   showScreen('adminMode');
   if (adminAuthPassword) {
@@ -538,8 +482,7 @@ async function loginAdmin() {
 
   try {
     const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API), {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ action: 'adminLogin', adminPass: input })
     });
     const data = await res.json();
@@ -601,7 +544,7 @@ async function fetchData() {
   }
 }
 
-/* ================== فلاتر زمنية وإحصائيات المدير المطورة ================== */
+/* ================== الفلاتر والإحصائيات ================== */
 function setDateFilter(type) {
   const startInput = document.getElementById('filterStartDate');
   const endInput = document.getElementById('filterEndDate');
@@ -658,7 +601,6 @@ function updateStats() {
     summaryBox.textContent = `📌 عرض كل الفترات — إجمالي الحالات: ${totalUniqueClients} حالة مستفيدة | إجمالي الجلسات: ${filteredCases.length} جلسة`;
   }
 
-  // 1. الإحصائيات العامة (عدد الحالات قبل عدد الجلسات)
   let generalObj = {}; 
   filteredCases.forEach(c => { 
     const key = `${c.room}|${c.service}`; 
@@ -669,43 +611,19 @@ function updateStats() {
     generalObj[key].sessionsCount++;
   });
 
-  let generalHtml = `<table>
-    <thead>
-      <tr>
-        <th>الغرفة</th>
-        <th>الخدمة</th>
-        <th>عدد الحالات</th>
-        <th>عدد الجلسات</th>
-      </tr>
-    </thead>
-    <tbody>`; 
-  
+  let generalHtml = `<table><thead><tr><th>الغرفة</th><th>الخدمة</th><th>عدد الحالات</th><th>عدد الجلسات</th></tr></thead><tbody>`; 
   let totalGeneralSessions = 0;
   
   Object.values(generalObj).sort((a, b) => {
     return roomOrder.indexOf(a.room) - roomOrder.indexOf(b.room);
   }).forEach(item => { 
-    generalHtml += `<tr>
-      <td>${item.room}</td>
-      <td>${item.service}</td>
-      <td><b>${item.clients.size}</b></td>
-      <td>${item.sessionsCount}</td>
-    </tr>`; 
+    generalHtml += `<tr><td>${item.room}</td><td>${item.service}</td><td><b>${item.clients.size}</b></td><td>${item.sessionsCount}</td></tr>`; 
     totalGeneralSessions += item.sessionsCount; 
   });
   
-  generalHtml += `</tbody>
-    <tfoot>
-      <tr style="background:#d4edda; font-weight:bold;">
-        <td colspan="2">الإجمالي العام</td>
-        <td>${totalUniqueClients} حالة</td>
-        <td>${totalGeneralSessions} جلسة</td>
-      </tr>
-    </tfoot>
-  </table>`; 
+  generalHtml += `</tbody><tfoot><tr style="background:#d4edda; font-weight:bold;"><td colspan="2">الإجمالي العام</td><td>${totalUniqueClients} حالة</td><td>${totalGeneralSessions} جلسة</td></tr></tfoot></table>`; 
   document.getElementById('generalStatsTable').innerHTML = generalHtml;
 
-  // 2. إحصائيات الأخصائيين (مرتبة بالغرفة أولاً ثم باسم الأخصائي ثانياً لتجميع خدماته)
   let guideObj = {}; 
   filteredCases.forEach(c => { 
     const key = `${c.room}|${c.guideName}|${c.service}`; 
@@ -716,7 +634,6 @@ function updateStats() {
     guideObj[key].sessionsCount++;
   });
   
-  // الترتيب: 1. الغرفة  2. اسم الأخصائي  3. الخدمة
   const sortedGuides = Object.values(guideObj).sort((a, b) => {
     const roomDiff = roomOrder.indexOf(a.room) - roomOrder.indexOf(b.room);
     if (roomDiff !== 0) return roomDiff;
@@ -725,136 +642,89 @@ function updateStats() {
     return a.service.localeCompare(b.service, 'ar');
   });
 
-  let guideHtml = `<table>
-    <thead>
-      <tr>
-        <th>الغرفة</th>
-        <th>الأخصائي</th>
-        <th>الخدمة</th>
-        <th>عدد الحالات</th>
-        <th>عدد الجلسات</th>
-      </tr>
-    </thead>
-    <tbody>`;
-
+  let guideHtml = `<table><thead><tr><th>الغرفة</th><th>الأخصائي</th><th>الخدمة</th><th>عدد الحالات</th><th>عدد الجلسات</th></tr></thead><tbody>`;
   sortedGuides.forEach(item => { 
-    guideHtml += `<tr>
-      <td>${item.room}</td>
-      <td><b>${item.guideName}</b></td>
-      <td>${item.service}</td>
-      <td><b>${item.clients.size}</b></td>
-      <td>${item.sessionsCount}</td>
-    </tr>`; 
+    guideHtml += `<tr><td>${item.room}</td><td><b>${item.guideName}</b></td><td>${item.service}</td><td><b>${item.clients.size}</b></td><td>${item.sessionsCount}</td></tr>`; 
   });
-  
-  guideHtml += `</tbody>
-    <tfoot>
-      <tr style="background:#d4edda; font-weight:bold;">
-        <td colspan="3">الإجمالي العام</td>
-        <td>${totalUniqueClients} حالة</td>
-        <td>${totalGeneralSessions} جلسة</td>
-      </tr>
-    </tfoot>
-  </table>`; 
+  guideHtml += `</tbody><tfoot><tr style="background:#d4edda; font-weight:bold;"><td colspan="3">الإجمالي العام</td><td>${totalUniqueClients} حالة</td><td>${totalGeneralSessions} جلسة</td></tr></tfoot></table>`; 
   document.getElementById('guideStatsTable').innerHTML = guideHtml;
 }
 
-/* ================== نظام الطباعة الهجين الذكي (كمبيوتر: نافذة مباشرة / موبايل: تحميل PDF) ================== */
-function isMobileDevice() {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768);
-}
+/* ================== توليد صفحة التقرير المستقلة للطباعة ================== */
+function openReportInNewTab(title, contentHtml) {
+  const html = `
+    <!DOCTYPE html>
+    <html dir="rtl" lang="ar">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${title}</title>
+      <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+      <style>
+        body { font-family: 'Tajawal', sans-serif; padding: 20px; background: #f4f7f6; color: #2c3e50; }
+        .report-container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); max-width: 1000px; margin: 0 auto; }
+        .action-bar { display: flex; gap: 10px; justify-content: center; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 2px dashed #ddd; }
+        .action-bar button { font-family: 'Tajawal'; padding: 12px 24px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-print { background: #1e6f5c; color: #fff; }
+        .btn-print:hover { background: #145043; }
+        .btn-pdf { background: #e74c3c; color: #fff; }
+        .btn-pdf:hover { background: #c0392b; }
+        .print-header { text-align: center; border-bottom: 2px solid #1e6f5c; padding-bottom: 10px; margin-bottom: 20px; }
+        .print-header h1 { color: #1e6f5c; margin: 0 0 5px 0; font-size: 24px; }
+        .print-header p { color: #555; margin: 3px 0; font-size: 15px; font-weight: 500; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 15px; }
+        th, td { border: 1px solid #999; padding: 10px; text-align: center; }
+        th { background: #1e6f5c !important; color: #fff !important; }
+        .client-info-box { background: #f9fbfb; border: 1px solid #d5dbdb; padding: 15px; border-radius: 8px; margin-bottom: 20px; line-height: 2; font-size: 16px; text-align: right; }
+        .signature { margin-top: 50px; text-align: left; font-weight: bold; font-size: 17px; padding: 0 20px; }
+        
+        @media print {
+          @page { size: auto; margin: 10mm; }
+          body { background: #fff !important; padding: 0; }
+          .report-container { box-shadow: none; padding: 0; }
+          .action-bar { display: none !important; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="report-container" id="reportContent">
+        <div class="action-bar">
+          <button class="btn-print" onclick="window.print()">🖨️ طباعة التقرير</button>
+          <button class="btn-pdf" onclick="downloadAsPDF()">⬇️ تحميل PDF</button>
+        </div>
+        ${contentHtml}
+      </div>
 
-function printHtmlDesktop(title, htmlContent) {
-  const win = window.open('', '', 'width=900,height=700');
-  win.document.write(`
-    <html dir="rtl"><head><title>${title}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-      @page { size: auto; margin: 15mm 12mm 15mm 12mm; }
-      body { font-family:'Tajawal', sans-serif; padding:10px; color:#2c3e50; }
-      .print-header { text-align:center; border-bottom:2px solid #1e6f5c; padding-bottom:8px; margin-bottom:12px; }
-      .print-header h1 { color:#1e6f5c; margin:0; font-size:22px; }
-      .print-header p { color:#555; margin:4px 0 0 0; font-size:14px; }
-      table { width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; }
-      thead { display: table-header-group; }
-      tfoot { display: table-footer-group; }
-      tr { page-break-inside: avoid; }
-      th, td { border:1px solid #999; padding:8px; text-align:center; }
-      th { background:#1e6f5c; color:#fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .client-info-box { background:#f9fbfb; border:1px solid #d5dbdb; padding:12px; border-radius:8px; margin-bottom:15px; line-height:1.9; font-size:15px; text-align:right; }
-      .signature { margin-top:40px; text-align:left; font-weight:bold; font-size:15px; padding:0 20px; }
-    </style>
-    </head><body>
-      ${htmlContent}
-    </body></html>
-  `);
-  win.document.close();
-  setTimeout(() => { win.print(); }, 400);
-}
-
-async function exportReportToPdfMobile(filename, htmlContent) {
-  const statusEl = document.createElement('div');
-  statusEl.id = 'pdfDownloadToast';
-  statusEl.style.cssText = 'position:fixed; bottom:25px; left:50%; transform:translateX(-50%); background:#1e6f5c; color:#fff; padding:14px 22px; border-radius:30px; font-weight:bold; font-size:15px; box-shadow:0 4px 15px rgba(0,0,0,0.3); z-index:999999; display:flex; align-items:center; gap:8px; text-align:center;';
-  statusEl.innerHTML = '⏳ جاري تجهيز وتحميل ملف الـ PDF...';
-  document.body.appendChild(statusEl);
-
-  let container = document.getElementById('mobilePdfExportContainer');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'mobilePdfExportContainer';
-    document.body.appendChild(container);
-  }
-  
-  container.style.cssText = 'position:fixed; left:0; top:0; width:100%; max-width:800px; background:#fff; padding:20px; z-index:-999; opacity:0; pointer-events:none; font-family:"Tajawal", sans-serif; direction:rtl;';
-  container.innerHTML = `
-    <style>
-      .print-header { text-align:center; border-bottom:2px solid #1e6f5c; padding-bottom:8px; margin-bottom:12px; }
-      .print-header h1 { color:#1e6f5c; margin:0; font-size:22px; }
-      .print-header p { color:#555; margin:4px 0 0 0; font-size:14px; }
-      table { width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }
-      th, td { border:1px solid #999; padding:8px; text-align:center; }
-      th { background:#1e6f5c !important; color:#fff !important; }
-      .client-info-box { background:#f9fbfb; border:1px solid #d5dbdb; padding:12px; border-radius:8px; margin-bottom:15px; line-height:1.9; font-size:14px; text-align:right; }
-      .signature { margin-top:35px; text-align:left; font-weight:bold; font-size:14px; padding:0 20px; }
-    </style>
-    ${htmlContent}
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
+      <script>
+        function downloadAsPDF() {
+          const element = document.getElementById('reportContent');
+          const actionBar = document.querySelector('.action-bar');
+          actionBar.style.display = 'none';
+          
+          const opt = {
+            margin: [10, 10, 10, 10],
+            filename: '${title}.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, allowTaint: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          };
+          
+          html2pdf().set(opt).from(element).save().then(() => {
+            actionBar.style.display = 'flex';
+          }).catch(() => {
+            actionBar.style.display = 'flex';
+            alert('حدث خطأ أثناء تحميل PDF. جرب الطباعة المباشرة.');
+          });
+        }
+      <\/script>
+    </body>
+    </html>
   `;
 
-  // انتظار اكتمال تحميل أي صور إن وجدت
-  const imgs = container.querySelectorAll('img');
-  await Promise.all(Array.from(imgs).map(img => {
-    if (img.complete) return Promise.resolve();
-    return new Promise(res => { img.onload = res; img.onerror = res; setTimeout(res, 2000); });
-  }));
-
-  const opt = {
-    margin: [10, 10, 10, 10],
-    filename: filename.endsWith('.pdf') ? filename : filename + '.pdf',
-    image: { type: 'jpeg', quality: 0.95 },
-    html2canvas: { scale: 2, useCORS: true, logging: false },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
-
-  try {
-    if (typeof html2pdf !== 'undefined') {
-      await html2pdf().set(opt).from(container).save();
-      statusEl.style.background = '#27ae60';
-      statusEl.innerHTML = '✅ تم تنزيل الملف! افتح الإشعار لعرضه';
-      setTimeout(() => { statusEl.remove(); }, 3500);
-    } else {
-      throw new Error('مكتبة PDF لم يتم تحميلها بعد');
-    }
-  } catch (err) {
-    statusEl.style.background = '#e74c3c';
-    statusEl.innerHTML = '❌ جاري فتح التقرير في صفحة مستقلة...';
-    setTimeout(() => { 
-      statusEl.remove();
-      printHtmlDesktop(filename, htmlContent);
-    }, 1500);
-  } finally {
-    container.innerHTML = '';
-  }
+  const blob = new Blob([html], {type: 'text/html'});
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
 }
 
 function printGeneralStats() { 
@@ -864,17 +734,12 @@ function printGeneralStats() {
     <div class="print-header">
       <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
       <p><b>تقرير الإحصائيات العامة للخدمات</b></p>
-      <p style="font-weight:bold; color:#1e6f5c;">${summaryText}</p>
+      <p style="color:#1e6f5c;">${summaryText}</p>
       <p><b>تاريخ الطباعة:</b> ${formatDisplayDate(new Date())}</p>
     </div>
     ${tableHtml}
   `;
-  const title = 'تقرير_الإحصائيات_العامة';
-  if (isMobileDevice()) {
-    exportReportToPdfMobile(title, content);
-  } else {
-    printHtmlDesktop(title, content);
-  }
+  openReportInNewTab('تقرير_الإحصائيات_العامة', content);
 }
 
 function printGuideStats() { 
@@ -884,17 +749,12 @@ function printGuideStats() {
     <div class="print-header">
       <h1>🧠 وحدة الدعم النفسي بالغربية</h1>
       <p><b>تقرير إحصائيات الأخصائيين والخدمات المنفذة</b></p>
-      <p style="font-weight:bold; color:#1e6f5c;">${summaryText}</p>
+      <p style="color:#1e6f5c;">${summaryText}</p>
       <p><b>تاريخ الطباعة:</b> ${formatDisplayDate(new Date())}</p>
     </div>
     ${tableHtml}
   `;
-  const title = 'تقرير_إحصائيات_الأخصائيين';
-  if (isMobileDevice()) {
-    exportReportToPdfMobile(title, content);
-  } else {
-    printHtmlDesktop(title, content);
-  }
+  openReportInNewTab('تقرير_إحصائيات_الأخصائيين', content);
 }
 
 function printSingleClientReport(caseId) {
@@ -906,12 +766,7 @@ function printSingleClientReport(caseId) {
   const guideName = currentUser ? currentUser.name : '';
 
   let tableRows = clientSessions.map((s, idx) => {
-    return `<tr>
-      <td>${idx + 1}</td>
-      <td>${formatDisplayDate(s.date)}</td>
-      <td>${s.service}</td>
-      <td>${(s.attachments || []).length} مرفق</td>
-    </tr>`;
+    return `<tr><td>${idx + 1}</td><td>${formatDisplayDate(s.date)}</td><td>${s.service}</td><td>${(s.attachments || []).length} مرفق</td></tr>`;
   }).join('');
 
   let attachmentsSectionHtml = '';
@@ -928,7 +783,7 @@ function printSingleClientReport(caseId) {
             ${s.attachments.map((a, aIdx) => `
               <div style="text-align:center; width:100%;">
                 <p style="font-weight:bold; margin-bottom:5px; color:#555;">${a.name || 'مرفق ' + (aIdx + 1)}</p>
-                <img src="${getBestAttachmentUrl(a.data) || a.viewUrl || a.data}" style="max-width:95%; max-height:750px; border:1px solid #ccc; border-radius:8px;" alt="مرفق">
+                <img src="${getBestAttachmentUrl(a.data) || a.viewUrl || a.data}" style="max-width:95%; max-height:750px; border:1px solid #ccc; border-radius:8px;" alt="مرفق" crossorigin="anonymous">
               </div>
             `).join('')}
           </div>
@@ -953,14 +808,7 @@ function printSingleClientReport(caseId) {
     
     <h3 style="margin-bottom:8px;">سجل الزيارات والجلسات المنفذة:</h3>
     <table>
-      <thead>
-        <tr>
-          <th>رقم الجلسة</th>
-          <th>تاريخ الجلسة</th>
-          <th>الخدمة المقدمة</th>
-          <th>المرفقات</th>
-        </tr>
-      </thead>
+      <thead><tr><th>رقم الجلسة</th><th>تاريخ الجلسة</th><th>الخدمة المقدمة</th><th>المرفقات</th></tr></thead>
       <tbody>${tableRows}</tbody>
     </table>
 
@@ -970,12 +818,7 @@ function printSingleClientReport(caseId) {
       <b>توقيع واعتماد الأخصائي:</b> ..................................................
     </div>
   `;
-  const title = `ملف_حالة_${clientName.replace(/\s+/g, '_')}`;
-  if (isMobileDevice()) {
-    exportReportToPdfMobile(title, content);
-  } else {
-    printHtmlDesktop(title, content);
-  }
+  openReportInNewTab(`ملف_حالة_${clientName.replace(/\s+/g, '_')}`, content);
 }
 
 function printMyCasesSummaryPDF() {
@@ -994,14 +837,7 @@ function printMyCasesSummaryPDF() {
     </div>
     
     <table>
-      <thead>
-        <tr>
-          <th>كود الملف</th>
-          <th>اسم العميل</th>
-          <th>الخدمة المقدمة</th>
-          <th>التاريخ</th>
-        </tr>
-      </thead>
+      <thead><tr><th>كود الملف</th><th>اسم العميل</th><th>الخدمة المقدمة</th><th>التاريخ</th></tr></thead>
       <tbody>${tableRows}</tbody>
     </table>
     
@@ -1009,12 +845,7 @@ function printMyCasesSummaryPDF() {
       <b>توقيع واعتماد الأخصائي:</b> ..................................................
     </div>
   `;
-  const title = 'سجل_الجلسات_العام';
-  if (isMobileDevice()) {
-    exportReportToPdfMobile(title, content);
-  } else {
-    printHtmlDesktop(title, content);
-  }
+  openReportInNewTab('سجل_الجلسات_العام', content);
 }
 
 /* ================== إدارة الحالات والبحث ================== */
@@ -1030,17 +861,10 @@ function renderAdminCases() {
   
   if (filtered.length === 0) { list.innerHTML = '<p class="empty">لا توجد نتائج مطابقة</p>'; return; }
   
-  // تجميع الحالات حسب العميل
   const clientGroups = {};
   filtered.forEach(c => {
     const key = c.id || c.clientName;
-    if (!clientGroups[key]) {
-      clientGroups[key] = {
-        id: c.id,
-        clientName: c.clientName,
-        sessions: []
-      };
-    }
+    if (!clientGroups[key]) { clientGroups[key] = { id: c.id, clientName: c.clientName, sessions: [] }; }
     clientGroups[key].sessions.push(c);
   });
 
@@ -1081,9 +905,7 @@ function renderAdminCases() {
             <b>عدد الجلسات:</b> <span class="badge" style="background:#d4edda; color:#155724;">${group.sessions.length} جلسة</span>
           </div>
         </div>
-        <div class="sessions-list">
-          ${sessionsHtml}
-        </div>
+        <div class="sessions-list">${sessionsHtml}</div>
       </div>
     `;
   }).join('');
@@ -1093,8 +915,7 @@ async function deleteSingleCase(id, rowIndex) {
   if (!confirm('هل أنت متأكد من حذف هذه الجلسة بعينها نهائياً؟')) return; 
   try { 
     await fetch((localStorage.getItem(LS_API) || HARDCODED_API), { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
       body: JSON.stringify({ action: 'deleteCase', caseId: id, rowIndex: rowIndex, adminPass: adminAuthPassword }) 
     }); 
     fetchData(); 
@@ -1105,15 +926,14 @@ async function deleteAllCases() {
   if (!confirm('⚠️ تحذير شديد: هل أنت متأكد من حذف كافة الحالات من قاعدة البيانات بالكامل؟')) return; 
   try { 
     await fetch((localStorage.getItem(LS_API) || HARDCODED_API), { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
       body: JSON.stringify({ action: 'deleteAllCases', adminPass: adminAuthPassword }) 
     }); 
     fetchData(); 
   } catch (err) { alert('حدث خطأ أثناء مسح البيانات'); } 
 }
 
-/* ================== عمليات الأخصائي وجلساته ================== */
+/* ================== عمليات الأخصائي ================== */
 function startFreshNewCase() {
   cancelEdit();
   document.getElementById('formTitle').textContent = '📝 حالة جديدة (لأول مرة)';
@@ -1303,7 +1123,7 @@ async function addCase() {
   }
 }
 
-/* ================== عرض جلسات الأخصائي المجمعة ================== */
+/* ================== عرض جلسات الأخصائي ================== */
 function showMyCases() {
   const card = document.getElementById('myCasesCard'); 
   const list = document.getElementById('myCasesList');
@@ -1323,13 +1143,7 @@ function showMyCases() {
       const clientGroups = {};
       guideCasesGlobal.forEach(c => {
         const key = c.id || c.clientName;
-        if (!clientGroups[key]) {
-          clientGroups[key] = {
-            id: c.id,
-            clientName: c.clientName,
-            sessions: []
-          };
-        }
+        if (!clientGroups[key]) { clientGroups[key] = { id: c.id, clientName: c.clientName, sessions: [] }; }
         clientGroups[key].sessions.push(c);
       });
 
@@ -1371,14 +1185,10 @@ function showMyCases() {
                 <b>عدد الجلسات:</b> <span class="badge" style="background:#d4edda; color:#155724;">${group.sessions.length} جلسة</span>
               </div>
             </div>
-
-            <div class="sessions-list">
-              ${sessionsHtml}
-            </div>
-
+            <div class="sessions-list">${sessionsHtml}</div>
             <div class="client-footer-actions">
               <button class="add-session-btn" onclick="addNewSessionForClient('${group.id}', '${safeClientName}')">🤝 إضافة جلسة لهذا العميل</button>
-              <button class="secondary" onclick="printSingleClientReport('${group.id}')">🖨️ طباعة ملف العميل والمرفقات</button>
+              <button class="secondary" onclick="printSingleClientReport('${group.id}')">🖨️ طباعة ملف العميل</button>
             </div>
           </div>
         `;
@@ -1389,7 +1199,7 @@ function showMyCases() {
   });
 }
 
-/* ================== تشغيل التطبيق ================== */
+/* ================== بدء التطبيق ================== */
 window.onload = () => {
   if (currentUser) {
     startUserSession();
@@ -1399,20 +1209,16 @@ window.onload = () => {
 };
 </script>
 
-<!-- نافذة منبثقة لمعاينة المرفق بدون 500 Server Error -->
+<!-- نافذة معاينة المرفقات -->
 <div id="attachmentModal" class="modal-overlay hidden" onclick="if(event.target === this) closeAttachmentModal()">
   <div class="modal-content">
     <div class="modal-header">
       <h3 id="modalTitle" style="margin:0; font-size:17px; color:var(--p); border:none; padding:0;">📎 معاينة المرفق</h3>
       <button type="button" class="close-modal-btn" onclick="closeAttachmentModal()">✖</button>
     </div>
-    <div class="modal-body" id="modalBody">
-      <!-- محتوى المعاينة -->
-    </div>
+    <div class="modal-body" id="modalBody"></div>
     <div class="modal-footer">
-      <a id="modalDirectLink" href="#" target="_blank" class="attach-link" style="text-decoration:none; height:36px;">
-        🌐 فتح في صفحة مستقلة
-      </a>
+      <a id="modalDirectLink" href="#" target="_blank" class="attach-link" style="text-decoration:none; height:36px;">🌐 فتح في صفحة مستقلة</a>
       <button type="button" class="secondary small-btn" onclick="closeAttachmentModal()">❌ إغلاق</button>
     </div>
   </div>
