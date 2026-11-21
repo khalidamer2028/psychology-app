@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>الدعم النفسي بالغربية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   :root { --p: #1e6f5c; --pd: #145043; --bg: #f4f7f6; --t: #2c3e50; --c: #fff; --d: #e74c3c; --i: #3498db; --s: #27ae60; }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
@@ -245,7 +247,7 @@
       <button class="secondary small" onclick="printMyCasesSummaryPDF()">🖨️ طباعة السجل العام</button>
     </div>
     <div id="myCasesList"></div>
-    <button class="secondary" onclick="document.getElementById('myCasesCard').classList.add('hidden')" style="margin-top:15px;">إغلاق</button>
+    <button class="secondary" onclick="closeMyCasesPanel()" style="margin-top:15px;">إغلاق</button>
   </div>
 </div>
 
@@ -338,6 +340,82 @@ let guideCasesGlobal = [];
 let adminData = { cases: [], guides: [] };
 let adminAuthPassword = sessionStorage.getItem('psy_admin_token') || '';
 
+/* ================== دعم زر الرجوع في الموبايل ================== */
+let _appHistoryReady = false;
+
+function _showScreenInternal(screenId) {
+  ['loginScreen', 'setupPasswordScreen', 'guideMode', 'adminMode'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
+  });
+  const target = document.getElementById(screenId);
+  if (target) target.classList.remove('hidden');
+}
+
+function pushHistoryState(state) {
+  try {
+    const cur = history.state;
+    if (cur && cur.app === 'psy' && cur.type === state.type && cur.screen === state.screen && cur.name === state.name) return;
+    history.pushState(Object.assign({ app: 'psy' }, state), '');
+  } catch (e) {}
+}
+
+function syncAdminView() {
+  if (adminAuthPassword) {
+    document.getElementById('adminLoginCard').classList.add('hidden');
+    document.getElementById('adminPanel').classList.remove('hidden');
+  } else {
+    document.getElementById('adminLoginCard').classList.remove('hidden');
+    document.getElementById('adminPanel').classList.add('hidden');
+  }
+}
+
+function initAppHistory() {
+  if (_appHistoryReady) return;
+  _appHistoryReady = true;
+  const initialScreen = currentUser ? 'guideMode' : 'loginScreen';
+  try { history.replaceState({ app: 'psy', type: 'screen', screen: initialScreen }, ''); } catch (e) {}
+
+  window.addEventListener('popstate', function(e) {
+    const st = e.state;
+    const modal = document.getElementById('attachmentModal');
+    const modalOpen = modal && !modal.classList.contains('hidden');
+    const casesCard = document.getElementById('myCasesCard');
+    const casesOpen = casesCard && !casesCard.classList.contains('hidden');
+
+    if (modalOpen) {
+      modal.classList.add('hidden');
+      const mb = document.getElementById('modalBody');
+      if (mb) mb.innerHTML = '';
+    }
+    if (casesOpen) casesCard.classList.add('hidden');
+
+    if (st && st.app === 'psy' && st.type === 'panel' && st.name === 'myCases') {
+      _showScreenInternal('guideMode');
+      showMyCases(true);
+      return;
+    }
+    if (st && st.app === 'psy' && st.type === 'screen') {
+      _showScreenInternal(st.screen);
+      if (st.screen === 'adminMode') syncAdminView();
+      return;
+    }
+    if (modalOpen || casesOpen) return;
+    _showScreenInternal(currentUser ? 'guideMode' : 'loginScreen');
+  });
+}
+
+function closeMyCasesPanel() {
+  const card = document.getElementById('myCasesCard');
+  if (!card || card.classList.contains('hidden')) return;
+  const st = history.state;
+  if (st && st.app === 'psy' && st.type === 'panel' && st.name === 'myCases') {
+    history.back();
+    return;
+  }
+  card.classList.add('hidden');
+}
+
 /* ================== دوال معاينة المرفقات بأمان وتفادي خطأ 500 ================== */
 function getBestAttachmentUrl(url) {
   if (!url) return '';
@@ -379,6 +457,7 @@ function openAttachmentModal(rawUrl, title) {
   `;
   
   modal.classList.remove('hidden');
+  pushHistoryState({ type: 'modal', name: 'attachment' });
 }
 
 function handleModalImgError(img, previewUrl) {
@@ -394,9 +473,17 @@ function handleModalImgError(img, previewUrl) {
   `;
 }
 
-function closeAttachmentModal() {
+function closeAttachmentModal(fromPop) {
   const modal = document.getElementById('attachmentModal');
-  if (modal) modal.classList.add('hidden');
+  if (!modal || modal.classList.contains('hidden')) return;
+  if (!fromPop) {
+    const st = history.state;
+    if (st && st.app === 'psy' && st.type === 'modal' && st.name === 'attachment') {
+      history.back();
+      return;
+    }
+  }
+  modal.classList.add('hidden');
   const modalBody = document.getElementById('modalBody');
   if (modalBody) modalBody.innerHTML = '';
 }
@@ -427,11 +514,9 @@ function toStandardDateStr(dateStr) {
 }
 
 /* ================== شاشات النظام ================== */
-function showScreen(screenId) {
-  ['loginScreen', 'setupPasswordScreen', 'guideMode', 'adminMode'].forEach(id => {
-    document.getElementById(id).classList.add('hidden');
-  });
-  document.getElementById(screenId).classList.remove('hidden');
+function showScreen(screenId, fromHistory) {
+  _showScreenInternal(screenId);
+  if (!fromHistory) pushHistoryState({ type: 'screen', screen: screenId });
 }
 
 async function loginUser() {
@@ -1094,6 +1179,10 @@ function startFreshNewCase() {
 }
 
 function addNewSessionForClient(caseId, clientName) {
+  const st = history.state;
+  if (st && st.app === 'psy' && st.type === 'panel' && st.name === 'myCases') {
+    try { history.replaceState({ app: 'psy', type: 'screen', screen: 'guideMode' }, ''); } catch (e) {}
+  }
   document.getElementById('myCasesCard').classList.add('hidden');
   
   const nameInput = document.getElementById('clientName');
@@ -1160,6 +1249,10 @@ function editCase(caseId, rowIndex) {
   document.getElementById('cancelEditBtn').classList.remove('hidden');
   document.getElementById('cancelEditBtn').textContent = '❌ إلغاء التعديل';
   
+  const st = history.state;
+  if (st && st.app === 'psy' && st.type === 'panel' && st.name === 'myCases') {
+    try { history.replaceState({ app: 'psy', type: 'screen', screen: 'guideMode' }, ''); } catch (e) {}
+  }
   document.getElementById('myCasesCard').classList.add('hidden');
   document.getElementById('formCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -1276,10 +1369,14 @@ async function addCase() {
 }
 
 /* ================== عرض جلسات الأخصائي المجمعة ================== */
-function showMyCases() {
+function showMyCases(fromHistory) {
   const card = document.getElementById('myCasesCard'); 
   const list = document.getElementById('myCasesList');
   card.classList.remove('hidden'); 
+  if (!fromHistory) pushHistoryState({ type: 'panel', name: 'myCases' });
+  if (fromHistory && guideCasesGlobal.length > 0 && !list.innerHTML.includes('جاري تحميل')) {
+    return;
+  }
   list.innerHTML = '<p class="empty">⏳ جاري تحميل سجل الحالات والجلسات...</p>';
   
   fetch((localStorage.getItem(LS_API) || HARDCODED_API) + '?t=' + Date.now())
@@ -1363,6 +1460,7 @@ function showMyCases() {
 
 /* ================== تشغيل التطبيق ================== */
 window.onload = () => {
+  initAppHistory();
   if (currentUser) {
     startUserSession();
   } else {
