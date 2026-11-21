@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>الدعم النفسي بالغربية</title>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   :root { --p: #1e6f5c; --pd: #145043; --bg: #f4f7f6; --t: #2c3e50; --c: #fff; --d: #e74c3c; --i: #3498db; --s: #27ae60; }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
@@ -142,68 +143,6 @@
     table { font-size: 13.5px; min-width: 520px; }
     th, td { padding: 8px 6px; }
     .filter-quick-btns button { font-size: 12px; padding: 6px 4px; min-width: 70px; }
-  }
-
-  /* 🖨️ تنسيقات التقرير المطبوع ونظام الطباعة المباشر */
-  .print-actions-toolbar {
-    display: flex; gap: 10px; padding: 12px 16px; background: #eef7f4;
-    border-bottom: 2px solid var(--p); justify-content: center; align-items: center; flex-wrap: wrap;
-  }
-  .btn-do-print {
-    background: var(--p) !important; color: white !important; font-weight: bold !important;
-    padding: 12px 22px !important; border-radius: 8px !important; width: auto !important;
-    margin: 0 !important; font-size: 15px !important; cursor: pointer !important;
-  }
-  .btn-close-report {
-    background: #7f8c8d !important; color: white !important; padding: 12px 18px !important;
-    border-radius: 8px !important; width: auto !important; margin: 0 !important;
-    font-size: 15px !important; cursor: pointer !important;
-  }
-  .print-modal-content {
-    max-width: 950px; width: 95%; height: 92vh; background: #fff;
-  }
-  .print-modal-body {
-    background: #fff !important; padding: 25px !important; display: block !important; overflow-y: auto !important;
-  }
-  .print-header { text-align: center; border-bottom: 2px solid #1e6f5c; padding-bottom: 8px; margin-bottom: 15px; }
-  .print-header h1 { color: #1e6f5c; margin: 0; font-size: 22px; }
-  .print-header p { color: #555; margin: 4px 0 0 0; font-size: 14px; }
-  .client-info-box { background: #f9fbfb; border: 1px solid #d5dbdb; padding: 12px; border-radius: 8px; margin-bottom: 15px; line-height: 1.9; font-size: 15px; text-align: right; }
-  .signature { margin-top: 40px; text-align: left; font-weight: bold; font-size: 15px; padding: 0 20px; }
-
-  /* 🖨️ السحر عند الضغط على طباعة (عزل التقرير ليظهر وحده بدون أزرار أو شاشات أخرى) */
-  @media print {
-    body > *:not(#printReportModal) {
-      display: none !important;
-    }
-    .no-print, .modal-header, .print-actions-toolbar, .close-modal-btn {
-      display: none !important;
-    }
-    body {
-      background: #fff !important; padding: 0 !important; margin: 0 !important; color: #2c3e50 !important;
-    }
-    #printReportModal {
-      position: static !important; display: block !important; background: transparent !important;
-      padding: 0 !important; margin: 0 !important; width: 100% !important; height: auto !important;
-      overflow: visible !important; z-index: auto !important;
-    }
-    .print-modal-content {
-      box-shadow: none !important; border: none !important; border-radius: 0 !important;
-      max-width: 100% !important; width: 100% !important; height: auto !important;
-      max-height: none !important; overflow: visible !important; display: block !important;
-    }
-    .print-modal-body {
-      padding: 0 !important; overflow: visible !important;
-    }
-    @page {
-      size: auto; margin: 12mm 10mm;
-    }
-    thead { display: table-header-group; }
-    tfoot { display: table-footer-group; }
-    tr { page-break-inside: avoid; }
-    table { width: 100% !important; min-width: unset !important; border-collapse: collapse !important; font-size: 14px !important; }
-    th, td { border: 1px solid #999 !important; padding: 8px !important; text-align: center !important; }
-    th { background: #1e6f5c !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
 </style>
 </head>
@@ -820,16 +759,102 @@ function updateStats() {
   document.getElementById('guideStatsTable').innerHTML = guideHtml;
 }
 
-/* ================== دوال استعراض وطباعة التقارير المباشرة ================== */
-function openPrintReport(title, contentHtml) {
-  document.getElementById('printReportTitle').textContent = title;
-  document.getElementById('printReportContent').innerHTML = contentHtml;
-  document.getElementById('printReportModal').classList.remove('hidden');
+/* ================== نظام الطباعة الهجين الذكي (كمبيوتر: نافذة مباشرة / موبايل: تحميل PDF) ================== */
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768);
 }
 
-function closePrintReport() {
-  document.getElementById('printReportModal').classList.add('hidden');
-  document.getElementById('printReportContent').innerHTML = '';
+function printHtmlDesktop(title, htmlContent) {
+  const win = window.open('', '', 'width=900,height=700');
+  win.document.write(`
+    <html dir="rtl"><head><title>${title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+      @page { size: auto; margin: 15mm 12mm 15mm 12mm; }
+      body { font-family:'Tajawal', sans-serif; padding:10px; color:#2c3e50; }
+      .print-header { text-align:center; border-bottom:2px solid #1e6f5c; padding-bottom:8px; margin-bottom:12px; }
+      .print-header h1 { color:#1e6f5c; margin:0; font-size:22px; }
+      .print-header p { color:#555; margin:4px 0 0 0; font-size:14px; }
+      table { width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; }
+      thead { display: table-header-group; }
+      tfoot { display: table-footer-group; }
+      tr { page-break-inside: avoid; }
+      th, td { border:1px solid #999; padding:8px; text-align:center; }
+      th { background:#1e6f5c; color:#fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .client-info-box { background:#f9fbfb; border:1px solid #d5dbdb; padding:12px; border-radius:8px; margin-bottom:15px; line-height:1.9; font-size:15px; text-align:right; }
+      .signature { margin-top:40px; text-align:left; font-weight:bold; font-size:15px; padding:0 20px; }
+    </style>
+    </head><body>
+      ${htmlContent}
+    </body></html>
+  `);
+  win.document.close();
+  setTimeout(() => { win.print(); }, 400);
+}
+
+async function exportReportToPdfMobile(filename, htmlContent) {
+  const statusEl = document.createElement('div');
+  statusEl.id = 'pdfDownloadToast';
+  statusEl.style.cssText = 'position:fixed; bottom:25px; left:50%; transform:translateX(-50%); background:#1e6f5c; color:#fff; padding:14px 22px; border-radius:30px; font-weight:bold; font-size:15px; box-shadow:0 4px 15px rgba(0,0,0,0.3); z-index:999999; display:flex; align-items:center; gap:8px; text-align:center;';
+  statusEl.innerHTML = '⏳ جاري تجهيز وتحميل ملف الـ PDF...';
+  document.body.appendChild(statusEl);
+
+  let container = document.getElementById('mobilePdfExportContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'mobilePdfExportContainer';
+    document.body.appendChild(container);
+  }
+  
+  container.style.cssText = 'position:fixed; left:0; top:0; width:100%; max-width:800px; background:#fff; padding:20px; z-index:-999; opacity:0; pointer-events:none; font-family:"Tajawal", sans-serif; direction:rtl;';
+  container.innerHTML = `
+    <style>
+      .print-header { text-align:center; border-bottom:2px solid #1e6f5c; padding-bottom:8px; margin-bottom:12px; }
+      .print-header h1 { color:#1e6f5c; margin:0; font-size:22px; }
+      .print-header p { color:#555; margin:4px 0 0 0; font-size:14px; }
+      table { width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }
+      th, td { border:1px solid #999; padding:8px; text-align:center; }
+      th { background:#1e6f5c !important; color:#fff !important; }
+      .client-info-box { background:#f9fbfb; border:1px solid #d5dbdb; padding:12px; border-radius:8px; margin-bottom:15px; line-height:1.9; font-size:14px; text-align:right; }
+      .signature { margin-top:35px; text-align:left; font-weight:bold; font-size:14px; padding:0 20px; }
+    </style>
+    ${htmlContent}
+  `;
+
+  // انتظار اكتمال تحميل أي صور إن وجدت
+  const imgs = container.querySelectorAll('img');
+  await Promise.all(Array.from(imgs).map(img => {
+    if (img.complete) return Promise.resolve();
+    return new Promise(res => { img.onload = res; img.onerror = res; setTimeout(res, 2000); });
+  }));
+
+  const opt = {
+    margin: [10, 10, 10, 10],
+    filename: filename.endsWith('.pdf') ? filename : filename + '.pdf',
+    image: { type: 'jpeg', quality: 0.95 },
+    html2canvas: { scale: 2, useCORS: true, logging: false },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+
+  try {
+    if (typeof html2pdf !== 'undefined') {
+      await html2pdf().set(opt).from(container).save();
+      statusEl.style.background = '#27ae60';
+      statusEl.innerHTML = '✅ تم تنزيل الملف! افتح الإشعار لعرضه';
+      setTimeout(() => { statusEl.remove(); }, 3500);
+    } else {
+      throw new Error('مكتبة PDF لم يتم تحميلها بعد');
+    }
+  } catch (err) {
+    statusEl.style.background = '#e74c3c';
+    statusEl.innerHTML = '❌ جاري فتح التقرير في صفحة مستقلة...';
+    setTimeout(() => { 
+      statusEl.remove();
+      printHtmlDesktop(filename, htmlContent);
+    }, 1500);
+  } finally {
+    container.innerHTML = '';
+  }
 }
 
 function printGeneralStats() { 
@@ -844,7 +869,12 @@ function printGeneralStats() {
     </div>
     ${tableHtml}
   `;
-  openPrintReport('📊 تقرير الإحصائيات العامة', content);
+  const title = 'تقرير_الإحصائيات_العامة';
+  if (isMobileDevice()) {
+    exportReportToPdfMobile(title, content);
+  } else {
+    printHtmlDesktop(title, content);
+  }
 }
 
 function printGuideStats() { 
@@ -859,7 +889,12 @@ function printGuideStats() {
     </div>
     ${tableHtml}
   `;
-  openPrintReport('👨 تقرير إحصائيات الأخصائيين', content);
+  const title = 'تقرير_إحصائيات_الأخصائيين';
+  if (isMobileDevice()) {
+    exportReportToPdfMobile(title, content);
+  } else {
+    printHtmlDesktop(title, content);
+  }
 }
 
 function printSingleClientReport(caseId) {
@@ -935,7 +970,12 @@ function printSingleClientReport(caseId) {
       <b>توقيع واعتماد الأخصائي:</b> ..................................................
     </div>
   `;
-  openPrintReport(`📄 ملف العميل: ${clientName}`, content);
+  const title = `ملف_حالة_${clientName.replace(/\s+/g, '_')}`;
+  if (isMobileDevice()) {
+    exportReportToPdfMobile(title, content);
+  } else {
+    printHtmlDesktop(title, content);
+  }
 }
 
 function printMyCasesSummaryPDF() {
@@ -969,7 +1009,12 @@ function printMyCasesSummaryPDF() {
       <b>توقيع واعتماد الأخصائي:</b> ..................................................
     </div>
   `;
-  openPrintReport('📂 تقرير سجل الجلسات العام', content);
+  const title = 'سجل_الجلسات_العام';
+  if (isMobileDevice()) {
+    exportReportToPdfMobile(title, content);
+  } else {
+    printHtmlDesktop(title, content);
+  }
 }
 
 /* ================== إدارة الحالات والبحث ================== */
@@ -1369,29 +1414,6 @@ window.onload = () => {
         🌐 فتح في صفحة مستقلة
       </a>
       <button type="button" class="secondary small-btn" onclick="closeAttachmentModal()">❌ إغلاق</button>
-    </div>
-  </div>
-</div>
-
-<!-- نافذة استعراض وطباعة التقارير المباشرة (تعمل على الموبايل والكمبيوتر 100%) -->
-<div id="printReportModal" class="modal-overlay hidden">
-  <div class="modal-content print-modal-content">
-    <div class="modal-header no-print">
-      <h3 id="printReportTitle" style="margin:0; font-size:18px; color:var(--p); border:none; padding:0;">📄 تقرير للطباعة</h3>
-      <button type="button" class="close-modal-btn" onclick="closePrintReport()">✖</button>
-    </div>
-    
-    <div class="print-actions-toolbar no-print">
-      <button type="button" class="btn-do-print" onclick="window.print()">
-        🖨️ اضغط للطباعة / الحفظ كـ PDF
-      </button>
-      <button type="button" class="btn-close-report" onclick="closePrintReport()">
-        ❌ إغلاق التقرير
-      </button>
-    </div>
-    
-    <div class="modal-body print-modal-body" id="printReportContent">
-      <!-- محتوى التقرير -->
     </div>
   </div>
 </div>
