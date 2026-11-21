@@ -841,16 +841,27 @@ async function exportReportToPdfMobile(filename, htmlContent) {
 
   try {
     if (typeof html2pdf !== 'undefined') {
-      await html2pdf().set(opt).from(container).save();
+      const safeName = opt.filename.toLowerCase().endsWith('.pdf') ? opt.filename : opt.filename + '.pdf';
+      const pdfBlob = await html2pdf().set(opt).from(container).outputPdf('blob');
+      const blob = new Blob([pdfBlob], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = safeName;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
       statusEl.style.background = '#27ae60';
-      statusEl.innerHTML = '✅ تم تنزيل الملف! افتح الإشعار لعرضه';
+      statusEl.innerHTML = '✅ تم تنزيل ملف PDF. افتحه من التنزيلات.';
       setTimeout(() => { statusEl.remove(); }, 3500);
     } else {
       throw new Error('مكتبة PDF لم يتم تحميلها بعد');
     }
   } catch (err) {
     statusEl.style.background = '#e74c3c';
-    statusEl.innerHTML = '❌ جاري فتح التقرير في صفحة مستقلة...';
+    statusEl.innerHTML = '❌ تعذر إنشاء PDF على الموبايل، جاري فتح التقرير...';
     setTimeout(() => { 
       statusEl.remove();
       printHtmlDesktop(filename, htmlContent);
