@@ -6,7 +6,7 @@
 <title>الدعم النفسي بالغربية</title>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root { --p: #1e6f5c; --pd: #145043; --bg: #f4f7f6; --t: #2c3e50; --c: #fff; --d: #e74c3c; --i: #3498db; }
+  :root { --p: #1e6f5c; --pd: #145043; --bg: #f4f7f6; --t: #2c3e50; --c: #fff; --d: #e74c3c; --i: #3498db; --s: #27ae60; }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
   body { background: var(--bg); color: var(--t); padding: 15px; padding-bottom: 50px; font-size: 17px; }
   h1 { text-align: center; color: var(--p); margin-bottom: 10px; font-size: 26px; font-weight: 700; }
@@ -40,10 +40,10 @@
   .search-result b { color: var(--p); }
   #loginScreen { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; max-width: 400px; margin: 0 auto; }
 
-  /* 🎨 تنسيق أزرار العرض والتعديل على خط واحد متساوي */
+  /* 🎨 تنسيق أزرار الإجراءات على خط واحد متساوي */
   .action-buttons { 
     display: flex; 
-    gap: 10px; 
+    gap: 8px; 
     margin-top: 12px; 
     align-items: center; 
   }
@@ -52,14 +52,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px 12px;
-    font-size: 14px;
+    padding: 8px 6px;
+    font-size: 13px;
     font-weight: 600;
     border-radius: 8px;
     text-decoration: none;
     border: none;
     cursor: pointer;
-    height: 42px;
+    height: 40px;
     box-sizing: border-box;
     text-align: center;
     margin: 0 !important;
@@ -72,6 +72,13 @@
   .action-buttons a.attach-link:hover { 
     background: var(--p); 
     color: #fff; 
+  }
+  .action-buttons button.add-session-btn {
+    background: var(--s);
+    color: #fff;
+  }
+  .action-buttons button.add-session-btn:hover {
+    background: #219150;
   }
   .action-buttons button.edit-btn { 
     background: var(--i); 
@@ -95,6 +102,11 @@
 
   .btn-show-cases {
     background: #2980b9 !important;
+    color: white !important;
+    font-weight: bold;
+  }
+  .btn-new-case {
+    background: var(--p) !important;
     color: white !important;
     font-weight: bold;
   }
@@ -144,6 +156,7 @@
     <div id="guideInfoText" style="line-height:2;"></div>
     <div class="row">
       <button class="btn-show-cases" onclick="showMyCases()">📂 كل جلساتي</button>
+      <button class="btn-new-case" onclick="startFreshNewCase()">➕ عميل جديد (لأول مرة)</button>
     </div>
   </div>
 
@@ -179,18 +192,17 @@
     <label>التاريخ</label><input type="date" id="date">
     
     <label>المرفقات <span style="color:#c0392b;">*إجباري</span></label>
-    <!-- تم ضبط الحقل ليدعم الكاميرا والملفات و PDF والصور المتعددة -->
     <input type="file" id="files" accept="image/*,application/pdf" multiple>
     
     <button onclick="addCase()" id="saveCaseBtn">💾 حفظ</button>
-    <button onclick="cancelEdit()" id="cancelEditBtn" class="secondary hidden" style="margin-top:10px;">❌ إلغاء التعديل</button>
+    <button onclick="cancelEdit()" id="cancelEditBtn" class="secondary hidden" style="margin-top:10px;">❌ إلغاء وتفريغ النموذج</button>
     
     <div id="caseStatus" class="status hidden"></div>
     <div id="caseCodeDisplay" class="case-code hidden"></div>
   </div>
 
   <div class="card hidden" id="myCasesCard">
-    <h3>📂 الجلسات</h3>
+    <h3>📂 الجلسات المسجلة</h3>
     <button class="secondary" onclick="printMyCasesPDF()" style="margin-bottom:15px;">🖨️ طباعة</button>
     <div id="myCasesList"></div>
     <button class="secondary" onclick="document.getElementById('myCasesCard').classList.add('hidden')" style="margin-top:15px;">إغلاق</button>
@@ -296,7 +308,7 @@ function formatDisplayDate(dateStr) {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
-  return `${year}/${month}/${day}`; // النتيجة: 2026/11/18
+  return `${year}/${month}/${day}`;
 }
 
 function toStandardDateStr(dateStr) {
@@ -308,7 +320,7 @@ function toStandardDateStr(dateStr) {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`; // النتيجة: 2026-11-18 لحقول الإدخال والفلترة
+  return `${year}-${month}-${day}`;
 }
 
 /* ================== شاشات النظام ================== */
@@ -544,7 +556,6 @@ function updateStats() {
     summaryBox.textContent = `📌 عرض كل الفترات — إجمالي الجلسات: ${filteredCases.length}`;
   }
 
-  // 1. الإحصائيات العامة
   let generalObj = {}; 
   filteredCases.forEach(c => { 
     const key = `${c.room}|${c.service}`; 
@@ -567,7 +578,6 @@ function updateStats() {
   generalHtml += `<tr style="background:#d4edda; font-weight:bold;"><td colspan="2">الإجمالي</td><td>${totalGeneral}</td></tr></table>`; 
   document.getElementById('generalStatsTable').innerHTML = generalHtml;
 
-  // 2. إحصائيات الأخصائيين
   let guideObj = {}; 
   filteredCases.forEach(c => { 
     const key = `${c.guideName}|${c.room}|${c.service}`; 
@@ -669,6 +679,42 @@ async function deleteAllCases() {
 }
 
 /* ================== عمليات الأخصائي وجلساته ================== */
+function startFreshNewCase() {
+  cancelEdit();
+  document.getElementById('formTitle').textContent = '📝 جلسة جديدة (لعميل جديد لأول مرة)';
+  document.getElementById('formCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('clientName').focus();
+}
+
+function addNewSessionForClient(caseId, clientName) {
+  // إغلاق قائمة الجلسات
+  document.getElementById('myCasesCard').classList.add('hidden');
+  
+  // تثبيت اسم العميل وجعله للقراءة فقط
+  const nameInput = document.getElementById('clientName');
+  nameInput.value = clientName;
+  nameInput.setAttribute('readonly', true);
+  nameInput.style.backgroundColor = '#e9ecef';
+  
+  // ربط الجلسة الجديدة بنفس كود الملف الأصلي
+  document.getElementById('existingCaseId').value = caseId;
+  document.getElementById('editMode').value = 'false';
+  
+  // تصفير مدخلات الجلسة وتجهيز تاريخ اليوم
+  document.getElementById('service').value = '';
+  document.getElementById('files').value = '';
+  document.getElementById('date').value = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+  
+  // تغيير العنوان وزر الحفظ
+  document.getElementById('formTitle').innerHTML = `📝 إضافة جلسة جديدة للعميل: <br><span style="color:var(--p); font-size:16px;">${clientName} (كود الملف: ${caseId})</span>`;
+  document.getElementById('saveCaseBtn').textContent = '💾 حفظ الجلسة الجديدة';
+  document.getElementById('cancelEditBtn').classList.remove('hidden');
+  document.getElementById('cancelEditBtn').textContent = '❌ إلغاء وتفريغ النموذج';
+  
+  // التمرير بسلاسة إلى نموذج الإدخال
+  document.getElementById('formCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function searchPatient() {
   const q = document.getElementById('searchPatientName').value.trim().toLowerCase();
   const resultsBox = document.getElementById('searchResults');
@@ -683,26 +729,11 @@ function searchPatient() {
     resultsBox.innerHTML = '<p style="color:#e74c3c; font-size:14px; margin-top:10px;">لم يتم العثور على عميل سابق بهذا الاسم.</p>';
     return;
   }
-  resultsBox.innerHTML = clients.map(c => `<div class="search-result" onclick="selectExistingPatient('${c.id}', '${c.clientName}')"><b>الاسم:</b> ${c.clientName} <br><b>كود الملف:</b> ${c.id}</div>`).join('');
+  resultsBox.innerHTML = clients.map(c => `<div class="search-result" onclick="addNewSessionForClient('${c.id}', '${c.clientName.replace(/'/g, "\\'")}')"><b>الاسم:</b> ${c.clientName} <br><b>كود الملف:</b> ${c.id} <br><span style="color:var(--s); font-size:13px; font-weight:bold;">➕ اضغط هنا لإضافة جلسة جديدة له</span></div>`).join('');
 }
 
 function selectExistingPatient(caseId, clientName) {
-  const nameInput = document.getElementById('clientName');
-  nameInput.value = clientName;
-  nameInput.setAttribute('readonly', true);
-  nameInput.style.backgroundColor = '#e9ecef';
-  
-  document.getElementById('existingCaseId').value = caseId;
-  document.getElementById('editMode').value = 'false';
-  document.getElementById('formTitle').textContent = '📝 جلسة جديدة (لعميل مسجل)';
-  document.getElementById('saveCaseBtn').textContent = '💾 حفظ الجلسة';
-  document.getElementById('cancelEditBtn').classList.add('hidden');
-  
-  document.getElementById('searchResults').innerHTML = '';
-  document.getElementById('searchPatientName').value = '';
-  
-  alert(`✅ تم اختيار العميل: ${clientName}\nالجلسة الجديدة ستُضاف لنفس الملف.`);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  addNewSessionForClient(caseId, clientName);
 }
 
 function editCase(caseId) {
@@ -724,9 +755,10 @@ function editCase(caseId) {
   document.getElementById('formTitle').textContent = '✏️ تعديل بيانات الجلسة';
   document.getElementById('saveCaseBtn').textContent = '🔄 تحديث الجلسة';
   document.getElementById('cancelEditBtn').classList.remove('hidden');
+  document.getElementById('cancelEditBtn').textContent = '❌ إلغاء التعديل';
   
-  alert(`✏️ جاري تعديل جلسة: ${c.clientName}\n(أدخل مرفقات جديدة لتحل محل المرفقات الحالية)`);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('myCasesCard').classList.add('hidden');
+  document.getElementById('formCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function cancelEdit() {
@@ -744,6 +776,7 @@ function cancelEdit() {
   document.getElementById('editMode').value = 'false';
   document.getElementById('caseStatus').classList.add('hidden');
   document.getElementById('caseCodeDisplay').classList.add('hidden');
+  document.getElementById('date').value = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
 }
 
 function compressImage(file, maxWidth = 800, quality = 0.6) {
@@ -835,7 +868,7 @@ async function addCase() {
   }
 }
 
-/* ================== عرض جلسات الأخصائي ومحاذاة الأزرار ================== */
+/* ================== عرض جلسات الأخصائي مع زر جلسة جديدة ================== */
 function showMyCases() {
   const card = document.getElementById('myCasesCard'); 
   const list = document.getElementById('myCasesList');
@@ -855,13 +888,17 @@ function showMyCases() {
       list.innerHTML = guideCasesGlobal.map(c => {
         const attaches = c.attachments || [];
         let attachButtonHtml = attaches.length > 0 
-          ? `<a href="${attaches[0].data}" target="_blank" class="attach-link">📎 عرض المرفق</a>`
-          : `<span class="no-attach-btn">لا يوجد مرفق</span>`;
+          ? `<a href="${attaches[0].data}" target="_blank" class="attach-link">📎 المرفق</a>`
+          : `<span class="no-attach-btn">بدون مرفق</span>`;
 
+        let safeClientName = c.clientName.replace(/'/g, "\\'");
+
+        // 🎨 3 أزرار متساوية: المرفق - جلسة جديدة لنفس العميل - تعديل
         let actionBtns = `
           <div class="action-buttons">
             ${attachButtonHtml}
-            <button class="edit-btn" onclick="editCase('${c.id}')">✏️ تعديل الجلسة</button>
+            <button class="add-session-btn" onclick="addNewSessionForClient('${c.id}', '${safeClientName}')">➕ جلسة جديدة</button>
+            <button class="edit-btn" onclick="editCase('${c.id}')">✏️ تعديل</button>
           </div>
         `;
         
