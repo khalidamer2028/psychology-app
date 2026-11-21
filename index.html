@@ -801,16 +801,19 @@ async function exportReportToPdfMobile(filename, htmlContent) {
 
   const statusEl = document.createElement('div');
   statusEl.id = 'pdfDownloadToast';
-  statusEl.style.cssText = 'position:fixed; bottom:25px; left:50%; transform:translateX(-50%); background:#1e6f5c; color:#fff; padding:14px 18px; border-radius:18px; font-weight:bold; font-size:15px; box-shadow:0 4px 15px rgba(0,0,0,0.3); z-index:999999; display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; max-width:92vw;';
+  statusEl.style.cssText = 'position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:#1e6f5c; color:#fff; padding:12px 14px; border-radius:14px; font-weight:bold; font-size:14px; box-shadow:0 4px 15px rgba(0,0,0,0.3); z-index:999999; display:flex; flex-direction:column; gap:10px; text-align:right; max-width:94vw; width:min(94vw,520px);';
 
-  const msg = document.createElement('span');
-  msg.style.lineHeight = '1.7';
-  msg.innerHTML = '📱 لضمان عمل ملف الـ PDF بشكل سليم، يُفضل تحميله أو طباعته من جهاز الكمبيوتر.';
+  const msg = document.createElement('div');
+  msg.style.cssText = 'line-height:1.6; font-size:13px;';
+  msg.innerHTML = '📱 حفظ PDF على الموبايل قد لا يعمل بشكل سليم. الأفضل الطباعة/الحفظ من الكمبيوتر.';
+
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex; gap:8px; width:100%; align-items:stretch;';
 
   const openBtn = document.createElement('button');
   openBtn.type = 'button';
-  openBtn.textContent = '🖨️ فتح التقرير للطباعة من المتصفح';
-  openBtn.style.cssText = 'background:#fff;color:#1e6f5c;border:none;padding:11px 16px;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer;width:auto;margin:0;';
+  openBtn.textContent = '🖨️ فتح للطباعة';
+  openBtn.style.cssText = 'flex:1; background:#fff;color:#1e6f5c;border:none;padding:10px 12px;border-radius:10px;font-weight:bold;font-size:13px;cursor:pointer;margin:0;width:auto;';
   openBtn.onclick = () => {
     printHtmlDesktop(filename, htmlContent);
   };
@@ -818,10 +821,11 @@ async function exportReportToPdfMobile(filename, htmlContent) {
   const closeBtn = document.createElement('button');
   closeBtn.type = 'button';
   closeBtn.textContent = 'إغلاق';
-  closeBtn.style.cssText = 'background:transparent;color:#fff;border:1px solid rgba(255,255,255,.7);padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer;width:auto;margin:0;';
+  closeBtn.style.cssText = 'background:transparent;color:#fff;border:1px solid rgba(255,255,255,.7);padding:10px 14px;border-radius:10px;font-size:13px;cursor:pointer;width:auto;margin:0;white-space:nowrap;';
   closeBtn.onclick = () => statusEl.remove();
 
-  statusEl.append(msg, openBtn, closeBtn);
+  btnRow.append(openBtn, closeBtn);
+  statusEl.append(msg, btnRow);
   document.body.appendChild(statusEl);
 }
 
