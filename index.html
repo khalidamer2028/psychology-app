@@ -24,8 +24,6 @@
   button.secondary { background: #7f8c8d; } button.danger { background: var(--d); } button.admin { background: var(--i); }
   button.small { padding: 8px 12px; font-size: 14px; width: auto; margin: 0; }
   .row { display: flex; gap: 10px; margin-top: 10px; } .row > * { flex: 1; }
-  
-  /* 🎨 كروت العملاء والجلسات المجمعة */
   .client-card { background: #fff; border: 1.5px solid #d5dbdb; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
   .client-header { border-bottom: 2px solid #e3efec; padding-bottom: 10px; margin-bottom: 12px; }
   .sessions-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
@@ -36,11 +34,9 @@
   .small-btn { padding: 6px 12px !important; font-size: 13px !important; height: 34px !important; margin: 0 !important; width: auto !important; border-radius: 6px !important; }
   .client-footer-actions { display: flex; gap: 10px; border-top: 1px dashed #d5dbdb; padding-top: 12px; margin-top: 8px; }
   .client-footer-actions button { margin-top: 0; flex: 1; font-size: 14px; }
-  
   .attach-link { display: inline-flex; align-items: center; justify-content: center; background: #e3efec; color: var(--p); padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; border: 1px solid var(--p); height: 34px; box-sizing: border-box; cursor: pointer; }
   .attach-link:hover { background: var(--p); color: #fff; }
   .no-attach-btn { display: inline-flex; align-items: center; justify-content: center; background: #f1f2f6; color: #95a5a6; padding: 6px 10px; border-radius: 6px; font-size: 13px; border: 1px dashed #bdc3c7; height: 34px; box-sizing: border-box; }
-  
   .empty { text-align: center; color: #777; padding: 20px; font-style: italic; font-size: 16px; }
   .badge { display: inline-block; background: #e3efec; color: var(--p); padding: 3px 8px; border-radius: 6px; font-size: 13px; font-weight: bold; }
   .hidden { display: none !important; }
@@ -54,28 +50,19 @@
   .search-result:hover { background: #e3efec; }
   .search-result b { color: var(--p); }
   #loginScreen { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; max-width: 400px; margin: 0 auto; }
-
-  /* 🎨 فلاتر الإحصائيات الزمنية */
   .filter-box { background: #fdfefe; border: 1px solid #d5dbdb; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
   .filter-quick-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
   .filter-quick-btns button { flex: 1; min-width: 75px; font-size: 13px; padding: 6px 10px; }
   .filter-summary { font-size: 14px; color: var(--p); font-weight: bold; margin-top: 10px; text-align: center; }
-
   .btn-show-cases { background: #2980b9 !important; color: white !important; font-weight: bold; }
   .btn-new-case { background: var(--p) !important; color: white !important; font-weight: bold; }
   .add-session-btn { background: var(--s) !important; color: #fff !important; }
   .add-session-btn:hover { background: #219150 !important; }
-
-  /* 📱 تحسينات التجاوب مع شاشات الموبايل */
   #generalStatsTable, #guideStatsTable { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; margin-top: 10px; }
-
-  /* 🔍 شريط وزر البحث المطور */
   .search-patient-bar { display: flex; gap: 10px; align-items: center; margin-top: 5px; }
   .search-patient-bar input { flex: 1; margin: 0; }
   .btn-search-patient { background: #2c3e50 !important; color: white !important; font-weight: bold !important; width: auto !important; min-width: 150px !important; margin-top: 0 !important; padding: 12px 16px !important; font-size: 15px !important; white-space: nowrap !important; border-radius: 8px !important; }
   .btn-search-patient:hover { background: #1a252f !important; }
-
-  /* 🖼️ نافذة معاينة المرفقات */
   .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center; z-index: 99999; padding: 15px; }
   .modal-content { background: #fff; border-radius: 12px; max-width: 900px; width: 100%; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: modalFadeIn 0.2s ease-out; }
   @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
@@ -84,7 +71,6 @@
   .close-modal-btn:hover { color: var(--d) !important; }
   .modal-body { padding: 15px; overflow-y: auto; flex: 1; display: flex; justify-content: center; align-items: center; background: #f8f9fa; }
   .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 12px 18px; border-top: 1px solid #e1e8e6; background: #fff; }
-
   @media (max-width: 650px) {
     .search-patient-bar { flex-direction: column; align-items: stretch; gap: 8px; }
     .btn-search-patient { width: 100% !important; margin-top: 4px !important; padding: 14px !important; font-size: 16px !important; }
@@ -105,8 +91,7 @@
 </style>
 </head>
 <body>
-
-<!-- شاشة تسجيل الدخول -->
+  <!-- شاشة تسجيل الدخول -->
 <div id="loginScreen">
   <h1 style="text-align:center; margin-bottom:10px;">🧠 الدعم النفسي بالغربية</h1>
   <p class="subtitle">تسجيل الدخول للنظام</p>
@@ -276,6 +261,37 @@
   </div>
 </div>
 
+<!-- 🖼️ نافذة معاينة المرفقات -->
+<div id="attachmentModal" class="modal-overlay hidden" onclick="if(event.target === this) closeAttachmentModal()">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle" style="margin:0; font-size:17px; color:var(--p); border:none; padding:0;">📎 معاينة المرفق</h3>
+      <button type="button" class="close-modal-btn" onclick="closeAttachmentModal()">✖</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <a id="modalDirectLink" href="#" target="_blank" class="attach-link" style="text-decoration:none; height:36px;">🌐 فتح في صفحة مستقلة</a>
+      <button type="button" class="secondary small-btn" onclick="closeAttachmentModal()">❌ إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- 📄 نافذة معاينة وطباعة التقرير -->
+<div id="reportPreviewModal" class="modal-overlay" style="display:none; z-index:100000;">
+  <div class="modal-content" style="max-width: 950px; height: 95vh;">
+    <div class="modal-header" style="background:#f4f7f6; border-bottom:2px solid var(--p); flex-wrap:wrap; gap:10px;">
+      <h3 id="reportPreviewTitle" style="margin:0; font-size:18px; color:var(--p); border:none; padding:0;">تقرير</h3>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button type="button" class="btn-print" onclick="printReportFromModal()" style="padding:8px 16px; font-size:14px; border-radius:6px; margin:0; width:auto; background:var(--p); color:#fff;">🖨️ طباعة</button>
+        <button type="button" class="btn-pdf" onclick="downloadReportPDF()" style="padding:8px 16px; font-size:14px; border-radius:6px; margin:0; width:auto; background:var(--d); color:#fff;">⬇️ تحميل PDF</button>
+        <button type="button" class="close-modal-btn" onclick="closeReportPreview()" style="color:#e74c3c; font-size:24px;">✖</button>
+      </div>
+    </div>
+    <div class="modal-body" id="reportPreviewBody" style="background:#fff; display:block; padding:25px; overflow-y:auto;">
+      <!-- سيتم وضع محتوى التقرير هنا -->
+    </div>
+  </div>
+</div>
 <script>
 const LS_USER = 'psy_user_v3';
 const LS_API = 'psy_api_v3';
@@ -652,15 +668,10 @@ function updateStats() {
 
 /* ================== نظام الطباعة الجديد (بدون فتح نوافذ جديدة) ================== */
 function openReportPreview(title, contentHtml, filename) {
-  const modal = document.getElementById('reportPreviewModal');
-  const modalBody = document.getElementById('reportPreviewBody');
-  const modalTitle = document.getElementById('reportPreviewTitle');
+  document.getElementById('reportPreviewTitle').textContent = title;
+  document.getElementById('reportPreviewBody').innerHTML = contentHtml;
+  document.getElementById('reportPreviewModal').style.display = 'flex';
   
-  modalTitle.textContent = title;
-  modalBody.innerHTML = contentHtml;
-  modal.style.display = 'flex';
-  
-  // حفظ المحتوى في متغير عشان نستخدمه في الطباعة والتحميل
   window.currentReportHtml = contentHtml;
   window.currentReportFilename = filename || title;
 }
@@ -709,7 +720,6 @@ function downloadReportPDF() {
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
   
-  // إظهار رسالة تحميل
   const btn = event.target;
   const originalText = btn.textContent;
   btn.textContent = '⏳ جاري التحميل...';
@@ -1206,38 +1216,5 @@ window.onload = () => {
   }
 };
 </script>
-
-<!-- 🖼️ نافذة معاينة المرفقات -->
-<div id="attachmentModal" class="modal-overlay hidden" onclick="if(event.target === this) closeAttachmentModal()">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="modalTitle" style="margin:0; font-size:17px; color:var(--p); border:none; padding:0;">📎 معاينة المرفق</h3>
-      <button type="button" class="close-modal-btn" onclick="closeAttachmentModal()">✖</button>
-    </div>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="modal-footer">
-      <a id="modalDirectLink" href="#" target="_blank" class="attach-link" style="text-decoration:none; height:36px;">🌐 فتح في صفحة مستقلة</a>
-      <button type="button" class="secondary small-btn" onclick="closeAttachmentModal()">❌ إغلاق</button>
-    </div>
-  </div>
-</div>
-
-<!-- 📄 نافذة معاينة وطباعة التقرير الجديدة -->
-<div id="reportPreviewModal" class="modal-overlay" style="display:none; z-index:100000;">
-  <div class="modal-content" style="max-width: 950px; height: 95vh;">
-    <div class="modal-header" style="background:#f4f7f6; border-bottom:2px solid var(--p);">
-      <h3 id="reportPreviewTitle" style="margin:0; font-size:18px; color:var(--p); border:none; padding:0;">تقرير</h3>
-      <div style="display:flex; gap:10px;">
-        <button type="button" class="btn-print" onclick="printReportFromModal()" style="padding:8px 16px; font-size:14px; border-radius:6px; margin:0; width:auto; background:var(--p); color:#fff;">🖨️ طباعة</button>
-        <button type="button" class="btn-pdf" onclick="downloadReportPDF()" style="padding:8px 16px; font-size:14px; border-radius:6px; margin:0; width:auto; background:var(--d); color:#fff;">⬇️ تحميل PDF</button>
-        <button type="button" class="close-modal-btn" onclick="closeReportPreview()" style="color:#e74c3c; font-size:24px;">✖</button>
-      </div>
-    </div>
-    <div class="modal-body" id="reportPreviewBody" style="background:#fff; display:block; padding:25px; overflow-y:auto;">
-      <!-- سيتم وضع محتوى التقرير هنا -->
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
