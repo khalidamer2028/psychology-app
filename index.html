@@ -796,10 +796,13 @@ function printHtmlDesktop(title, htmlContent) {
 }
 
 async function exportReportToPdfMobile(filename, htmlContent) {
+  const existingToast = document.getElementById('pdfDownloadToast');
+  if (existingToast) existingToast.remove();
+
   const statusEl = document.createElement('div');
   statusEl.id = 'pdfDownloadToast';
-  statusEl.style.cssText = 'position:fixed; bottom:25px; left:50%; transform:translateX(-50%); background:#1e6f5c; color:#fff; padding:14px 22px; border-radius:30px; font-weight:bold; font-size:15px; box-shadow:0 4px 15px rgba(0,0,0,0.3); z-index:999999; display:flex; align-items:center; gap:8px; text-align:center; max-width:92vw;';
-  statusEl.innerHTML = '⏳ جاري تجهيز ملف الـ PDF...';
+  statusEl.style.cssText = 'position:fixed; bottom:25px; left:50%; transform:translateX(-50%); background:#1e6f5c; color:#fff; padding:14px 18px; border-radius:18px; font-weight:bold; font-size:15px; box-shadow:0 4px 15px rgba(0,0,0,0.3); z-index:999999; display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; max-width:92vw;';
+  statusEl.innerHTML = '<span>⏳ جاري تجهيز ملف الـ PDF...</span>';
   document.body.appendChild(statusEl);
 
   let container = document.getElementById('mobilePdfExportContainer');
@@ -831,53 +834,89 @@ async function exportReportToPdfMobile(filename, htmlContent) {
     return new Promise(res => { img.onload = res; img.onerror = res; setTimeout(res, 2000); });
   }));
 
+  const safeName = (filename.toLowerCase().endsWith('.pdf') ? filename : filename + '.pdf');
   const opt = {
     margin: [10, 10, 10, 10],
-    filename: filename.endsWith('.pdf') ? filename : filename + '.pdf',
+    filename: safeName,
     image: { type: 'jpeg', quality: 0.95 },
     html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 794 },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
 
+  const cleanup = (url) => {
+    if (url) setTimeout(() => { try { URL.revokeObjectURL(url); } catch (_) {} }, 60000);
+  };
+
   try {
     if (typeof html2pdf === 'undefined') throw new Error('مكتبة PDF لم يتم تحميلها بعد');
-    const safeName = opt.filename.toLowerCase().endsWith('.pdf') ? opt.filename : opt.filename + '.pdf';
-    const pdfBlobRaw = await html2pdf().set(opt).from(container).outputPdf('blob');
-    const pdfBlob = pdfBlobRaw instanceof Blob ? pdfBlobRaw : new Blob([pdfBlobRaw], { type: 'application/pdf' });
-    const pdfFile = new File([pdfBlob], safeName, { type: 'application/pdf' });
 
-    // المسار الأفضل للموبايل: Web Share API يحافظ على الاسم ونوع الملف على أندرويد/سامسونج
-    if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+    const pdfBlobRaw = await html2pdf().set(opt).from(container).outputPdf('blob');
+    const pdfBlob = pdfBlobRaw instanceof Blob ? new Blob([pdfBlobRaw], { type: 'application/pdf' }) : new Blob([pdfBlobRaw], { type: 'application/pdf' });
+    const pdfFile = new File([pdfBlob], safeName, { type: 'application/pdf', lastModified: Date.now() });
+    const url = URL.createObjectURL(pdfBlob);
+
+    // إظهار زر تفاعلي: نقرة المستخدم ضرورية على الموبايل لتجنب فقدان الامتداد/النوع
+    statusEl.innerHTML = '';
+    statusEl.style.background = '#1e6f5c';
+
+    const msg = document.createElement('span');
+    msg.textContent = '✅ تم تجهيز ملف PDF';
+
+    const actionBtn = document.createElement('button');
+    actionBtn.type = 'button';
+    actionBtn.textContent = '📥 حفظ / فتح ملف PDF';
+    actionBtn.style.cssText = 'background:#fff;color:#1e6f5c;border:none;padding:11px 16px;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer;width:auto;margin:0;';
+
+    const hint = document.createElement('span');
+    hint.style.cssText = 'font-size:12px;font-weight:400;opacity:.95;line-height:1.5;';
+    hint.textContent = 'اضغط الزر لحفظ الملف بصيغة PDF صحيحة.';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.textContent = 'إغلاق';
+    closeBtn.style.cssText = 'background:transparent;color:#fff;border:1px solid rgba(255,255,255,.7);padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer;width:auto;margin:0;';
+
+    actionBtn.onclick = async () => {
+      actionBtn.disabled = true;
       try {
-        await navigator.share({ files: [pdfFile], title: safeName });
-        statusEl.style.background = '#27ae60';
-        statusEl.innerHTML = '✅ تم تجهيز ملف PDF. اختر "حفظ" أو تطبيق الملفات لفتحه.';
-        setTimeout(() => { statusEl.remove(); }, 3500);
-        return;
-      } catch (shareErr) {
-        if (shareErr && shareErr.name === 'AbortError') {
-          statusEl.style.background = '#7f8c8d';
-          statusEl.innerHTML = 'تم إلغاء المشاركة.';
-          setTimeout(() => { statusEl.remove(); }, 2000);
+        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+          await navigator.share({ files: [pdfFile], title: safeName });
+          msg.textContent = '✅ تم فتح خيارات الحفظ/المشاركة.';
+          cleanup(url);
+          setTimeout(() => statusEl.remove(), 1800);
           return;
         }
-        // في حال فشل المشاركة لسبب آخر، نكمل إلى fallback التحميل
+      } catch (e) {
+        if (e && e.name === 'AbortError') {
+          actionBtn.disabled = false;
+          return;
+        }
       }
-    }
 
-    const url = URL.createObjectURL(new Blob([pdfBlob], { type: 'application/pdf' }));
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = safeName;
-    a.rel = 'noopener';
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
-    statusEl.style.background = '#27ae60';
-    statusEl.innerHTML = '✅ تم تنزيل ملف PDF. افتحه من التنزيلات.';
-    setTimeout(() => { statusEl.remove(); }, 3500);
+      // Fallback موثوق: فتح PDF في تبويب المتصفح حتى لا تظهر مشكلة "لا يوجد تطبيق لفتح الملف"
+      const viewerWin = window.open(url, '_blank');
+      if (!viewerWin) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = safeName;
+        a.rel = 'noopener';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+      msg.textContent = '✅ تم فتح ملف PDF. احفظه من المتصفح إن لزم.';
+      hint.textContent = 'إذا لم يفتح تلقائياً، اسمح بالنوافذ المنبثقة لهذا الموقع.';
+      cleanup(url);
+      setTimeout(() => { actionBtn.disabled = false; }, 1200);
+    };
+
+    closeBtn.onclick = () => {
+      statusEl.remove();
+      cleanup(url);
+    };
+
+    statusEl.append(msg, actionBtn, hint, closeBtn);
   } catch (err) {
     statusEl.style.background = '#e74c3c';
     statusEl.innerHTML = '❌ تعذر إنشاء PDF على الموبايل، جاري فتح التقرير...';
