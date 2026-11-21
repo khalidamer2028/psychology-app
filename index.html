@@ -1,703 +1,4 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>الدعم النفسي بالغربية</title>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<style>
-  :root { --p: #1e6f5c; --pd: #145043; --bg: #f4f7f6; --t: #2c3e50; --c: #fff; --d: #e74c3c; --i: #3498db; --s: #27ae60; }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-  body { background: var(--bg); color: var(--t); padding: 15px; padding-bottom: 50px; font-size: 17px; }
-  h1 { text-align: center; color: var(--p); margin-bottom: 10px; font-size: 26px; font-weight: 700; }
-  .subtitle { text-align: center; color: #555; font-size: 15px; margin-bottom: 20px; }
-  .card h3 { color: var(--p); margin-bottom: 15px; font-size: 19px; font-weight: 600; border-bottom: 2px solid #e1e8e6; padding-bottom: 8px; }
-  .card { background: var(--c); border-radius: 12px; padding: 20px; margin-bottom: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e1e8e6; }
-  label { display: block; margin: 14px 0 8px; font-weight: 500; font-size: 16px; }
-  input, select { width: 100%; padding: 12px; border: 1.5px solid #ccd1d1; border-radius: 8px; font-size: 16px; background: #fff; font-weight: 400; }
-  input:focus, select:focus { border-color: var(--p); outline: none; }
-  input:read-only { background-color: #e9ecef; color: #495057; cursor: not-allowed; border-color: #ced4da; }
-  button { background: var(--p); color: #fff; border: none; padding: 14px; border-radius: 8px; font-size: 17px; cursor: pointer; margin-top: 15px; width: 100%; font-weight: 500; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.2s; }
-  button:hover { background: var(--pd); }
-  button:disabled { background: #95a5a6; cursor: not-allowed; }
-  button.secondary { background: #7f8c8d; } button.danger { background: var(--d); } button.admin { background: var(--i); }
-  button.small { padding: 8px 12px; font-size: 14px; width: auto; margin: 0; }
-  .row { display: flex; gap: 10px; margin-top: 10px; } .row > * { flex: 1; }
-  
-  /* 🎨 كروت العملاء والجلسات المجمعة */
-  .client-card { background: #fff; border: 1.5px solid #d5dbdb; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-  .client-header { border-bottom: 2px solid #e3efec; padding-bottom: 10px; margin-bottom: 12px; }
-  .sessions-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
-  .session-item { background: #f9fbfb; border: 1px solid #e1e8e6; border-right: 4px solid var(--p); border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-  .session-info { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .session-num { background: var(--p); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-  .session-actions { display: flex; gap: 6px; align-items: center; }
-  .small-btn { padding: 6px 12px !important; font-size: 13px !important; height: 34px !important; margin: 0 !important; width: auto !important; border-radius: 6px !important; }
-  .client-footer-actions { display: flex; gap: 10px; border-top: 1px dashed #d5dbdb; padding-top: 12px; margin-top: 8px; }
-  .client-footer-actions button { margin-top: 0; flex: 1; font-size: 14px; }
-  
-  .attach-link { display: inline-flex; align-items: center; justify-content: center; background: #e3efec; color: var(--p); padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; border: 1px solid var(--p); height: 34px; box-sizing: border-box; cursor: pointer; }
-  .attach-link:hover { background: var(--p); color: #fff; }
-  .no-attach-btn { display: inline-flex; align-items: center; justify-content: center; background: #f1f2f6; color: #95a5a6; padding: 6px 10px; border-radius: 6px; font-size: 13px; border: 1px dashed #bdc3c7; height: 34px; box-sizing: border-box; }
-  
-  .empty { text-align: center; color: #777; padding: 20px; font-style: italic; font-size: 16px; }
-  .badge { display: inline-block; background: #e3efec; color: var(--p); padding: 3px 8px; border-radius: 6px; font-size: 13px; font-weight: bold; }
-  .hidden { display: none !important; }
-  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-  .topbar button { width: auto; margin: 0; padding: 10px 16px; }
-  .status { font-size: 15px; text-align: center; padding: 10px; border-radius: 8px; margin-top: 12px; }
-  .status.ok { background: #d4edda; color: #155724; } .status.err { background: #f8d7da; color: #721c24; } .status.info { background: #d1ecf1; color: #0c5460; }
-  .case-code { text-align: center; margin-top: 15px; padding: 12px; background: #e3efec; border-radius: 8px; color: var(--p); font-size: 20px; border: 1px dashed var(--p); }
-  table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 15px; } th, td { border: 1px solid #ddd; padding: 10px 8px; text-align: center; } th { background: var(--p); color: #fff; } tr:nth-child(even) { background: #f8f9fa; }
-  .search-result { background: #fff; border: 1px solid var(--p); padding: 10px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
-  .search-result:hover { background: #e3efec; }
-  .search-result b { color: var(--p); }
-  #loginScreen { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; max-width: 400px; margin: 0 auto; }
-
-  /* 🎨 فلاتر الإحصائيات الزمنية */
-  .filter-box { background: #fdfefe; border: 1px solid #d5dbdb; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-  .filter-quick-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-  .filter-quick-btns button { flex: 1; min-width: 75px; font-size: 13px; padding: 6px 10px; }
-  .filter-summary { font-size: 14px; color: var(--p); font-weight: bold; margin-top: 10px; text-align: center; }
-
-  .btn-show-cases { background: #2980b9 !important; color: white !important; font-weight: bold; }
-  .btn-new-case { background: var(--p) !important; color: white !important; font-weight: bold; }
-  .add-session-btn { background: var(--s) !important; color: #fff !important; }
-  .add-session-btn:hover { background: #219150 !important; }
-
-  /* 📱 تحسينات التجاوب مع شاشات الموبايل */
-  #generalStatsTable, #guideStatsTable {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    border-radius: 8px;
-    margin-top: 10px;
-  }
-
-  /* 🔍 شريط وزر البحث المطور */
-  .search-patient-bar { display: flex; gap: 10px; align-items: center; margin-top: 5px; }
-  .search-patient-bar input { flex: 1; margin: 0; }
-  .btn-search-patient {
-    background: #2c3e50 !important;
-    color: white !important;
-    font-weight: bold !important;
-    width: auto !important;
-    min-width: 150px !important;
-    margin-top: 0 !important;
-    padding: 12px 16px !important;
-    font-size: 15px !important;
-    white-space: nowrap !important;
-    border-radius: 8px !important;
-  }
-  .btn-search-patient:hover { background: #1a252f !important; }
-
-  /* 🖼️ نافذة معاينة المرفقات المنبثقة لمنع أخطاء 500 على الموبايل */
-  .modal-overlay {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.75);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 99999; padding: 15px;
-  }
-  .modal-content {
-    background: #fff; border-radius: 12px; max-width: 900px; width: 100%;
-    max-height: 92vh; display: flex; flex-direction: column; overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: modalFadeIn 0.2s ease-out;
-  }
-  @keyframes modalFadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  .modal-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 12px 18px; border-bottom: 1px solid #e1e8e6; background: #fdfefe;
-  }
-  .close-modal-btn {
-    background: transparent !important; color: #7f8c8d !important; border: none !important;
-    font-size: 20px !important; width: auto !important; margin: 0 !important;
-    padding: 4px 8px !important; cursor: pointer !important; line-height: 1 !important;
-  }
-  .close-modal-btn:hover { color: var(--d) !important; }
-  .modal-body {
-    padding: 15px; overflow-y: auto; flex: 1; display: flex;
-    justify-content: center; align-items: center; background: #f8f9fa;
-  }
-  .modal-footer {
-    display: flex; justify-content: flex-end; gap: 10px;
-    padding: 12px 18px; border-top: 1px solid #e1e8e6; background: #fff;
-  }
-
-  @media (max-width: 650px) {
-    .search-patient-bar { flex-direction: column; align-items: stretch; gap: 8px; }
-    .btn-search-patient { width: 100% !important; margin-top: 4px !important; padding: 14px !important; font-size: 16px !important; }
-    body { padding: 10px; padding-bottom: 40px; font-size: 15px; }
-    h1 { font-size: 21px; }
-    .card { padding: 14px; margin-bottom: 14px; border-radius: 10px; }
-    .topbar { flex-direction: column; gap: 8px; align-items: stretch; text-align: center; }
-    .topbar button { width: 100%; }
-    .row { flex-direction: column; gap: 8px; }
-    .client-footer-actions { flex-direction: column; gap: 8px; }
-    .client-footer-actions button { width: 100%; margin-top: 0; }
-    .session-item { flex-direction: column; align-items: stretch; gap: 10px; }
-    .session-actions { width: 100%; justify-content: flex-end; }
-    table { font-size: 13.5px; min-width: 520px; }
-    th, td { padding: 8px 6px; }
-    .filter-quick-btns button { font-size: 12px; padding: 6px 4px; min-width: 70px; }
-    #myCasesCard > div:first-child { flex-direction: column; gap: 10px; align-items: stretch !important; text-align: center; }
-    #myCasesCard > div:first-child h3 { text-align: center; }
-    #myCasesCard > div:first-child button { width: 100% !important; }
-  }
-</style>
-</head>
-<body>
-
-<!-- شاشة تسجيل الدخول -->
-<div id="loginScreen">
-  <h1 style="text-align:center; margin-bottom:10px;">🧠 الدعم النفسي بالغربية</h1>
-  <p class="subtitle">تسجيل الدخول للنظام</p>
-  <div class="card">
-    <label>الرقم القومي</label>
-    <input type="text" id="loginNationalId" placeholder="14 رقم" maxlength="14">
-    <label>كلمة المرور</label>
-    <input type="password" id="loginPassword" placeholder="********">
-    <button onclick="loginUser()">🔑 تسجيل الدخول</button>
-    <button class="secondary" onclick="showAdminLogin()" style="margin-top:10px; font-size:14px;">🔐 دخول المدير</button>
-    <div id="loginStatus" class="status hidden"></div>
-  </div>
-</div>
-
-<!-- شاشة إنشاء باسورد -->
-<div id="setupPasswordScreen" class="hidden" style="max-width: 400px; margin: 20px auto;">
-  <div class="card">
-    <h3>🔑 تنشيط الحساب</h3>
-    <p style="font-size:14px; margin-bottom:10px;">مرحباً بك. يرجى إنشاء كلمة مرور لحسابك لحماية سرية بياناتك.</p>
-    <label>كلمة المرور الجديدة</label>
-    <input type="password" id="newPassword" placeholder="أدخل كلمة مرور قوية">
-    <label>تأكيد كلمة المرور</label>
-    <input type="password" id="newPasswordConfirm" placeholder="أعد كتابة كلمة المرور">
-    <button onclick="createPassword()">💾 حفظ وتفعيل</button>
-    <div id="setupStatus" class="status hidden"></div>
-  </div>
-</div>
-
-<!-- واجهة الأخصائي -->
-<div id="guideMode" class="hidden">
-  <div class="topbar">
-    <h1 style="margin:0;">🧠 الدعم النفسي بالغربية</h1>
-    <button class="secondary" onclick="logout()">⬅️ تسجيل الخروج</button>
-  </div>
-  <p class="subtitle" id="guideNameLabel">—</p>
-
-  <div class="card hidden" id="guideSavedCard">
-    <h3>👤 بيانات الأخصائي</h3>
-    <div id="guideInfoText" style="line-height:2;"></div>
-    <div class="row">
-      <button class="btn-show-cases" onclick="showMyCases()">📂 جلساتي</button>
-      <button class="btn-new-case" onclick="startFreshNewCase()">🤝 حالة جديدة</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>🔍 بحث عن عميل سابق</h3>
-    <div class="search-patient-bar">
-      <input type="text" id="searchPatientName" placeholder="اكتب اسم العميل للبحث في سجلاته...">
-      <button type="button" class="btn-search-patient" onclick="searchPatient()">🔍 بحث عن العميل</button>
-    </div>
-    <div id="searchResults" style="margin-top:15px;"></div>
-  </div>
-
-  <div class="card" id="formCard">
-    <h3 id="formTitle">📝 جلسة جديدة</h3>
-    <input type="hidden" id="existingCaseId" value="">
-    <input type="hidden" id="editRowIndex" value="">
-    <input type="hidden" id="editMode" value="false">
-    
-    <label>اسم العميل</label><input type="text" id="clientName" placeholder="اسم رباعي">
-    <label>الخدمة</label>
-    <select id="service">
-      <option value="">اختر...</option>
-      <option value="التخاطب">التخاطب</option>
-      <option value="تعديل السلوك">تعديل السلوك</option>
-      <option value="تنمية المهارات">تنمية المهارات</option>
-      <option value="الإرشاد الفردي">الإرشاد الفردي</option>
-      <option value="الإرشاد الأسري">الإرشاد الأسري</option>
-      <option value="المقاييس والاختبارات">المقاييس والاختبارات</option>
-      <option value="الإرشاد الجمعي">الإرشاد الجمعي</option>
-      <option value="التكامل الحسي">التكامل الحسي</option>
-      <option value="الاستشارات النفسية">الاستشارات النفسية</option>
-      <option value="أخرى">أخرى</option>
-    </select>
-    <label>التاريخ</label><input type="date" id="date">
-    
-    <label id="filesLabel">المرفقات <span style="color:#c0392b;">*إجباري</span></label>
-    <input type="file" id="files" accept="image/*,application/pdf" multiple>
-    
-    <button onclick="addCase()" id="saveCaseBtn">💾 حفظ</button>
-    <button onclick="cancelEdit()" id="cancelEditBtn" class="secondary hidden" style="margin-top:10px;">❌ إلغاء وتفريغ النموذج</button>
-    
-    <div id="caseStatus" class="status hidden"></div>
-    <div id="caseCodeDisplay" class="case-code hidden"></div>
-  </div>
-
-  <div class="card hidden" id="myCasesCard">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-      <h3 style="margin:0; border:none; padding:0;">📂 الجلسات المسجلة</h3>
-      <button class="secondary small" onclick="printMyCasesSummaryPDF()">🖨️ طباعة السجل العام</button>
-    </div>
-    <div id="myCasesList"></div>
-    <button class="secondary" onclick="document.getElementById('myCasesCard').classList.add('hidden')" style="margin-top:15px;">إغلاق</button>
-  </div>
-</div>
-
-<!-- لوحة المدير -->
-<div id="adminMode" class="hidden">
-  <div class="topbar">
-    <h1 style="margin:0;">🧠الدعم النفسي بالغربية</h1>
-    <button class="secondary" onclick="logoutAdmin()">⬅️ تسجيل الخروج</button>
-  </div>
-
-  <!-- شاشة الدخول للمدير -->
-  <div class="card" id="adminLoginCard">
-    <h3>🔐 تسجيل دخول المدير</h3>
-    <label>كلمة السر</label>
-    <input type="password" id="adminPass" placeholder="أدخل كلمة سر المدير">
-    <button onclick="loginAdmin()">دخول</button>
-    <button class="secondary" onclick="showScreen('loginScreen')" style="margin-top:10px;">⬅️ عودة لشاشة الأخصائيين</button>
-    <div id="loginStatusAdmin" class="status hidden"></div>
-  </div>
-
-  <!-- لوحة الإدارة بعد الدخول المعتمد -->
-  <div id="adminPanel" class="hidden">
-    <div class="card">
-      <h3>⚙️ إعدادات النظام</h3>
-      <label>رابط Apps Script</label>
-      <input type="text" id="apiUrl" placeholder="https://script.google.com/...">
-      <div class="row">
-        <button class="secondary" onclick="saveApiUrl()">💾 حفظ الرابط</button>
-        <button class="secondary" onclick="fetchData()">🔄 تحديث البيانات</button>
-      </div>
-      <div id="fetchStatus" class="status hidden"></div>
-    </div>
-
-    <!-- بطاقة الإحصائيات مع الفلترة الزمنية -->
-    <div class="card">
-      <h3>📊 إحصائيات عامة وفلاتر زمنية</h3>
-      
-      <div class="filter-box">
-        <div class="row" style="margin-top:0;">
-          <div>
-            <label style="margin-top:0;">من تاريخ:</label>
-            <input type="date" id="filterStartDate" onchange="updateStats()">
-          </div>
-          <div>
-            <label style="margin-top:0;">إلى تاريخ:</label>
-            <input type="date" id="filterEndDate" onchange="updateStats()">
-          </div>
-        </div>
-        <div class="filter-quick-btns">
-          <button type="button" class="secondary" onclick="setDateFilter('all')">📅 كل الفترات</button>
-          <button type="button" class="secondary" onclick="setDateFilter('today')">اليوم</button>
-          <button type="button" class="secondary" onclick="setDateFilter('this_week')">هذا الأسبوع</button>
-          <button type="button" class="secondary" onclick="setDateFilter('this_month')">هذا الشهر</button>
-        </div>
-        <div id="filterSummaryText" class="filter-summary"></div>
-      </div>
-
-      <div class="row" style="margin-bottom:15px;">
-        <button class="secondary" onclick="printGeneralStats()">🖨️ طباعة الإحصائيات</button>
-        <button class="danger" onclick="deleteAllCases()">🗑️ حذف كل الحالات</button>
-      </div>
-      <div id="generalStatsTable"></div>
-    </div>
-
-    <div class="card">
-      <h3>👨 إحصائيات الأخصائيين</h3>
-      <button class="secondary" onclick="printGuideStats()" style="margin-bottom:15px;">🖨️ طباعة إحصائيات الأخصائيين</button>
-      <div id="guideStatsTable"></div>
-    </div>
-
-    <div class="card">
-      <h3>🔍 بحث في الجلسات</h3>
-      <input type="text" id="searchBox" oninput="renderAdminCases()" placeholder="بحث باسم العميل أو الأخصائي...">
-      <div id="adminList" style="margin-top:15px;"></div>
-    </div>
-  </div>
-</div>
-
-<script>
-const LS_USER = 'psy_user_v3';
-const LS_API = 'psy_api_v3';
-const DEFAULT_FALLBACK_ADMIN_PASS = 'khalid@1968';
-
-/* ⬇️ الرابط المعتمد الخاص بك ⬇️ */
-const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbz0vbpklYlwmejbJuTmwUs5xpFqh-q2o_aIK-EgJegdHrVzxHqDCWtUjOiFpRDbQNJv/exec'; 
-
-let currentUser = JSON.parse(localStorage.getItem(LS_USER) || 'null');
-let tempUserForSetup = null;
-let guideCasesGlobal = [];
-let adminData = { cases: [], guides: [] };
-let adminAuthPassword = sessionStorage.getItem('psy_admin_token') || '';
-
-/* ================== دوال معاينة المرفقات بأمان وتفادي خطأ 500 ================== */
-function getBestAttachmentUrl(url) {
-  if (!url) return '';
-  if (url.includes('googleusercontent.com')) return url;
-  const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m && m[1]) {
-    return `https://lh3.googleusercontent.com/d/${m[1]}=w1200`;
-  }
-  return url;
-}
-
-function getDrivePreviewUrl(url) {
-  if (!url) return '';
-  const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m && m[1]) {
-    return `https://drive.google.com/file/d/${m[1]}/preview`;
-  }
-  return url;
-}
-
-function openAttachmentModal(rawUrl, title) {
-  const modal = document.getElementById('attachmentModal');
-  const modalBody = document.getElementById('modalBody');
-  const modalTitle = document.getElementById('modalTitle');
-  const directLink = document.getElementById('modalDirectLink');
-  
-  modalTitle.textContent = title || '📎 معاينة المرفق';
-  
-  const cdnUrl = getBestAttachmentUrl(rawUrl);
-  const previewUrl = getDrivePreviewUrl(rawUrl);
-  
-  directLink.href = cdnUrl;
-  
-  modalBody.innerHTML = `
-    <div style="text-align:center; padding:10px; width:100%;">
-      <div id="modalLoading" style="color:var(--p); font-size:14px; margin-bottom:10px;">⏳ جاري تحميل المرفق...</div>
-      <img src="${cdnUrl}" alt="مرفق" style="max-width:100%; max-height:70vh; object-fit:contain; border-radius:6px; box-shadow:0 2px 10px rgba(0,0,0,0.15);" onload="document.getElementById('modalLoading').style.display='none'" onerror="handleModalImgError(this, '${previewUrl}')">
-    </div>
-  `;
-  
-  modal.classList.remove('hidden');
-}
-
-function handleModalImgError(img, previewUrl) {
-  const loading = document.getElementById('modalLoading');
-  if (loading) loading.style.display = 'none';
-  img.style.display = 'none';
-  const modalBody = document.getElementById('modalBody');
-  modalBody.innerHTML = `
-    <div style="text-align:center; padding:15px; width:100%;">
-      <p style="margin-bottom:12px; font-weight:500; font-size:14px;">📄 مستند أو ملف PDF — جاري العرض عبر عارض المستندات:</p>
-      <iframe src="${previewUrl}" style="width:100%; height:65vh; border:1px solid #ccc; border-radius:8px;"></iframe>
-    </div>
-  `;
-}
-
-function closeAttachmentModal() {
-  const modal = document.getElementById('attachmentModal');
-  if (modal) modal.classList.add('hidden');
-  const modalBody = document.getElementById('modalBody');
-  if (modalBody) modalBody.innerHTML = '';
-}
-
-/* ================== دوال ضبط وتنسيق التاريخ ================== */
-function formatDisplayDate(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) {
-    return String(dateStr).split('T')[0].replace(/-/g, '/');
-  }
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}/${month}/${day}`;
-}
-
-function toStandardDateStr(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) {
-    return String(dateStr).split('T')[0].replace(/\//g, '-');
-  }
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-/* ================== شاشات النظام ================== */
-function showScreen(screenId) {
-  ['loginScreen', 'setupPasswordScreen', 'guideMode', 'adminMode'].forEach(id => {
-    document.getElementById(id).classList.add('hidden');
-  });
-  document.getElementById(screenId).classList.remove('hidden');
-}
-
-async function loginUser() {
-  const nationalId = document.getElementById('loginNationalId').value.trim();
-  const password = document.getElementById('loginPassword').value.trim();
-  const status = document.getElementById('loginStatus');
-
-  if (!nationalId || !password) {
-    status.className = 'status err'; status.textContent = '❌ يرجى ملء جميع الحقول'; status.classList.remove('hidden'); return;
-  }
-
-  status.className = 'status info'; status.textContent = '⏳ جاري التحقق...'; status.classList.remove('hidden');
-
-  try {
-    const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API), {
-      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'login', nationalId, password })
-    });
-    const data = await res.json();
-
-    if (data.ok) {
-      currentUser = data.user;
-      localStorage.setItem(LS_USER, JSON.stringify(currentUser));
-      startUserSession();
-    } else if (data.error === 'NEW_ACCOUNT') {
-      tempUserForSetup = nationalId;
-      showScreen('setupPasswordScreen');
-    } else {
-      status.className = 'status err'; status.textContent = '❌ ' + (data.error || 'بيانات الدخول غير صحيحة'); status.classList.remove('hidden');
-    }
-  } catch (err) {
-    status.className = 'status err'; status.textContent = '❌ تعذر الاتصال بالخادم'; status.classList.remove('hidden');
-  }
-}
-
-async function createPassword() {
-  const pass1 = document.getElementById('newPassword').value.trim();
-  const pass2 = document.getElementById('newPasswordConfirm').value.trim();
-  const status = document.getElementById('setupStatus');
-
-  if (!pass1 || pass1.length < 4) {
-    status.className = 'status err'; status.textContent = '❌ كلمة المرور يجب ألا تقل عن 4 خانات'; status.classList.remove('hidden'); return;
-  }
-  if (pass1 !== pass2) {
-    status.className = 'status err'; status.textContent = '❌ كلمتا المرور غير متطابقتين'; status.classList.remove('hidden'); return;
-  }
-
-  status.className = 'status info'; status.textContent = '⏳ جاري التنشيط...'; status.classList.remove('hidden');
-
-  try {
-    const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API), {
-      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'register', nationalId: tempUserForSetup, password: pass1 })
-    });
-    const data = await res.json();
-
-    if (data.ok) {
-      currentUser = data.user;
-      localStorage.setItem(LS_USER, JSON.stringify(currentUser));
-      startUserSession();
-    } else {
-      status.className = 'status err'; status.textContent = '❌ ' + data.error; status.classList.remove('hidden');
-    }
-  } catch (err) {
-    status.className = 'status err'; status.textContent = '❌ فشل الاتصال'; status.classList.remove('hidden');
-  }
-}
-
-function startUserSession() {
-  showScreen('guideMode');
-  document.getElementById('guideNameLabel').innerHTML = `${currentUser.room} — <b>${currentUser.name}</b>`;
-  document.getElementById('guideInfoText').innerHTML = `<b>الغرفة:</b> ${currentUser.room}<br><b>الأخصائي:</b> ${currentUser.name}<br><b>الرقم القومي:</b> ${currentUser.nationalId}`;
-  document.getElementById('guideSavedCard').classList.remove('hidden');
-  document.getElementById('date').value = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
-  document.getElementById('date').setAttribute('max', new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' }));
-}
-
-function logout() {
-  localStorage.removeItem(LS_USER);
-  currentUser = null;
-  location.reload();
-}
-
-/* ================== إدارة المدير والأمان ================== */
-function showAdminLogin() {
-  showScreen('adminMode');
-  if (adminAuthPassword) {
-    document.getElementById('adminLoginCard').classList.add('hidden');
-    document.getElementById('adminPanel').classList.remove('hidden');
-    document.getElementById('apiUrl').value = localStorage.getItem(LS_API) || HARDCODED_API;
-    fetchData();
-  } else {
-    document.getElementById('adminLoginCard').classList.remove('hidden');
-    document.getElementById('adminPanel').classList.add('hidden');
-  }
-}
-
-async function loginAdmin() {
-  const input = document.getElementById('adminPass').value.trim();
-  const status = document.getElementById('loginStatusAdmin');
-  
-  if (!input) {
-    status.className = 'status err'; status.textContent = '❌ يرجى إدخال كلمة المرور'; status.classList.remove('hidden'); return;
-  }
-
-  status.className = 'status info'; status.textContent = '⏳ جاري التحقق من الصلاحيات...'; status.classList.remove('hidden');
-
-  try {
-    const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API), {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'adminLogin', adminPass: input })
-    });
-    const data = await res.json();
-
-    if (data.ok) {
-      grantAdminAccess(input);
-    } else if (data.error === 'UNKNOWN_ACTION' && input === DEFAULT_FALLBACK_ADMIN_PASS) {
-      grantAdminAccess(input);
-    } else {
-      status.className = 'status err'; status.textContent = '❌ ' + (data.error || 'كلمة المرور غير صحيحة'); status.classList.remove('hidden');
-    }
-  } catch (err) {
-    if (input === DEFAULT_FALLBACK_ADMIN_PASS) {
-      grantAdminAccess(input);
-    } else {
-      status.className = 'status err'; status.textContent = '❌ فشل الاتصال بالخادم'; status.classList.remove('hidden');
-    }
-  }
-}
-
-function grantAdminAccess(pass) {
-  adminAuthPassword = pass;
-  sessionStorage.setItem('psy_admin_token', pass);
-  document.getElementById('adminLoginCard').classList.add('hidden');
-  document.getElementById('adminPanel').classList.remove('hidden');
-  document.getElementById('apiUrl').value = localStorage.getItem(LS_API) || HARDCODED_API;
-  fetchData();
-}
-
-function logoutAdmin() {
-  adminAuthPassword = '';
-  sessionStorage.removeItem('psy_admin_token');
-  showScreen('loginScreen');
-}
-
-function saveApiUrl() {
-  const url = document.getElementById('apiUrl').value.trim();
-  if (!url.startsWith('https://script.google.com')) { alert('رابط غير صالح'); return; }
-  localStorage.setItem(LS_API, url);
-  alert('✅ تم حفظ الرابط');
-}
-
-async function fetchData() {
-  const status = document.getElementById('fetchStatus'); 
-  status.className = 'status info'; status.textContent = '⏳ جاري تحميل البيانات...'; status.classList.remove('hidden');
-  try {
-    const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API) + '?t=' + Date.now()); 
-    const data = await res.json();
-    if (data.ok) { 
-      adminData = data; 
-      updateStats(); 
-      renderAdminCases(); 
-      status.className = 'status ok'; status.textContent = `✅ تم التحديث (${data.cases.length} جلسة مسجلة)`; 
-    } else {
-      status.className = 'status err'; status.textContent = '❌ ' + data.error;
-    }
-  } catch (err) { 
-    status.className = 'status err'; status.textContent = '❌ فشل تحميل البيانات من الخادم'; 
-  }
-}
-
-/* ================== فلاتر زمنية وإحصائيات المدير المطورة ================== */
-function setDateFilter(type) {
-  const startInput = document.getElementById('filterStartDate');
-  const endInput = document.getElementById('filterEndDate');
-  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
-  
-  if (type === 'all') {
-    startInput.value = '';
-    endInput.value = '';
-  } else if (type === 'today') {
-    startInput.value = today;
-    endInput.value = today;
-  } else if (type === 'this_week') {
-    const now = new Date();
-    const weekAgo = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000);
-    startInput.value = weekAgo.toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
-    endInput.value = today;
-  } else if (type === 'this_month') {
-    const now = new Date();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    startInput.value = firstDay.toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
-    endInput.value = today;
-  }
-  updateStats();
-}
-
-function getFilteredCases() {
-  const start = document.getElementById('filterStartDate') ? document.getElementById('filterStartDate').value : '';
-  const end = document.getElementById('filterEndDate') ? document.getElementById('filterEndDate').value : '';
-  
-  if (!adminData || !adminData.cases) return [];
-  
-  return adminData.cases.filter(c => {
-    const stdDate = toStandardDateStr(c.date);
-    if (!stdDate) return false;
-    if (start && stdDate < start) return false;
-    if (end && stdDate > end) return false;
-    return true;
-  });
-}
-
-function updateStats() {
-  const roomOrder = ['المديرية', 'شرق طنطا', 'غرب طنطا', 'شرق المحلة', 'غرب المحلة', 'زفتى', 'السنطة', 'كفر الزيات', 'سمنود', 'قطور', 'بسيون'];
-  const filteredCases = getFilteredCases();
-  
-  const start = document.getElementById('filterStartDate').value;
-  const end = document.getElementById('filterEndDate').value;
-  const summaryBox = document.getElementById('filterSummaryText');
-  
-  const totalUniqueClients = new Set(filteredCases.map(c => c.id || c.clientName)).size;
-  
-  if (start || end) {
-    summaryBox.textContent = `📌 الفترة المحددة: من (${formatDisplayDate(start) || 'البداية'}) إلى (${formatDisplayDate(end) || 'اليوم'}) — عدد الحالات: ${totalUniqueClients} حالة | إجمالي الجلسات: ${filteredCases.length} جلسة`;
-  } else {
-    summaryBox.textContent = `📌 عرض كل الفترات — إجمالي الحالات: ${totalUniqueClients} حالة مستفيدة | إجمالي الجلسات: ${filteredCases.length} جلسة`;
-  }
-
-  // 1. الإحصائيات العامة (عدد الحالات قبل عدد الجلسات)
-  let generalObj = {}; 
-  filteredCases.forEach(c => { 
-    const key = `${c.room}|${c.service}`; 
-    if (!generalObj[key]) {
-      generalObj[key] = { room: c.room, service: c.service, clients: new Set(), sessionsCount: 0 };
-    }
-    generalObj[key].clients.add(c.id || c.clientName);
-    generalObj[key].sessionsCount++;
-  });
-
-  let generalHtml = `<table>
-    <thead>
-      <tr>
-        <th>الغرفة</th>
-        <th>الخدمة</th>
-        <th>عدد الحالات</th>
-        <th>عدد الجلسات</th>
-      </tr>
-    </thead>
-    <tbody>`; 
-  
-  let totalGeneralSessions = 0;
-  
-  Object.values(generalObj).sort((a, b) => {
-    return roomOrder.indexOf(a.room) - roomOrder.indexOf(b.room);
-  }).forEach(item => { 
-    generalHtml += `<tr>
-      <td>${item.room}</td>
-      <td>${item.service}</td>
-      <td><b>${item.clients.size}</b></td>
-      <td>${item.sessionsCount}</td>
-    </tr>`; 
-    totalGeneralSessions += item.sessionsCount; 
-  });
-  
-  generalHtml += `</tbody>
+generalHtml += `</tbody>
     <tfoot>
       <tr style="background:#d4edda; font-weight:bold;">
         <td colspan="2">الإجمالي العام</td>
@@ -762,7 +63,7 @@ function updateStats() {
   document.getElementById('guideStatsTable').innerHTML = guideHtml;
 }
 
-/* ================== نظام الطباعة الهجين الذكي (كمبيوتر: نافذة مباشرة / موبايل: تحميل PDF) ================== */
+/* ================== نظام الطباعة الهجين الذكي (كمبيوتر: نافذة مباشرة / موبايل: إعادة توجيه للمتصفح بصيغة PDF) ================== */
 function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768);
 }
@@ -795,7 +96,70 @@ function printHtmlDesktop(title, htmlContent) {
   setTimeout(() => { win.print(); }, 400);
 }
 
+function buildStandaloneReportHtml(title, htmlContent) {
+  return `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${title}</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: auto; margin: 14mm 10mm 14mm 10mm; }
+  * { box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
+  body { margin: 0; padding: 14px; color: #2c3e50; background: #fff; }
+  .mobile-bar {
+    position: sticky; top: 0; z-index: 99;
+    background: #1e6f5c; color: #fff; padding: 10px 12px;
+    border-radius: 10px; margin-bottom: 14px;
+    display: flex; gap: 8px; justify-content: space-between; align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  }
+  .mobile-bar span { font-size: 13px; font-weight: 700; }
+  .mobile-bar button {
+    background: #fff; color: #1e6f5c; border: none; border-radius: 8px;
+    padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .print-header { text-align: center; border-bottom: 2px solid #1e6f5c; padding-bottom: 8px; margin-bottom: 12px; }
+  .print-header h1 { color: #1e6f5c; margin: 0; font-size: 20px; }
+  .print-header p { color: #555; margin: 4px 0 0 0; font-size: 13px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+  tr { page-break-inside: avoid; }
+  th, td { border: 1px solid #999; padding: 7px 5px; text-align: center; }
+  th { background: #1e6f5c; color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .client-info-box { background: #f9fbfb; border: 1px solid #d5dbdb; padding: 10px; border-radius: 8px; margin-bottom: 12px; line-height: 1.8; font-size: 14px; text-align: right; }
+  .signature { margin-top: 30px; text-align: left; font-weight: bold; font-size: 14px; padding: 0 10px; }
+  @media print {
+    .mobile-bar { display: none !important; }
+    body { padding: 0; }
+  }
+</style>
+</head>
+<body>
+  <div class="mobile-bar">
+    <span>📄 معاينة التقرير وحفظه PDF</span>
+    <button type="button" onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
+  </div>
+  ${htmlContent}
+</body>
+</html>`;
+}
+
 async function exportReportToPdfMobile(filename, htmlContent) {
+  const fullHtml = buildStandaloneReportHtml(filename, htmlContent);
+  const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+  const blobUrl = URL.createObjectURL(blob);
+
+  // محاولة إعادة التوجيه للمتصفح / فتح نافذة مستقلة لمعاينة الملف وحفظه كـ PDF
+  let openedWin = null;
+  try {
+    openedWin = window.open(blobUrl, '_blank', 'noopener,noreferrer');
+  } catch (e) {
+    openedWin = null;
+  }
+
   const existingToast = document.getElementById('pdfDownloadToast');
   if (existingToast) existingToast.remove();
 
@@ -805,24 +169,38 @@ async function exportReportToPdfMobile(filename, htmlContent) {
 
   const msg = document.createElement('div');
   msg.style.cssText = 'line-height:1.6; font-size:13px;';
-  msg.innerHTML = '📱 حفظ PDF على الموبايل قد لا يعمل بشكل سليم. الأفضل الطباعة/الحفظ من الكمبيوتر.';
+  msg.innerHTML = openedWin
+    ? '🌐 تم فتح التقرير في المتصفح للمعاينة والتحميل للطباعة بصيغة <b>PDF</b>.'
+    : '📱 اضغط على <b>فتح في المتصفح</b> لمعاينة الملف وتحميله للطباعة بصيغة <b>PDF</b>.';
 
   const btnRow = document.createElement('div');
   btnRow.style.cssText = 'display:flex; gap:8px; width:100%; align-items:stretch;';
 
-  const openBtn = document.createElement('button');
-  openBtn.type = 'button';
-  openBtn.textContent = '🖨️ فتح للطباعة';
-  openBtn.style.cssText = 'flex:1; background:#fff;color:#1e6f5c;border:none;padding:10px 12px;border-radius:10px;font-weight:bold;font-size:13px;cursor:pointer;margin:0;width:auto;';
+  const openBtn = document.createElement('a');
+  openBtn.href = blobUrl;
+  openBtn.target = '_blank';
+  openBtn.rel = 'noopener noreferrer';
+  openBtn.textContent = '🌐 فتح في المتصفح (PDF)';
+  openBtn.style.cssText = 'flex:1; background:#fff;color:#1e6f5c;border:none;padding:10px 12px;border-radius:10px;font-weight:bold;font-size:13px;cursor:pointer;margin:0;width:auto;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;';
   openBtn.onclick = () => {
-    printHtmlDesktop(filename, htmlContent);
+    try {
+      const w = window.open(blobUrl, '_blank', 'noopener,noreferrer');
+      if (!w) {
+        window.location.href = blobUrl;
+      }
+    } catch (err) {
+      window.location.href = blobUrl;
+    }
   };
 
   const closeBtn = document.createElement('button');
   closeBtn.type = 'button';
   closeBtn.textContent = 'إغلاق';
   closeBtn.style.cssText = 'background:transparent;color:#fff;border:1px solid rgba(255,255,255,.7);padding:10px 14px;border-radius:10px;font-size:13px;cursor:pointer;width:auto;margin:0;white-space:nowrap;';
-  closeBtn.onclick = () => statusEl.remove();
+  closeBtn.onclick = () => {
+    statusEl.remove();
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+  };
 
   btnRow.append(openBtn, closeBtn);
   statusEl.append(msg, btnRow);
