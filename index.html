@@ -798,8 +798,8 @@ function printHtmlDesktop(title, htmlContent) {
 async function exportReportToPdfMobile(filename, htmlContent) {
   const statusEl = document.createElement('div');
   statusEl.id = 'pdfDownloadToast';
-  statusEl.style.cssText = 'position:fixed; bottom:25px; left:50%; transform:translateX(-50%); background:#1e6f5c; color:#fff; padding:14px 22px; border-radius:30px; font-weight:bold; font-size:15px; box-shadow:0 4px 15px rgba(0,0,0,0.3); z-index:999999; display:flex; align-items:center; gap:8px; text-align:center;';
-  statusEl.innerHTML = '⏳ جاري تجهيز وتحميل ملف الـ PDF...';
+  statusEl.style.cssText = 'position:fixed; bottom:25px; left:50%; transform:translateX(-50%); background:#1e6f5c; color:#fff; padding:14px 22px; border-radius:30px; font-weight:bold; font-size:15px; box-shadow:0 4px 15px rgba(0,0,0,0.3); z-index:999999; display:flex; align-items:center; gap:8px; text-align:center; max-width:92vw;';
+  statusEl.innerHTML = '⏳ جاري تجهيز ملف الـ PDF...';
   document.body.appendChild(statusEl);
 
   let container = document.getElementById('mobilePdfExportContainer');
@@ -840,25 +840,44 @@ async function exportReportToPdfMobile(filename, htmlContent) {
   };
 
   try {
-    if (typeof html2pdf !== 'undefined') {
-      const safeName = opt.filename.toLowerCase().endsWith('.pdf') ? opt.filename : opt.filename + '.pdf';
-      const pdfBlob = await html2pdf().set(opt).from(container).outputPdf('blob');
-      const blob = new Blob([pdfBlob], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = safeName;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
-      statusEl.style.background = '#27ae60';
-      statusEl.innerHTML = '✅ تم تنزيل ملف PDF. افتحه من التنزيلات.';
-      setTimeout(() => { statusEl.remove(); }, 3500);
-    } else {
-      throw new Error('مكتبة PDF لم يتم تحميلها بعد');
+    if (typeof html2pdf === 'undefined') throw new Error('مكتبة PDF لم يتم تحميلها بعد');
+    const safeName = opt.filename.toLowerCase().endsWith('.pdf') ? opt.filename : opt.filename + '.pdf';
+    const pdfBlobRaw = await html2pdf().set(opt).from(container).outputPdf('blob');
+    const pdfBlob = pdfBlobRaw instanceof Blob ? pdfBlobRaw : new Blob([pdfBlobRaw], { type: 'application/pdf' });
+    const pdfFile = new File([pdfBlob], safeName, { type: 'application/pdf' });
+
+    // المسار الأفضل للموبايل: Web Share API يحافظ على الاسم ونوع الملف على أندرويد/سامسونج
+    if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+      try {
+        await navigator.share({ files: [pdfFile], title: safeName });
+        statusEl.style.background = '#27ae60';
+        statusEl.innerHTML = '✅ تم تجهيز ملف PDF. اختر "حفظ" أو تطبيق الملفات لفتحه.';
+        setTimeout(() => { statusEl.remove(); }, 3500);
+        return;
+      } catch (shareErr) {
+        if (shareErr && shareErr.name === 'AbortError') {
+          statusEl.style.background = '#7f8c8d';
+          statusEl.innerHTML = 'تم إلغاء المشاركة.';
+          setTimeout(() => { statusEl.remove(); }, 2000);
+          return;
+        }
+        // في حال فشل المشاركة لسبب آخر، نكمل إلى fallback التحميل
+      }
     }
+
+    const url = URL.createObjectURL(new Blob([pdfBlob], { type: 'application/pdf' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = safeName;
+    a.rel = 'noopener';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    statusEl.style.background = '#27ae60';
+    statusEl.innerHTML = '✅ تم تنزيل ملف PDF. افتحه من التنزيلات.';
+    setTimeout(() => { statusEl.remove(); }, 3500);
   } catch (err) {
     statusEl.style.background = '#e74c3c';
     statusEl.innerHTML = '❌ تعذر إنشاء PDF على الموبايل، جاري فتح التقرير...';
