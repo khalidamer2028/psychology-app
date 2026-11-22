@@ -329,16 +329,47 @@
 <script>
 const LS_USER = 'psy_user_v3';
 const LS_API = 'psy_api_v3';
-const DEFAULT_FALLBACK_ADMIN_PASS = 'khalid@1968';
+const LS_TOKEN = 'psy_token_v3';
+const LS_ROLE = 'psy_role_v3';
 
 /* ⬇️ الرابط المعتمد الخاص بك ⬇️ */
-const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbw08UxTM0wY9zKtTq_9WAgk0Fd8Q8keD1W64I3B8FFyYiVV0o3IOa6CPrzYsZkoh4dB/exec'; 
+const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbx9PlNLPubbdKJJP8rffFSh147_BFCrwShXvuEGTDCX5DbdpglKiRDW-CPEPFsSDWD7/exec';
 
 let currentUser = JSON.parse(localStorage.getItem(LS_USER) || 'null');
 let tempUserForSetup = null;
 let guideCasesGlobal = [];
 let adminData = { cases: [], guides: [] };
-let adminAuthPassword = sessionStorage.getItem('psy_admin_token') || '';
+
+function getAuthToken() { return sessionStorage.getItem(LS_TOKEN) || localStorage.getItem(LS_TOKEN) || ''; }
+function setAuthToken(token) { if (!token) return; sessionStorage.setItem(LS_TOKEN, token); localStorage.setItem(LS_TOKEN, token); }
+function getAuthRole() { return sessionStorage.getItem(LS_ROLE) || localStorage.getItem(LS_ROLE) || ''; }
+function setAuthRole(role) { if (!role) return; sessionStorage.setItem(LS_ROLE, role); localStorage.setItem(LS_ROLE, role); }
+function clearAuth() {
+  sessionStorage.removeItem(LS_TOKEN); localStorage.removeItem(LS_TOKEN);
+  sessionStorage.removeItem(LS_ROLE); localStorage.removeItem(LS_ROLE);
+  sessionStorage.removeItem('psy_admin_token');
+}
+function handleSessionExpired(msg) {
+  clearAuth();
+  localStorage.removeItem(LS_USER);
+  currentUser = null;
+  alert(msg || 'انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى.');
+  location.reload();
+}
+
+async function apiPost(payload) {
+  const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API), {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  if (data && data.error === 'SESSION_EXPIRED') {
+    handleSessionExpired();
+    return { ok: false, expired: true, error: 'SESSION_EXPIRED' };
+  }
+  return data;
+}
 
 /* ================== دعم زر الرجوع في الموبايل ================== */
 let _appHistoryReady = false;
@@ -361,7 +392,7 @@ function pushHistoryState(state) {
 }
 
 function syncAdminView() {
-  if (adminAuthPassword) {
+  if (getAuthRole() === 'admin' && getAuthToken()) {
     document.getElementById('adminLoginCard').classList.add('hidden');
     document.getElementById('adminPanel').classList.remove('hidden');
   } else {
@@ -373,7 +404,7 @@ function syncAdminView() {
 function initAppHistory() {
   if (_appHistoryReady) return;
   _appHistoryReady = true;
-  const initialScreen = currentUser ? 'guideMode' : 'loginScreen';
+  const initialScreen = (currentUser && getAuthToken()) ? 'guideMode' : 'loginScreen';
   try { history.replaceState({ app: 'psy', type: 'screen', screen: initialScreen }, ''); } catch (e) {}
 
   window.addEventListener('popstate', function(e) {
@@ -401,7 +432,7 @@ function initAppHistory() {
       return;
     }
     if (modalOpen || casesOpen) return;
-    _showScreenInternal(currentUser ? 'guideMode' : 'loginScreen');
+    _showScreenInternal((currentUser && getAuthToken()) ? 'guideMode' : 'loginScreen');
   });
 }
 
@@ -531,15 +562,13 @@ async function loginUser() {
   status.className = 'status info'; status.textContent = '⏳ جاري التحقق...'; status.classList.remove('hidden');
 
   try {
-    const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API), {
-      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'login', nationalId, password })
-    });
-    const data = await res.json();
-
+    const data = await apiPost({ action: 'login', nationalId, password });
+    if (data.expired) return;
     if (data.ok) {
       currentUser = data.user;
       localStorage.setItem(LS_USER, JSON.stringify(currentUser));
+      setAuthToken(data.token);
+      setAuthRole('guide');
       startUserSession();
     } else if (data.error === 'NEW_ACCOUNT') {
       tempUserForSetup = nationalId;
@@ -567,18 +596,16 @@ async function createPassword() {
   status.className = 'status info'; status.textContent = '⏳ جاري التنشيط...'; status.classList.remove('hidden');
 
   try {
-    const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API), {
-      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'register', nationalId: tempUserForSetup, password: pass1 })
-    });
-    const data = await res.json();
-
+    const data = await apiPost({ action: 'register', nationalId: tempUserForSetup, password: pass1 });
+    if (data.expired) return;
     if (data.ok) {
       currentUser = data.user;
       localStorage.setItem(LS_USER, JSON.stringify(currentUser));
+      setAuthToken(data.token);
+      setAuthRole('guide');
       startUserSession();
     } else {
-      status.className = 'status err'; status.textContent = '❌ ' + data.error; status.classList.remove('hidden');
+      status.className = 'status err'; status.textContent = '❌ ' + (data.error || 'فشل التفعيل'); status.classList.remove('hidden');
     }
   } catch (err) {
     status.className = 'status err'; status.textContent = '❌ فشل الاتصال'; status.classList.remove('hidden');
@@ -595,15 +622,20 @@ function startUserSession() {
 }
 
 function logout() {
+  const token = getAuthToken();
+  clearAuth();
   localStorage.removeItem(LS_USER);
   currentUser = null;
-  location.reload();
+  fetch((localStorage.getItem(LS_API) || HARDCODED_API), {
+    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'logout', token })
+  }).finally(() => location.reload());
 }
 
 /* ================== إدارة المدير والأمان ================== */
 function showAdminLogin() {
   showScreen('adminMode');
-  if (adminAuthPassword) {
+  if (getAuthRole() === 'admin' && getAuthToken()) {
     document.getElementById('adminLoginCard').classList.add('hidden');
     document.getElementById('adminPanel').classList.remove('hidden');
     document.getElementById('apiUrl').value = localStorage.getItem(LS_API) || HARDCODED_API;
@@ -625,42 +657,30 @@ async function loginAdmin() {
   status.className = 'status info'; status.textContent = '⏳ جاري التحقق من الصلاحيات...'; status.classList.remove('hidden');
 
   try {
-    const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API), {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'adminLogin', adminPass: input })
-    });
-    const data = await res.json();
-
+    const data = await apiPost({ action: 'adminLogin', adminPass: input });
+    if (data.expired) return;
     if (data.ok) {
-      grantAdminAccess(input);
-    } else if (data.error === 'UNKNOWN_ACTION' && input === DEFAULT_FALLBACK_ADMIN_PASS) {
-      grantAdminAccess(input);
+      setAuthToken(data.token);
+      setAuthRole('admin');
+      document.getElementById('adminLoginCard').classList.add('hidden');
+      document.getElementById('adminPanel').classList.remove('hidden');
+      document.getElementById('apiUrl').value = localStorage.getItem(LS_API) || HARDCODED_API;
+      fetchData();
     } else {
       status.className = 'status err'; status.textContent = '❌ ' + (data.error || 'كلمة المرور غير صحيحة'); status.classList.remove('hidden');
     }
   } catch (err) {
-    if (input === DEFAULT_FALLBACK_ADMIN_PASS) {
-      grantAdminAccess(input);
-    } else {
-      status.className = 'status err'; status.textContent = '❌ فشل الاتصال بالخادم'; status.classList.remove('hidden');
-    }
+    status.className = 'status err'; status.textContent = '❌ فشل الاتصال بالخادم'; status.classList.remove('hidden');
   }
 }
 
-function grantAdminAccess(pass) {
-  adminAuthPassword = pass;
-  sessionStorage.setItem('psy_admin_token', pass);
-  document.getElementById('adminLoginCard').classList.add('hidden');
-  document.getElementById('adminPanel').classList.remove('hidden');
-  document.getElementById('apiUrl').value = localStorage.getItem(LS_API) || HARDCODED_API;
-  fetchData();
-}
-
 function logoutAdmin() {
-  adminAuthPassword = '';
-  sessionStorage.removeItem('psy_admin_token');
-  showScreen('loginScreen');
+  const token = getAuthToken();
+  clearAuth();
+  fetch((localStorage.getItem(LS_API) || HARDCODED_API), {
+    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'logout', token })
+  }).finally(() => showScreen('loginScreen'));
 }
 
 function saveApiUrl() {
@@ -674,15 +694,15 @@ async function fetchData() {
   const status = document.getElementById('fetchStatus'); 
   status.className = 'status info'; status.textContent = '⏳ جاري تحميل البيانات...'; status.classList.remove('hidden');
   try {
-    const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API) + '?t=' + Date.now()); 
-    const data = await res.json();
+    const data = await apiPost({ action: 'getData', token: getAuthToken() });
+    if (data.expired) return;
     if (data.ok) { 
-      adminData = data; 
+      adminData = { cases: data.cases || [], guides: data.guides || [] }; 
       updateStats(); 
       renderAdminCases(); 
-      status.className = 'status ok'; status.textContent = `✅ تم التحديث (${data.cases.length} جلسة مسجلة)`; 
+      status.className = 'status ok'; status.textContent = `✅ تم التحديث (${adminData.cases.length} جلسة مسجلة)`; 
     } else {
-      status.className = 'status err'; status.textContent = '❌ ' + data.error;
+      status.className = 'status err'; status.textContent = '❌ ' + (data.error || 'فشل تحميل البيانات');
     }
   } catch (err) { 
     status.className = 'status err'; status.textContent = '❌ فشل تحميل البيانات من الخادم'; 
@@ -1149,24 +1169,20 @@ function renderAdminCases() {
 async function deleteSingleCase(id, rowIndex) { 
   if (!confirm('هل أنت متأكد من حذف هذه الجلسة بعينها نهائياً؟')) return; 
   try { 
-    await fetch((localStorage.getItem(LS_API) || HARDCODED_API), { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-      body: JSON.stringify({ action: 'deleteCase', caseId: id, rowIndex: rowIndex, adminPass: adminAuthPassword }) 
-    }); 
-    fetchData(); 
+    const data = await apiPost({ action: 'deleteCase', token: getAuthToken(), caseId: id, rowIndex: rowIndex }); 
+    if (data.expired) return;
+    if (data.ok) fetchData();
+    else alert('❌ ' + (data.error || 'حدث خطأ أثناء الحذف'));
   } catch (err) { alert('حدث خطأ أثناء الحذف'); } 
 }
 
 async function deleteAllCases() { 
   if (!confirm('⚠️ تحذير شديد: هل أنت متأكد من حذف كافة الحالات من قاعدة البيانات بالكامل؟')) return; 
   try { 
-    await fetch((localStorage.getItem(LS_API) || HARDCODED_API), { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-      body: JSON.stringify({ action: 'deleteAllCases', adminPass: adminAuthPassword }) 
-    }); 
-    fetchData(); 
+    const data = await apiPost({ action: 'deleteAllCases', token: getAuthToken() }); 
+    if (data.expired) return;
+    if (data.ok) fetchData();
+    else alert('❌ ' + (data.error || 'حدث خطأ أثناء مسح البيانات'));
   } catch (err) { alert('حدث خطأ أثناء مسح البيانات'); } 
 }
 
@@ -1340,17 +1356,14 @@ async function addCase() {
   const actionType = editMode ? 'updateCase' : 'addCase';
   
   try {
-    const res = await fetch((localStorage.getItem(LS_API) || HARDCODED_API), {
-      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ 
-        action: actionType, 
-        caseId: editMode ? existingCaseId : null,
-        rowIndex: editMode ? editRowIndex : null,
-        nationalId: currentUser.nationalId, guideName: currentUser.name, room: currentUser.room, 
-        clientName, service, date, attachments, existingCaseId 
-      })
+    const data = await apiPost({ 
+      action: actionType, 
+      token: getAuthToken(),
+      caseId: editMode ? existingCaseId : null,
+      rowIndex: editMode ? editRowIndex : null,
+      clientName, service, date, attachments, existingCaseId 
     });
-    const data = await res.json();
+    if (data.expired) return;
     if (data.ok) {
       status.className = 'status ok'; status.textContent = editMode ? '✅ تم تحديث بيانات الجلسة بنجاح' : '✅ تم حفظ الجلسة بنجاح';
       codeDisplay.innerHTML = `كود الملف: <br><span style="font-size:24px; font-weight:bold;">${data.caseCode}</span>`; 
@@ -1359,12 +1372,12 @@ async function addCase() {
       cancelEdit();
       if (!document.getElementById('myCasesCard').classList.contains('hidden')) showMyCases();
     } else { 
-      status.className = 'status err'; status.textContent = '❌ ' + data.error; 
+      status.className = 'status err'; status.textContent = '❌ ' + (data.error || 'تعذر الحفظ'); 
     }
   } catch (err) { 
     status.className = 'status err'; status.textContent = '❌ تعذر إرسال البيانات للخادم'; 
   } finally { 
-    btn.disabled = false; 
+    btn.disabled = false; btn.textContent = '💾 حفظ';
   }
 }
 
@@ -1379,11 +1392,11 @@ function showMyCases(fromHistory) {
   }
   list.innerHTML = '<p class="empty">⏳ جاري تحميل سجل الحالات والجلسات...</p>';
   
-  fetch((localStorage.getItem(LS_API) || HARDCODED_API) + '?t=' + Date.now())
-  .then(res => res.json())
+  apiPost({ action: 'getData', token: getAuthToken() })
   .then(data => {
+    if (data.expired) return;
     if (data.ok) {
-      guideCasesGlobal = (data.cases || []).filter(c => String(c.nationalId) === String(currentUser.nationalId));
+      guideCasesGlobal = data.cases || [];
       if (guideCasesGlobal.length === 0) { 
         list.innerHTML = '<p class="empty">لا توجد حالات أو جلسات مسجلة لك حتى الآن</p>'; 
         return; 
@@ -1452,6 +1465,8 @@ function showMyCases(fromHistory) {
           </div>
         `;
       }).join('');
+    } else {
+      list.innerHTML = '<p class="empty" style="color:var(--d);">❌ ' + (data.error || 'تعذر تحميل الجلسات') + '</p>';
     }
   }).catch(() => {
     list.innerHTML = '<p class="empty" style="color:var(--d);">❌ حدث خطأ أثناء جلب الجلسات</p>';
@@ -1461,9 +1476,10 @@ function showMyCases(fromHistory) {
 /* ================== تشغيل التطبيق ================== */
 window.onload = () => {
   initAppHistory();
-  if (currentUser) {
+  if (currentUser && getAuthToken() && getAuthRole() === 'guide') {
     startUserSession();
   } else {
+    if (currentUser && !getAuthToken()) { localStorage.removeItem(LS_USER); currentUser = null; }
     showScreen('loginScreen');
   }
 };
