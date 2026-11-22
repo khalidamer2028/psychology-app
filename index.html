@@ -231,7 +231,7 @@
     </select>
     <label>التاريخ</label><input type="date" id="date">
     
-    <label id="filesLabel">المرفقات <span style="color:#c0392b;">*إجباري</span></label>
+    <label id="filesLabel">المرفقات <span style="color:#c0392b;">*إجباري</span> <span style="color:#7f8c8d; font-size:13px;">(حد 10MB لكل ملف)</span></label>
     <input type="file" id="files" accept="image/*,application/pdf" multiple>
     
     <button onclick="addCase()" id="saveCaseBtn">💾 حفظ</button>
@@ -333,7 +333,7 @@ const LS_TOKEN = 'psy_token_v3';
 const LS_ROLE = 'psy_role_v3';
 
 /* ⬇️ الرابط المعتمد الخاص بك ⬇️ */
-const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbx9PlNLPubbdKJJP8rffFSh147_BFCrwShXvuEGTDCX5DbdpglKiRDW-CPEPFsSDWD7/exec';
+const HARDCODED_API = 'https://script.google.com/macros/s/AKfycbxRpyjEf3-5pF10qRWc0B3M-P1Aes6EUjmUnDUL8IAFMah7F9JyEl9RB0A-q0RQMruq/exec';
 
 let currentUser = JSON.parse(localStorage.getItem(LS_USER) || 'null');
 let tempUserForSetup = null;
@@ -448,23 +448,35 @@ function closeMyCasesPanel() {
 }
 
 /* ================== دوال معاينة المرفقات بأمان وتفادي خطأ 500 ================== */
+function getDriveFileId(url) {
+  if (!url) return '';
+  const s = String(url);
+  const m = s.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)
+    || s.match(/[?&]id=([a-zA-Z0-9_-]+)/)
+    || s.match(/lh3\.googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : '';
+}
+
 function getBestAttachmentUrl(url) {
   if (!url) return '';
   if (url.includes('googleusercontent.com')) return url;
-  const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m && m[1]) {
-    return `https://lh3.googleusercontent.com/d/${m[1]}=w1200`;
-  }
-  return url;
+  const id = getDriveFileId(url);
+  if (id) return `https://lh3.googleusercontent.com/d/${id}=w1200`;
+  return String(url);
 }
 
 function getDrivePreviewUrl(url) {
   if (!url) return '';
-  const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m && m[1]) {
-    return `https://drive.google.com/file/d/${m[1]}/preview`;
-  }
-  return url;
+  const id = getDriveFileId(url);
+  if (id) return `https://drive.google.com/file/d/${id}/preview`;
+  return String(url);
+}
+
+function getDriveViewUrl(url) {
+  if (!url) return '';
+  const id = getDriveFileId(url);
+  if (id) return `https://drive.google.com/file/d/${id}/view`;
+  return String(url);
 }
 
 function openAttachmentModal(rawUrl, title) {
@@ -472,21 +484,32 @@ function openAttachmentModal(rawUrl, title) {
   const modalBody = document.getElementById('modalBody');
   const modalTitle = document.getElementById('modalTitle');
   const directLink = document.getElementById('modalDirectLink');
-  
+
   modalTitle.textContent = title || '📎 معاينة المرفق';
-  
-  const cdnUrl = getBestAttachmentUrl(rawUrl);
+
+  const fileId = getDriveFileId(rawUrl);
   const previewUrl = getDrivePreviewUrl(rawUrl);
-  
-  directLink.href = cdnUrl;
-  
-  modalBody.innerHTML = `
-    <div style="text-align:center; padding:10px; width:100%;">
-      <div id="modalLoading" style="color:var(--p); font-size:14px; margin-bottom:10px;">⏳ جاري تحميل المرفق...</div>
-      <img src="${cdnUrl}" alt="مرفق" style="max-width:100%; max-height:70vh; object-fit:contain; border-radius:6px; box-shadow:0 2px 10px rgba(0,0,0,0.15);" onload="document.getElementById('modalLoading').style.display='none'" onerror="handleModalImgError(this, '${previewUrl}')">
-    </div>
-  `;
-  
+  const viewUrl = getDriveViewUrl(rawUrl);
+  const cdnUrl = getBestAttachmentUrl(rawUrl);
+
+  // مهم: رابط lh3 يعرض الصفحة الأولى فقط من PDF، لذلك نستخدم Drive view/preview
+  directLink.href = viewUrl || rawUrl || cdnUrl;
+
+  if (fileId) {
+    modalBody.innerHTML = `
+      <div style="text-align:center; padding:10px; width:100%;">
+        <iframe src="${previewUrl}" style="width:100%; height:70vh; border:1px solid #ccc; border-radius:8px; background:#fff;" allow="autoplay"></iframe>
+      </div>
+    `;
+  } else {
+    modalBody.innerHTML = `
+      <div style="text-align:center; padding:10px; width:100%;">
+        <div id="modalLoading" style="color:var(--p); font-size:14px; margin-bottom:10px;">⏳ جاري تحميل المرفق...</div>
+        <img src="${cdnUrl}" alt="مرفق" style="max-width:100%; max-height:70vh; object-fit:contain; border-radius:6px; box-shadow:0 2px 10px rgba(0,0,0,0.15);" onload="document.getElementById('modalLoading').style.display='none'" onerror="handleModalImgError(this, '${String(previewUrl || rawUrl || '').replace(/'/g, "\\'")}')">
+      </div>
+    `;
+  }
+
   modal.classList.remove('hidden');
   pushHistoryState({ type: 'modal', name: 'attachment' });
 }
@@ -872,6 +895,67 @@ function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768);
 }
 
+function printHtmlInPage(title, htmlContent) {
+  if (typeof window.print !== 'function') {
+    alert('الطباعة غير مدعومة داخل هذا التطبيق. يرجى فتح الرابط من متصفح الموبايل مثل Chrome أو Samsung Internet.');
+    return;
+  }
+  const oldTitle = document.title;
+  document.title = title || oldTitle;
+  const prevArea = document.getElementById('printArea');
+  if (prevArea) prevArea.remove();
+  const prevStyle = document.getElementById('printAreaStyle');
+  if (prevStyle) prevStyle.remove();
+
+  const area = document.createElement('div');
+  area.id = 'printArea';
+  area.innerHTML = htmlContent;
+  document.body.appendChild(area);
+
+  const st = document.createElement('style');
+  st.id = 'printAreaStyle';
+  st.textContent = `
+    #printArea { display: none; }
+    @media print {
+      body > *:not(#printArea) { display: none !important; }
+      body { background: #fff !important; padding: 0 !important; margin: 0 !important; }
+      #printArea { display: block !important; direction: rtl; font-family: 'Tajawal', sans-serif; padding: 10px; color: #2c3e50; background: #fff; }
+      #printArea .print-header { text-align: center; border-bottom: 2px solid #1e6f5c; padding-bottom: 8px; margin-bottom: 12px; }
+      #printArea .print-header h1 { color: #1e6f5c; margin: 0; font-size: 22px; }
+      #printArea .print-header p { color: #555; margin: 4px 0 0 0; font-size: 14px; }
+      #printArea table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+      #printArea thead { display: table-header-group; }
+      #printArea tfoot { display: table-row-group; }
+      #printArea tr { page-break-inside: avoid; }
+      #printArea th, #printArea td { border: 1px solid #999; padding: 8px; text-align: center; }
+      #printArea th { background: #1e6f5c; color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      #printArea .client-info-box { background: #f9fbfb; border: 1px solid #d5dbdb; padding: 12px; border-radius: 8px; margin-bottom: 15px; line-height: 1.9; font-size: 15px; text-align: right; }
+      #printArea .signature { margin-top: 40px; text-align: left; font-weight: bold; font-size: 15px; padding: 0 20px; }
+      @page { size: auto; margin: 15mm 12mm 15mm 12mm; }
+    }
+  `;
+  document.head.appendChild(st);
+
+  let cleaned = false;
+  const cleanup = () => {
+    if (cleaned) return;
+    cleaned = true;
+    document.title = oldTitle;
+    try { area.remove(); } catch (_) {}
+    try { st.remove(); } catch (_) {}
+    window.removeEventListener('afterprint', cleanup);
+  };
+  window.addEventListener('afterprint', cleanup);
+  setTimeout(() => {
+    try { window.print(); } catch (e) {
+      cleanup();
+      alert('الطباعة غير مدعومة داخل هذا التطبيق. يرجى فتح الرابط من متصفح الموبايل مثل Chrome أو Samsung Internet.');
+      return;
+    }
+    setTimeout(cleanup, 60000);
+  }, 500);
+}
+
 function printHtmlDesktop(title, htmlContent) {
   const html = `
     <html dir="rtl"><head><title>${title}</title>
@@ -893,36 +977,21 @@ function printHtmlDesktop(title, htmlContent) {
     </style>
     </head><body>${htmlContent}</body></html>`;
 
-  const win = window.open('', '_blank');
-  if (win) {
-    try {
-      win.document.open();
-      win.document.write(html);
-      win.document.close();
-      setTimeout(() => { try { win.focus(); win.print(); } catch (e) {} }, 600);
-      return;
-    } catch (e) {
-      try { win.close(); } catch (_) {}
+  if (!isMobileDevice()) {
+    const win = window.open('', '_blank');
+    if (win) {
+      try {
+        win.document.open();
+        win.document.write(html);
+        win.document.close();
+        setTimeout(() => { try { win.focus(); win.print(); } catch (e) {} }, 600);
+        return;
+      } catch (e) {
+        try { win.close(); } catch (_) {}
+      }
     }
   }
-
-  // Fallback لتطبيقات/WebView تمنع window.open
-  const frame = document.createElement('iframe');
-  frame.style.cssText = 'position:fixed; right:0; bottom:0; width:0; height:0; border:0; opacity:0; pointer-events:none;';
-  document.body.appendChild(frame);
-  const doc = frame.contentDocument || frame.contentWindow.document;
-  doc.open();
-  doc.write(html);
-  doc.close();
-  setTimeout(() => {
-    try {
-      frame.contentWindow.focus();
-      frame.contentWindow.print();
-    } catch (e) {
-      alert('الطباعة غير مدعومة داخل هذا التطبيق. يرجى فتح الرابط من متصفح الموبايل مثل Chrome أو Samsung Internet.');
-    }
-    setTimeout(() => { try { frame.remove(); } catch (_) {} }, 2000);
-  }, 700);
+  printHtmlInPage(title, htmlContent);
 }
 
 async function exportReportToPdfMobile(filename, htmlContent) {
@@ -1027,12 +1096,16 @@ function printSingleClientReport(caseId) {
             <p>التاريخ: ${formatDisplayDate(s.date)} | الخدمة: ${s.service}</p>
           </div>
           <div style="display:flex; flex-direction:column; gap:20px; align-items:center; margin-top:15px;">
-            ${s.attachments.map((a, aIdx) => `
-              <div style="text-align:center; width:100%;">
-                <p style="font-weight:bold; margin-bottom:5px; color:#555;">${a.name || 'مرفق ' + (aIdx + 1)}</p>
-                <img src="${getBestAttachmentUrl(a.data) || a.viewUrl || a.data}" style="max-width:95%; max-height:750px; border:1px solid #ccc; border-radius:8px;" alt="مرفق">
-              </div>
-            `).join('')}
+            ${s.attachments.map((a, aIdx) => {
+              const id = getDriveFileId(a.data);
+              const preview = getDrivePreviewUrl(a.data);
+              const view = getDriveViewUrl(a.data);
+              const body = id
+                ? `<iframe src="${preview}" style="width:95%; height:700px; border:1px solid #ccc; border-radius:8px; background:#fff;"></iframe>
+                   <div style="margin-top:6px;"><a href="${view}" target="_blank" style="color:#1e6f5c; font-weight:bold; text-decoration:none;">فتح المرفق كاملًا</a></div>`
+                : `<img src="${getBestAttachmentUrl(a.data) || a.viewUrl || a.data}" style="max-width:95%; max-height:750px; border:1px solid #ccc; border-radius:8px;" alt="مرفق">`;
+              return `<div style="text-align:center; width:100%;"><p style="font-weight:bold; margin-bottom:5px; color:#555;">${a.name || 'مرفق ' + (aIdx + 1)}</p>${body}</div>`;
+            }).join('')}
           </div>
         </div>
       `;
@@ -1151,8 +1224,8 @@ function renderAdminCases() {
       const attaches = s.attachments || [];
       let attachButtonsHtml = attaches.length > 0 
         ? attaches.map((a, i) => {
-            let safeUrl = (a.data || '').replace(/'/g, "\\'");
-            let safeName = (a.name || ('مرفق ' + (i+1))).replace(/'/g, "\\'");
+            let safeUrl = String(a.data || '').replace(/'/g, "\\'");
+            let safeName = String(a.name || ('مرفق ' + (i+1))).replace(/'/g, "\\'");
             return `<a href="javascript:void(0)" onclick="openAttachmentModal('${safeUrl}', '${safeName}')" class="attach-link">📎 مرفق ${attaches.length > 1 ? (i+1) : ''}</a>`;
           }).join(' ')
         : `<span class="no-attach-btn">بدون مرفق</span>`;
@@ -1239,7 +1312,7 @@ function addNewSessionForClient(caseId, clientName) {
   document.getElementById('files').value = '';
   document.getElementById('date').value = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
   
-  document.getElementById('filesLabel').innerHTML = 'المرفقات <span style="color:#c0392b;">*إجباري</span>';
+  document.getElementById('filesLabel').innerHTML = 'المرفقات <span style="color:#c0392b;">*إجباري</span> <span style="color:#7f8c8d; font-size:13px;">(حد 10MB لكل ملف)</span>';
   document.getElementById('formTitle').innerHTML = `📝 إضافة جلسة للعميل: <br><span style="color:var(--p); font-size:16px;">${clientName} (كود الملف: ${caseId})</span>`;
   document.getElementById('saveCaseBtn').textContent = '💾 حفظ الجلسة الجديدة';
   document.getElementById('cancelEditBtn').classList.remove('hidden');
@@ -1262,7 +1335,7 @@ function searchPatient() {
     resultsBox.innerHTML = '<p style="color:#e74c3c; font-size:14px; margin-top:10px;">لم يتم العثور على عميل سابق بهذا الاسم.</p>';
     return;
   }
-  resultsBox.innerHTML = clients.map(c => `<div class="search-result" onclick="addNewSessionForClient('${c.id}', '${c.clientName.replace(/'/g, "\\'")}')"><b>الاسم:</b> ${c.clientName} <br><b>كود الملف:</b> ${c.id} <br><span style="color:var(--s); font-size:13px; font-weight:bold;">🤝 اضغط هنا لإضافة جلسة</span></div>`).join('');
+  resultsBox.innerHTML = clients.map(c => `<div class="search-result" onclick="addNewSessionForClient('${c.id}', '${String(c.clientName).replace(/'/g, "\\'")}')"><b>الاسم:</b> ${c.clientName} <br><b>كود الملف:</b> ${c.id} <br><span style="color:var(--s); font-size:13px; font-weight:bold;">🤝 اضغط هنا لإضافة جلسة</span></div>`).join('');
 }
 
 function editCase(caseId, rowIndex) {
@@ -1282,7 +1355,7 @@ function editCase(caseId, rowIndex) {
   document.getElementById('editRowIndex').value = s.rowIndex;
   document.getElementById('editMode').value = 'true';
   
-  document.getElementById('filesLabel').innerHTML = 'المرفقات <span style="color:#7f8c8d; font-size:13px;">(اختياري - اتركه فارغاً للاحتفاظ بالمرفقات القديمة)</span>';
+  document.getElementById('filesLabel').innerHTML = 'المرفقات <span style="color:#7f8c8d; font-size:13px;">(اختياري - اتركه فارغاً للاحتفاظ بالمرفقات القديمة، حد 10MB لكل ملف)</span>';
   document.getElementById('files').value = '';
   
   document.getElementById('formTitle').innerHTML = `✏️ تعديل بيانات الجلسة: <br><span style="color:var(--p); font-size:15px;">${s.clientName} (${formatDisplayDate(s.date)})</span>`;
@@ -1309,7 +1382,7 @@ function cancelEdit() {
   
   document.getElementById('service').value = '';
   document.getElementById('files').value = '';
-  document.getElementById('filesLabel').innerHTML = 'المرفقات <span style="color:#c0392b;">*إجباري</span>';
+  document.getElementById('filesLabel').innerHTML = 'المرفقات <span style="color:#c0392b;">*إجباري</span> <span style="color:#7f8c8d; font-size:13px;">(حد 10MB لكل ملف)</span>';
   document.getElementById('existingCaseId').value = '';
   document.getElementById('editRowIndex').value = '';
   document.getElementById('editMode').value = 'false';
@@ -1390,7 +1463,11 @@ async function addCase() {
     });
     if (data.expired) return;
     if (data.ok) {
-      status.className = 'status ok'; status.textContent = editMode ? '✅ تم تحديث بيانات الجلسة بنجاح' : '✅ تم حفظ الجلسة بنجاح';
+      const skippedMsg = (data.skipped && data.skipped.length)
+        ? `<br><span style="color:#856404;">⚠️ لم يتم حفظ بعض المرفقات: ${data.skipped.map(s => String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;')).join('، ')}</span>`
+        : '';
+      status.className = 'status ok';
+      status.innerHTML = (editMode ? '✅ تم تحديث بيانات الجلسة بنجاح' : '✅ تم حفظ الجلسة بنجاح') + skippedMsg;
       codeDisplay.innerHTML = `كود الملف: <br><span style="font-size:24px; font-weight:bold;">${data.caseCode}</span>`; 
       codeDisplay.classList.remove('hidden');
       
@@ -1441,14 +1518,14 @@ function showMyCases(fromHistory) {
       });
 
       list.innerHTML = Object.values(clientGroups).map(group => {
-        let safeClientName = group.clientName.replace(/'/g, "\\'");
+        let safeClientName = String(group.clientName).replace(/'/g, "\\'");
         
         let sessionsHtml = group.sessions.map((s, idx) => {
           const attaches = s.attachments || [];
           let attachButtonsHtml = attaches.length > 0 
             ? attaches.map((a, i) => {
-                let safeUrl = (a.data || '').replace(/'/g, "\\'");
-                let safeName = (a.name || ('مرفق ' + (i+1))).replace(/'/g, "\\'");
+                let safeUrl = String(a.data || '').replace(/'/g, "\\'");
+                let safeName = String(a.name || ('مرفق ' + (i+1))).replace(/'/g, "\\'");
                 return `<a href="javascript:void(0)" onclick="openAttachmentModal('${safeUrl}', '${safeName}')" class="attach-link">📎 مرفق ${attaches.length > 1 ? (i+1) : ''}</a>`;
               }).join(' ')
             : `<span class="no-attach-btn">بدون مرفق</span>`;
