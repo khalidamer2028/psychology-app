@@ -873,8 +873,7 @@ function isMobileDevice() {
 }
 
 function printHtmlDesktop(title, htmlContent) {
-  const win = window.open('', '', 'width=900,height=700');
-  win.document.write(`
+  const html = `
     <html dir="rtl"><head><title>${title}</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -892,12 +891,38 @@ function printHtmlDesktop(title, htmlContent) {
       .client-info-box { background:#f9fbfb; border:1px solid #d5dbdb; padding:12px; border-radius:8px; margin-bottom:15px; line-height:1.9; font-size:15px; text-align:right; }
       .signature { margin-top:40px; text-align:left; font-weight:bold; font-size:15px; padding:0 20px; }
     </style>
-    </head><body>
-      ${htmlContent}
-    </body></html>
-  `);
-  win.document.close();
-  setTimeout(() => { win.print(); }, 400);
+    </head><body>${htmlContent}</body></html>`;
+
+  const win = window.open('', '_blank');
+  if (win) {
+    try {
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+      setTimeout(() => { try { win.focus(); win.print(); } catch (e) {} }, 600);
+      return;
+    } catch (e) {
+      try { win.close(); } catch (_) {}
+    }
+  }
+
+  // Fallback لتطبيقات/WebView تمنع window.open
+  const frame = document.createElement('iframe');
+  frame.style.cssText = 'position:fixed; right:0; bottom:0; width:0; height:0; border:0; opacity:0; pointer-events:none;';
+  document.body.appendChild(frame);
+  const doc = frame.contentDocument || frame.contentWindow.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+  setTimeout(() => {
+    try {
+      frame.contentWindow.focus();
+      frame.contentWindow.print();
+    } catch (e) {
+      alert('الطباعة غير مدعومة داخل هذا التطبيق. يرجى فتح الرابط من متصفح الموبايل مثل Chrome أو Samsung Internet.');
+    }
+    setTimeout(() => { try { frame.remove(); } catch (_) {} }, 2000);
+  }, 700);
 }
 
 async function exportReportToPdfMobile(filename, htmlContent) {
